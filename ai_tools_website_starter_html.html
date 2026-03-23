@@ -1,0 +1,161 @@
+// 🚀 NEXT-LEVEL UI + CLEAN BLOG DESIGN
+
+const express = require('express');
+const bodyParser = require('body-parser');
+const fs = require('fs');
+
+const app = express();
+const PORT = 3000;
+
+app.use(bodyParser.urlencoded({ extended: true }));
+
+const DATA_FILE = 'posts.json';
+if (!fs.existsSync(DATA_FILE)) fs.writeFileSync(DATA_FILE, '[]');
+
+function getPosts() {
+  return JSON.parse(fs.readFileSync(DATA_FILE));
+}
+
+function savePosts(posts) {
+  fs.writeFileSync(DATA_FILE, JSON.stringify(posts, null, 2));
+}
+
+// 🌐 HOME PAGE (MODERN UI)
+app.get('/', (req, res) => {
+  const posts = getPosts().reverse();
+
+  let html = `
+  <html>
+  <head>
+    <title>AI Tools Hub</title>
+    <style>
+      body {margin:0; font-family: 'Segoe UI', sans-serif; background:#0f172a; color:#fff;}
+      header {padding:30px; text-align:center; background:linear-gradient(135deg,#1e3a8a,#2563eb);} 
+      header h1 {margin:0; font-size:32px;}
+      header p {opacity:0.9;}
+
+      .container {max-width:1100px; margin:auto; padding:20px;}
+
+      .grid {display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:20px;}
+
+      .card {
+        background:#1e293b;
+        padding:20px;
+        border-radius:15px;
+        box-shadow:0 8px 20px rgba(0,0,0,0.3);
+        transition:0.3s;
+      }
+
+      .card:hover {transform:translateY(-5px);}
+
+      .card h2 {margin-top:0; color:#38bdf8;}
+
+      .btn {
+        display:inline-block;
+        margin-top:10px;
+        padding:8px 14px;
+        background:#2563eb;
+        border-radius:8px;
+        color:#fff;
+        text-decoration:none;
+      }
+
+      .topbar {
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        padding:15px 20px;
+        background:#020617;
+      }
+
+      .topbar a {
+        color:#38bdf8;
+        text-decoration:none;
+        font-weight:bold;
+      }
+
+    </style>
+  </head>
+  <body>
+
+  <div class="topbar">
+    <div>🚀 AI Tools Hub</div>
+    <a href='/admin'>Admin Panel</a>
+  </div>
+
+  <header>
+    <h1>Discover AI Tools & Make Money</h1>
+    <p>Latest tools, apps & earning strategies</p>
+  </header>
+
+  <div class="container">
+    <div class="grid">
+  `;
+
+  posts.forEach(p => {
+    html += `
+      <div class="card">
+        <h2>${p.title}</h2>
+        <p>${p.content.substring(0,150)}...</p>
+        <a class="btn">Read More</a>
+      </div>
+    `;
+  });
+
+  html += `
+    </div>
+  </div>
+
+  </body>
+  </html>
+  `;
+
+  res.send(html);
+});
+
+// 🧠 ADMIN PANEL (MODERN)
+app.get('/admin', (req, res) => {
+  res.send(`
+    <html>
+    <head>
+      <style>
+        body {font-family: 'Segoe UI'; background:#0f172a; color:white; display:flex; justify-content:center; align-items:center; height:100vh;}
+        form {background:#1e293b; padding:25px; border-radius:12px; width:400px;}
+        input, textarea {width:100%; padding:10px; margin:10px 0; border:none; border-radius:6px;}
+        button {width:100%; padding:10px; background:#2563eb; color:white; border:none; border-radius:6px;}
+      </style>
+    </head>
+    <body>
+      <form method='POST' action='/add'>
+        <h2>➕ New Post</h2>
+        <input name='title' placeholder='Title' required/>
+        <textarea name='content' rows='6' placeholder='Content' required></textarea>
+        <button type='submit'>Publish</button>
+      </form>
+    </body>
+    </html>
+  `);
+});
+
+// ADD POST
+app.post('/add', (req, res) => {
+  const posts = getPosts();
+  posts.push({ title: req.body.title, content: req.body.content });
+  savePosts(posts);
+  res.redirect('/');
+});
+
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+
+
+// 🔥 NEW UI FEATURES:
+// ✅ Dark modern design
+// ✅ Card layout with hover
+// ✅ Responsive grid
+// ✅ Clean admin panel
+// ✅ Better readability
+
+// NEXT UPGRADE:
+// - Full article page
+// - Images in posts
+// - SEO optimization
