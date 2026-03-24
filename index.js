@@ -269,6 +269,10 @@ app.post("/add-event", (req, res) => {
   res.redirect("/events");
 });
 
+app.get("/check", (req, res) => {
+  res.send("NEW CODE WORKING");
+});
+
 // START SERVER
 app.listen(PORT, () => {
   console.log("🚀 Server running on port " + PORT);
