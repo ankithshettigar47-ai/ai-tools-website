@@ -30,6 +30,8 @@ app.get("/", (req, res) => {
   res.send(`
   <html>
   <head>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3320175178558120"
+     crossorigin="anonymous"></script>
     <title>Dashboard</title>
     <style>
       body {
@@ -109,22 +111,60 @@ app.get("/events", (req, res) => {
   <a href="/admin-events">➕ Add Event</a>
   `;
 
-  events.forEach((e, i) => {
+  eevents.forEach((e, i) => {
   html += `
     <div class="box">
       <h2>${e.name}</h2>
       <p><b>Team:</b> ${e.team}</p>
-      ${e.updated ? `<p style="color:yellow;">🆕 Updated</p>` : ""}
-
-      <a href="/edit-event/${i}">✏️ Edit</a> |
-      <a href="/delete-event/${i}">❌ Delete</a>
     </div>
   `;
+
+  // 🔥 SHOW AD AFTER EVERY 2 EVENTS
+  if (i % 2 === 1) {
+    html += `
+      <ins class="adsbygoogle"
+           style="display:block; margin:20px 0;"
+           data-ad-client="ca-pub-3320175178558120"
+           data-ad-slot="1234567890"
+           data-ad-format="auto"></ins>
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    `;
+  }
 });
 
   html += "</body></html>";
 
   res.send(html);
+});
+
+app.get("/ai-tools", (req, res) => {
+  res.send(`
+    <h1>🔥 Best Free AI Tools 2026</h1>
+
+    <p>1. ChatGPT - Best AI chatbot</p>
+    <a href="#">Try Now</a>
+
+    <p>2. Canva AI - Design tools</p>
+    <a href="#">Try Now</a>
+
+    <p>3. Remove.bg - Image background remover</p>
+    <a href="#">Try Now</a>
+
+    <hr>
+
+    <!-- Ad -->
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3320175178558120"
+         data-ad-slot="1234567890"
+         data-ad-format="auto"></ins>
+
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  `);
 });
 
 // ❌ DELETE EVENT
