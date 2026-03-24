@@ -181,8 +181,6 @@ app.get("/admin", (req, res) => {
   res.send(html);
 });
 
-console.log("🔥 NEW VERSION DEPLOYED");
-
 // ADD POST
 app.post("/add", upload.single("image"), (req, res) => {
   const posts = loadPosts();
@@ -207,29 +205,57 @@ app.post("/delete/:index", (req, res) => {
   res.redirect("/admin");
 });
 
+// 📦 EVENTS PAGE (BOX UI)
+app.get("/events", (req, res) => {
+  const events = loadEvents();
+
+  let html = `
+  <html>
+  <head>
+    <title>Events</title>
+    <style>
+      body { font-family: Arial; background:#0f172a; color:white; padding:20px; }
+      .box {
+        background:#1e293b;
+        padding:15px;
+        margin:15px 0;
+        border-radius:10px;
+      }
+      .tag { color:yellow; font-size:12px; }
+      a { color:lightblue; }
+    </style>
+  </head>
+  <body>
+
+    <h1>📦 Events</h1>
+    <a href="/admin-events">➕ Add Event</a>
+  `;
+
+  events.forEach(e => {
+    html += `
+      <div class="box">
+        <h2>${e.name}</h2>
+        <p><b>Team:</b> ${e.team}</p>
+        ${e.updated ? `<p class="tag">🆕 Updated</p>` : ""}
+      </div>
+    `;
+  });
+
+  html += "</body></html>";
+  res.send(html);
+});
+
+
+// ➕ ADMIN EVENTS PAGE
 app.get("/admin-events", (req, res) => {
   res.send(`
     <html>
     <head>
-      <title>Admin Events</title>
+      <title>Add Event</title>
       <style>
-        body {
-          font-family: Arial;
-          background:#0f172a;
-          color:white;
-          padding:20px;
-        }
-        input, button {
-          padding:10px;
-          margin:10px 0;
-          width:100%;
-        }
-        button {
-          background:#22c55e;
-          border:none;
-          color:white;
-          cursor:pointer;
-        }
+        body { font-family: Arial; padding:20px; background:#0f172a; color:white; }
+        input, button { width:100%; padding:10px; margin:10px 0; }
+        button { background:#22c55e; border:none; color:white; }
       </style>
     </head>
 
@@ -238,7 +264,6 @@ app.get("/admin-events", (req, res) => {
 
       <form action="/add-event" method="post">
         <input name="name" placeholder="Event Name" required />
-        
         <input name="team" placeholder="Team Members (comma separated)" required />
 
         <label>
@@ -249,13 +274,14 @@ app.get("/admin-events", (req, res) => {
         <button type="submit">Create Event</button>
       </form>
 
-      <br><br>
-      <a href="/events" style="color:lightblue;">📦 View Events</a>
+      <a href="/events">📦 View Events</a>
     </body>
     </html>
   `);
 });
 
+
+// 💾 SAVE EVENT
 app.post("/add-event", (req, res) => {
   const events = loadEvents();
 
