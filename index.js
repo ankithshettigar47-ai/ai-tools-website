@@ -1,38 +1,18 @@
 const express = require("express");
-const fs = require("fs");
-const multer = require("multer");
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 🔥 IMPORTANT (form data)
-app.use(express.urlencoded({ extended: true }));
-
-// Serve uploads
-app.use("/uploads", express.static("uploads"));
-
-// -------------------- FILES --------------------
-const DATA_FILE = "posts.json";
-const EVENT_FILE = "events.json";
-
-// -------------------- LOAD/SAVE --------------------
-function loadEvents() {
-  if (!fs.existsSync(EVENT_FILE)) return [];
-  return JSON.parse(fs.readFileSync(EVENT_FILE));
-}
-
-function saveEvents(events) {
-  fs.writeFileSync(EVENT_FILE, JSON.stringify(events, null, 2));
-}
-
-// -------------------- HOME --------------------
+// ---------------- HOME ----------------
 app.get("/", (req, res) => {
   res.send(`
   <html>
   <head>
+    <title>AI Tools Hub</title>
+
+    <!-- AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3320175178558120"
      crossorigin="anonymous"></script>
-    <title>Dashboard</title>
+
     <style>
       body {
         margin:0;
@@ -51,15 +31,20 @@ app.get("/", (req, res) => {
         margin:0 10px;
         text-decoration:none;
       }
-      .hero {
-        text-align:center;
-        padding:50px;
+      .container {
+        padding:20px;
+      }
+      .card {
+        background:#1e293b;
+        padding:20px;
+        margin:15px 0;
+        border-radius:10px;
       }
       .btn {
-        padding:12px 20px;
         background:#22c55e;
-        color:white;
+        padding:8px 12px;
         text-decoration:none;
+        color:white;
         border-radius:5px;
       }
     </style>
@@ -68,17 +53,27 @@ app.get("/", (req, res) => {
   <body>
 
     <div class="nav">
-      <div>🚀 AI Dashboard</div>
+      <div>🤖 AI Tools Hub</div>
       <div>
-        <a href="/events">Events</a>
-        <a href="/admin-events">Add Event</a>
+        <a href="/tools">AI Tools</a>
+        <a href="/shortcuts">Shortcuts</a>
       </div>
     </div>
 
-    <div class="hero">
-      <h1>Welcome to Your System</h1>
-      <p>Manage events, teams & content</p>
-      <a class="btn" href="/events">View Events</a>
+    <div class="container">
+      <h1>🔥 Best AI Tools & Shortcuts</h1>
+
+      <div class="card">
+        <h2>🚀 Explore AI Tools</h2>
+        <p>Find best tools for productivity, design & coding</p>
+        <a class="btn" href="/tools">View Tools</a>
+      </div>
+
+      <div class="card">
+        <h2>⌨️ Learn Shortcuts</h2>
+        <p>Boost speed using keyboard shortcuts</p>
+        <a class="btn" href="/shortcuts">View Shortcuts</a>
+      </div>
     </div>
 
   </body>
@@ -86,79 +81,46 @@ app.get("/", (req, res) => {
   `);
 });
 
-// -------------------- EVENTS PAGE --------------------
-app.get("/events", (req, res) => {
-  const events = loadEvents();
 
-  let html = `
+// ---------------- AI TOOLS PAGE ----------------
+app.get("/tools", (req, res) => {
+  res.send(`
   <html>
   <head>
+    <title>AI Tools</title>
+
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3320175178558120"
-      crossorigin="anonymous"></script>
-    <title>Events</title>
+     crossorigin="anonymous"></script>
+
     <style>
       body { font-family: Arial; background:#0f172a; color:white; padding:20px; }
-      .box {
-        background:#1e293b;
-        padding:15px;
-        margin:15px 0;
-        border-radius:10px;
-      }
-      a { color:lightblue; }
+      .card { background:#1e293b; padding:15px; margin:15px 0; border-radius:10px; }
+      a { color:#22c55e; }
     </style>
   </head>
+
   <body>
+    <h1>🤖 Best AI Tools</h1>
 
-  <h1>📦 Events</h1>
-  <a href="/admin-events">➕ Add Event</a>
-  `;
-
-  events.forEach((e, i) => {
-  html += `
-    <div class="box">
-      <h2>${e.name}</h2>
-      <p><b>Team:</b> ${e.team}</p>
-
-      <a href="/edit-event/${i}">✏️ Edit</a> |
-      <a href="/delete-event/${i}">❌ Delete</a>
+    <div class="card">
+      <h2>ChatGPT</h2>
+      <p>AI chatbot for writing, coding & answers</p>
+      <a href="https://chat.openai.com" target="_blank">Visit</a>
     </div>
-  `;
 
-  if (i % 2 === 1) {
-    html += `
-      <ins class="adsbygoogle"
-           style="display:block; margin:20px 0;"
-           data-ad-client="ca-pub-3320175178558120"
-           data-ad-slot="1811439645"
-           data-ad-format="auto"></ins>
-      <script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
-      </script>
-    `;
-  }
-});
+    <div class="card">
+      <h2>Canva AI</h2>
+      <p>Create designs with AI easily</p>
+      <a href="https://www.canva.com" target="_blank">Visit</a>
+    </div>
 
-  html += "</body></html>";
+    <div class="card">
+      <h2>Remove.bg</h2>
+      <p>Remove image background instantly</p>
+      <a href="https://www.remove.bg" target="_blank">Visit</a>
+    </div>
 
-  res.send(html);
-});
-
-app.get("/ai-tools", (req, res) => {
-  res.send(`
-    <h1>🔥 Best Free AI Tools 2026</h1>
-
-    <p>1. ChatGPT - Best AI chatbot</p>
-    <a href="#">Try Now</a>
-
-    <p>2. Canva AI - Design tools</p>
-    <a href="#">Try Now</a>
-
-    <p>3. Remove.bg - Image background remover</p>
-    <a href="#">Try Now</a>
-
-    <hr>
-
-    <!-- MAINAD1 -->
+    <!-- Ad -->
     <ins class="adsbygoogle"
          style="display:block"
          data-ad-client="ca-pub-3320175178558120"
@@ -168,106 +130,64 @@ app.get("/ai-tools", (req, res) => {
     <script>
       (adsbygoogle = window.adsbygoogle || []).push({});
     </script>
+
+  </body>
+  </html>
   `);
 });
 
-// ❌ DELETE EVENT
-app.get("/delete-event/:index", (req, res) => {
-  const events = loadEvents();
-  events.splice(req.params.index, 1);
-  saveEvents(events);
-  res.redirect("/events");
-});
 
-// ✏️ EDIT PAGE
-app.get("/edit-event/:index", (req, res) => {
-  const events = loadEvents();
-  const e = events[req.params.index];
-
+// ---------------- SHORTCUTS PAGE ----------------
+app.get("/shortcuts", (req, res) => {
   res.send(`
-    <h1>Edit Event</h1>
-    <form action="/update-event/${req.params.index}" method="post">
-      <input name="name" value="${e.name}" required />
-      <input name="team" value="${e.team}" required />
-      <label>
-        <input type="checkbox" name="updated" ${e.updated ? "checked" : ""} />
-        Updated
-      </label>
-      <button>Update</button>
-    </form>
+  <html>
+  <head>
+    <title>Shortcuts</title>
+
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3320175178558120"
+     crossorigin="anonymous"></script>
+
+    <style>
+      body { font-family: Arial; background:#0f172a; color:white; padding:20px; }
+      .card { background:#1e293b; padding:15px; margin:15px 0; border-radius:10px; }
+    </style>
+  </head>
+
+  <body>
+    <h1>⌨️ Keyboard Shortcuts</h1>
+
+    <div class="card">
+      <h3>Windows Shortcuts</h3>
+      <p>Copy → Ctrl + C</p>
+      <p>Paste → Ctrl + V</p>
+      <p>Undo → Ctrl + Z</p>
+    </div>
+
+    <div class="card">
+      <h3>VS Code Shortcuts</h3>
+      <p>Command Palette → Ctrl + Shift + P</p>
+      <p>New File → Ctrl + N</p>
+      <p>Search → Ctrl + F</p>
+    </div>
+
+    <!-- Ad -->
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3320175178558120"
+         data-ad-slot="1811439645"
+         data-ad-format="auto"></ins>
+
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+
+  </body>
+  </html>
   `);
 });
 
-app.post("/update-event/:index", (req, res) => {
-  const events = loadEvents();
 
-  events[req.params.index] = {
-    name: req.body.name,
-    team: req.body.team,
-    updated: req.body.updated ? true : false
-  };
-
-  saveEvents(events);
-  res.redirect("/events");
-});
-
-// -------------------- ADMIN PAGE --------------------
-app.get("/admin-events", (req, res) => {
-  res.send(`
-    <html>
-    <head>
-      <title>Add Event</title>
-      <style>
-        body { font-family: Arial; padding:20px; background:#0f172a; color:white; }
-        input, button { width:100%; padding:10px; margin:10px 0; }
-        button { background:#22c55e; border:none; color:white; }
-      </style>
-    </head>
-
-    <body>
-      <h1>➕ Add Event</h1>
-
-      <form action="/add-event" method="post">
-        <input name="name" placeholder="Event Name" required />
-        <input name="team" placeholder="Team Members (comma separated)" required />
-
-        <label>
-          <input type="checkbox" name="updated" />
-          Mark as Updated
-        </label>
-
-        <button type="submit">Create Event</button>
-      </form>
-
-      <br>
-      <a href="/events">📦 View Events</a>
-    </body>
-    </html>
-  `);
-});
-
-// -------------------- SAVE EVENT --------------------
-app.post("/add-event", (req, res) => {
-  const events = loadEvents();
-
-  const newEvent = {
-    name: req.body.name,
-    team: req.body.team,
-    updated: req.body.updated ? true : false
-  };
-
-  events.push(newEvent);
-  saveEvents(events);
-
-  res.redirect("/events");
-});
-
-// -------------------- DEBUG --------------------
-app.get("/check", (req, res) => {
-  res.send("✅ NEW CODE WORKING");
-});
-
-// -------------------- START --------------------
+// ---------------- START ----------------
 app.listen(PORT, () => {
   console.log("🚀 Server running on port " + PORT);
 });
