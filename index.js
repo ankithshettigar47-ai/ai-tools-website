@@ -28,9 +28,59 @@ function saveEvents(events) {
 // -------------------- HOME --------------------
 app.get("/", (req, res) => {
   res.send(`
-    <h1>🚀 AI Tools Website</h1>
-    <a href="/events">📦 Events</a><br><br>
-    <a href="/admin-events">➕ Add Event</a>
+  <html>
+  <head>
+    <title>Dashboard</title>
+    <style>
+      body {
+        margin:0;
+        font-family: Arial;
+        background:#020617;
+        color:white;
+      }
+      .nav {
+        background:#0f172a;
+        padding:15px;
+        display:flex;
+        justify-content:space-between;
+      }
+      .nav a {
+        color:white;
+        margin:0 10px;
+        text-decoration:none;
+      }
+      .hero {
+        text-align:center;
+        padding:50px;
+      }
+      .btn {
+        padding:12px 20px;
+        background:#22c55e;
+        color:white;
+        text-decoration:none;
+        border-radius:5px;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <div class="nav">
+      <div>🚀 AI Dashboard</div>
+      <div>
+        <a href="/events">Events</a>
+        <a href="/admin-events">Add Event</a>
+      </div>
+    </div>
+
+    <div class="hero">
+      <h1>Welcome to Your System</h1>
+      <p>Manage events, teams & content</p>
+      <a class="btn" href="/events">View Events</a>
+    </div>
+
+  </body>
+  </html>
   `);
 });
 
@@ -59,19 +109,62 @@ app.get("/events", (req, res) => {
   <a href="/admin-events">➕ Add Event</a>
   `;
 
-  events.forEach(e => {
-    html += `
-      <div class="box">
-        <h2>${e.name}</h2>
-        <p><b>Team:</b> ${e.team}</p>
-        ${e.updated ? `<p style="color:yellow;">🆕 Updated</p>` : ""}
-      </div>
-    `;
-  });
+  events.forEach((e, i) => {
+  html += `
+    <div class="box">
+      <h2>${e.name}</h2>
+      <p><b>Team:</b> ${e.team}</p>
+      ${e.updated ? `<p style="color:yellow;">🆕 Updated</p>` : ""}
+
+      <a href="/edit-event/${i}">✏️ Edit</a> |
+      <a href="/delete-event/${i}">❌ Delete</a>
+    </div>
+  `;
+});
 
   html += "</body></html>";
 
   res.send(html);
+});
+
+// ❌ DELETE EVENT
+app.get("/delete-event/:index", (req, res) => {
+  const events = loadEvents();
+  events.splice(req.params.index, 1);
+  saveEvents(events);
+  res.redirect("/events");
+});
+
+// ✏️ EDIT PAGE
+app.get("/edit-event/:index", (req, res) => {
+  const events = loadEvents();
+  const e = events[req.params.index];
+
+  res.send(`
+    <h1>Edit Event</h1>
+    <form action="/update-event/${req.params.index}" method="post">
+      <input name="name" value="${e.name}" required />
+      <input name="team" value="${e.team}" required />
+      <label>
+        <input type="checkbox" name="updated" ${e.updated ? "checked" : ""} />
+        Updated
+      </label>
+      <button>Update</button>
+    </form>
+  `);
+});
+
+app.post("/update-event/:index", (req, res) => {
+  const events = loadEvents();
+
+  events[req.params.index] = {
+    name: req.body.name,
+    team: req.body.team,
+    updated: req.body.updated ? true : false
+  };
+
+  saveEvents(events);
+  res.redirect("/events");
 });
 
 // -------------------- ADMIN PAGE --------------------
