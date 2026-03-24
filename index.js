@@ -4,16 +4,6 @@ const multer = require("multer");
 const bodyParser = require("body-parser");
 
 const app = express();
-const EVENT_FILE = "events.json";
-
-function loadEvents() {
-  if (!fs.existsSync(EVENT_FILE)) return [];
-  return JSON.parse(fs.readFileSync(EVENT_FILE));
-}
-
-function saveEvents(events) {
-  fs.writeFileSync(EVENT_FILE, JSON.stringify(events, null, 2));
-}
 const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.urlencoded({ extended: true }));
