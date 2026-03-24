@@ -93,6 +93,8 @@ app.get("/events", (req, res) => {
   let html = `
   <html>
   <head>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3320175178558120"
+      crossorigin="anonymous"></script>
     <title>Events</title>
     <style>
       body { font-family: Arial; background:#0f172a; color:white; padding:20px; }
@@ -111,21 +113,23 @@ app.get("/events", (req, res) => {
   <a href="/admin-events">➕ Add Event</a>
   `;
 
-  eevents.forEach((e, i) => {
+  events.forEach((e, i) => {
   html += `
     <div class="box">
       <h2>${e.name}</h2>
       <p><b>Team:</b> ${e.team}</p>
+
+      <a href="/edit-event/${i}">✏️ Edit</a> |
+      <a href="/delete-event/${i}">❌ Delete</a>
     </div>
   `;
 
-  // 🔥 SHOW AD AFTER EVERY 2 EVENTS
   if (i % 2 === 1) {
     html += `
       <ins class="adsbygoogle"
            style="display:block; margin:20px 0;"
            data-ad-client="ca-pub-3320175178558120"
-           data-ad-slot="1234567890"
+           data-ad-slot="1811439645"
            data-ad-format="auto"></ins>
       <script>
         (adsbygoogle = window.adsbygoogle || []).push({});
@@ -154,11 +158,11 @@ app.get("/ai-tools", (req, res) => {
 
     <hr>
 
-    <!-- Ad -->
+    <!-- MAINAD1 -->
     <ins class="adsbygoogle"
          style="display:block"
          data-ad-client="ca-pub-3320175178558120"
-         data-ad-slot="1234567890"
+         data-ad-slot="1811439645"
          data-ad-format="auto"></ins>
 
     <script>
