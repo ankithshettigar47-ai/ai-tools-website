@@ -125,7 +125,8 @@ app.get("/tools", (req, res) => {
          style="display:block"
          data-ad-client="ca-pub-3320175178558120"
          data-ad-slot="1811439645"
-         data-ad-format="auto"></ins>
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
 
     <script>
       (adsbygoogle = window.adsbygoogle || []).push({});
@@ -175,7 +176,8 @@ app.get("/shortcuts", (req, res) => {
          style="display:block"
          data-ad-client="ca-pub-3320175178558120"
          data-ad-slot="1811439645"
-         data-ad-format="auto"></ins>
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
 
     <script>
       (adsbygoogle = window.adsbygoogle || []).push({});
