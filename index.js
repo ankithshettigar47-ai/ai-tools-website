@@ -205,6 +205,55 @@ app.post("/delete/:index", (req, res) => {
   res.redirect("/admin");
 });
 
+app.get("/admin-events", (req, res) => {
+  res.send(`
+    <html>
+    <head>
+      <title>Admin Events</title>
+      <style>
+        body {
+          font-family: Arial;
+          background:#0f172a;
+          color:white;
+          padding:20px;
+        }
+        input, button {
+          padding:10px;
+          margin:10px 0;
+          width:100%;
+        }
+        button {
+          background:#22c55e;
+          border:none;
+          color:white;
+          cursor:pointer;
+        }
+      </style>
+    </head>
+
+    <body>
+      <h1>➕ Add Event</h1>
+
+      <form action="/add-event" method="post">
+        <input name="name" placeholder="Event Name" required />
+        
+        <input name="team" placeholder="Team Members (comma separated)" required />
+
+        <label>
+          <input type="checkbox" name="updated" />
+          Mark as Updated
+        </label>
+
+        <button type="submit">Create Event</button>
+      </form>
+
+      <br><br>
+      <a href="/events" style="color:lightblue;">📦 View Events</a>
+    </body>
+    </html>
+  `);
+});
+
 // START SERVER
 app.listen(PORT, () => {
   console.log("🚀 Server running on port " + PORT);
