@@ -181,6 +181,8 @@ app.get("/admin", (req, res) => {
   res.send(html);
 });
 
+console.log("🔥 NEW VERSION DEPLOYED");
+
 // ADD POST
 app.post("/add", upload.single("image"), (req, res) => {
   const posts = loadPosts();
