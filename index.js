@@ -254,6 +254,21 @@ app.get("/admin-events", (req, res) => {
   `);
 });
 
+app.post("/add-event", (req, res) => {
+  const events = loadEvents();
+
+  const newEvent = {
+    name: req.body.name,
+    team: req.body.team,
+    updated: req.body.updated ? true : false
+  };
+
+  events.push(newEvent);
+  saveEvents(events);
+
+  res.redirect("/events");
+});
+
 // START SERVER
 app.listen(PORT, () => {
   console.log("🚀 Server running on port " + PORT);
