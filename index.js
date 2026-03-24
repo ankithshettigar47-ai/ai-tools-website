@@ -1,58 +1,96 @@
 const express = require("express");
 const fs = require("fs");
-const path = require("path");
 const multer = require("multer");
 const bodyParser = require("body-parser");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.use("/uploads", express.static("uploads"));
 
-// File storage setup
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/");
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
+  destination: (req, file, cb) => cb(null, "uploads/"),
+  filename: (req, file, cb) =>
+    cb(null, Date.now() + "-" + file.originalname),
 });
+const upload = multer({ storage });
 
-const upload = multer({ storage: storage });
-
-// Load posts
 const DATA_FILE = "posts.json";
 
-function loadPosts() {
+const loadPosts = () => {
   if (!fs.existsSync(DATA_FILE)) return [];
   return JSON.parse(fs.readFileSync(DATA_FILE));
-}
+};
 
-function savePosts(posts) {
+const savePosts = (posts) => {
   fs.writeFileSync(DATA_FILE, JSON.stringify(posts, null, 2));
-}
+};
 
-// HOME PAGE
+// HOME PAGE (PREMIUM UI)
 app.get("/", (req, res) => {
   const posts = loadPosts();
 
   let html = `
   <html>
   <head>
-    <title>AI Tools Blog</title>
+    <title>AI Tools Hub</title>
+    <meta name="description" content="Best AI tools, apps & reviews">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Google AdSense Placeholder -->
+    <!-- REPLACE WITH YOUR ADSENSE CODE -->
+    
     <style>
-      body { font-family: Arial; padding: 20px; background:#f5f5f5; }
-      .card { background:white; padding:15px; margin:15px 0; border-radius:10px; }
-      img { max-width:100%; border-radius:10px; }
+      body {
+        margin:0;
+        font-family: 'Segoe UI', sans-serif;
+        background:#0f172a;
+        color:white;
+      }
+      header {
+        background:#020617;
+        padding:20px;
+        text-align:center;
+        font-size:24px;
+        font-weight:bold;
+      }
+      .container {
+        max-width:900px;
+        margin:auto;
+        padding:20px;
+      }
+      .card {
+        background:#1e293b;
+        padding:20px;
+        margin:20px 0;
+        border-radius:15px;
+        box-shadow:0 0 15px rgba(0,0,0,0.5);
+      }
+      .card img {
+        width:100%;
+        border-radius:10px;
+      }
+      .card h2 {
+        margin:10px 0;
+      }
+      .btn {
+        background:#38bdf8;
+        padding:10px 15px;
+        border:none;
+        border-radius:8px;
+        cursor:pointer;
+      }
+      a { color:#38bdf8; text-decoration:none; }
     </style>
   </head>
   <body>
-    <h1>🔥 AI Tools Blog</h1>
-    <a href="/admin">Admin Panel</a>
+
+    <header>🚀 AI Tools Hub</header>
+
+    <div class="container">
+      <a href="/admin">⚙ Admin Panel</a>
   `;
 
   posts.reverse().forEach(post => {
@@ -61,42 +99,65 @@ app.get("/", (req, res) => {
         <h2>${post.title}</h2>
         ${post.image ? `<img src="${post.image}" />` : ""}
         <p>${post.content}</p>
+
+        <!-- AdSense Ad Slot -->
+        <div style="margin-top:20px; background:#0f172a; padding:10px;">
+          🔥 Ad Space (Add AdSense Here)
+        </div>
       </div>
     `;
   });
 
-  html += "</body></html>";
+  html += `
+    </div>
+  </body>
+  </html>
+  `;
+
   res.send(html);
 });
 
-// ADMIN PAGE
+// ADMIN PANEL (CLEAN UI)
 app.get("/admin", (req, res) => {
   const posts = loadPosts();
 
   let html = `
   <html>
   <head>
-    <title>Admin</title>
+    <title>Admin Panel</title>
+    <style>
+      body { font-family:Arial; padding:20px; }
+      input, textarea {
+        width:100%; padding:10px; margin:5px 0;
+      }
+      button {
+        padding:10px 15px;
+        background:black;
+        color:white;
+        border:none;
+      }
+    </style>
   </head>
   <body>
-    <h1>Admin Panel</h1>
+
+    <h1>⚙ Admin Panel</h1>
 
     <form action="/add" method="post" enctype="multipart/form-data">
-      <input name="title" placeholder="Title" required /><br><br>
-      <textarea name="content" placeholder="Content" required></textarea><br><br>
-      <input type="file" name="image" /><br><br>
+      <input name="title" placeholder="Post Title" required />
+      <textarea name="content" placeholder="Post Content" required></textarea>
+      <input type="file" name="image" />
       <button type="submit">Add Post</button>
     </form>
 
     <h2>All Posts</h2>
   `;
 
-  posts.forEach((post, index) => {
+  posts.forEach((post, i) => {
     html += `
       <div>
-        <b>${post.title}</b>
-        <form action="/delete/${index}" method="post" style="display:inline;">
-          <button type="submit">Delete</button>
+        ${post.title}
+        <form action="/delete/${i}" method="post">
+          <button>Delete</button>
         </form>
       </div>
     `;
@@ -122,16 +183,12 @@ app.post("/add", upload.single("image"), (req, res) => {
   res.redirect("/");
 });
 
-// DELETE POST
+// DELETE
 app.post("/delete/:index", (req, res) => {
-  let posts = loadPosts();
+  const posts = loadPosts();
   posts.splice(req.params.index, 1);
   savePosts(posts);
-
   res.redirect("/admin");
 });
 
-// START SERVER
-app.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
-});
+app.listen(PORT, () => console.log("Server running 🚀"));
