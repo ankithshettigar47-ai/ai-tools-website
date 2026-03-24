@@ -10,6 +10,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.use("/uploads", express.static("uploads"));
 
+// Image Upload Setup
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "uploads/"),
   filename: (req, file, cb) =>
@@ -17,6 +18,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+// Data file
 const DATA_FILE = "posts.json";
 
 const loadPosts = () => {
@@ -28,7 +30,7 @@ const savePosts = (posts) => {
   fs.writeFileSync(DATA_FILE, JSON.stringify(posts, null, 2));
 };
 
-// HOME PAGE (PREMIUM UI)
+// HOME PAGE
 app.get("/", (req, res) => {
   const posts = loadPosts();
 
@@ -39,9 +41,10 @@ app.get("/", (req, res) => {
     <meta name="description" content="Best AI tools, apps & reviews">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Google AdSense Placeholder -->
-    <!-- REPLACE WITH YOUR ADSENSE CODE -->
-    
+    <!-- AdSense Script -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3320175178558120"
+     crossorigin="anonymous"></script>
+
     <style>
       body {
         margin:0;
@@ -53,7 +56,7 @@ app.get("/", (req, res) => {
         background:#020617;
         padding:20px;
         text-align:center;
-        font-size:24px;
+        font-size:28px;
         font-weight:bold;
       }
       .container {
@@ -75,18 +78,19 @@ app.get("/", (req, res) => {
       .card h2 {
         margin:10px 0;
       }
-      .btn {
-        background:#38bdf8;
-        padding:10px 15px;
-        border:none;
-        border-radius:8px;
-        cursor:pointer;
+      .ad {
+        margin-top:20px;
+        padding:10px;
+        background:#0f172a;
       }
-      a { color:#38bdf8; text-decoration:none; }
+      a {
+        color:#38bdf8;
+        text-decoration:none;
+      }
     </style>
   </head>
-  <body>
 
+  <body>
     <header>🚀 AI Tools Hub</header>
 
     <div class="container">
@@ -100,9 +104,17 @@ app.get("/", (req, res) => {
         ${post.image ? `<img src="${post.image}" />` : ""}
         <p>${post.content}</p>
 
-        <!-- AdSense Ad Slot -->
-        <div style="margin-top:20px; background:#0f172a; padding:10px;">
-          🔥 Ad Space (Add AdSense Here)
+        <!-- AdSense Ad -->
+        <div class="ad">
+          <ins class="adsbygoogle"
+               style="display:block"
+               data-ad-client="ca-pub-3320175178558120"
+               data-ad-slot="1234567890"
+               data-ad-format="auto"
+               data-full-width-responsive="true"></ins>
+          <script>
+               (adsbygoogle = window.adsbygoogle || []).push({});
+          </script>
         </div>
       </div>
     `;
@@ -117,7 +129,7 @@ app.get("/", (req, res) => {
   res.send(html);
 });
 
-// ADMIN PANEL (CLEAN UI)
+// ADMIN PAGE
 app.get("/admin", (req, res) => {
   const posts = loadPosts();
 
@@ -128,7 +140,9 @@ app.get("/admin", (req, res) => {
     <style>
       body { font-family:Arial; padding:20px; }
       input, textarea {
-        width:100%; padding:10px; margin:5px 0;
+        width:100%;
+        padding:10px;
+        margin:5px 0;
       }
       button {
         padding:10px 15px;
@@ -138,8 +152,8 @@ app.get("/admin", (req, res) => {
       }
     </style>
   </head>
-  <body>
 
+  <body>
     <h1>⚙ Admin Panel</h1>
 
     <form action="/add" method="post" enctype="multipart/form-data">
@@ -183,7 +197,7 @@ app.post("/add", upload.single("image"), (req, res) => {
   res.redirect("/");
 });
 
-// DELETE
+// DELETE POST
 app.post("/delete/:index", (req, res) => {
   const posts = loadPosts();
   posts.splice(req.params.index, 1);
@@ -191,4 +205,7 @@ app.post("/delete/:index", (req, res) => {
   res.redirect("/admin");
 });
 
-app.listen(PORT, () => console.log("Server running 🚀"));
+// START SERVER
+app.listen(PORT, () => {
+  console.log("🚀 Server running on port " + PORT);
+});
