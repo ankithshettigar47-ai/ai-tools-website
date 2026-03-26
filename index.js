@@ -616,7 +616,7 @@ function page({
       </div>
     </footer>
     <script>
-      ${ADSENSE_CLIENT ? "(adsbygoogle = window.adsbygoogle || []).push({});" : ""}
+      ${ADSENSE_CLIENT ? "document.querySelectorAll('.adsbygoogle').forEach((ad)=>{try{(adsbygoogle = window.adsbygoogle || []).push({});}catch(error){console.error('AdSense render failed', error, ad);}});" : ""}
       const savedKey = "career-question-bank-saved";
       const isLoggedIn = ${authLinks.includes("Logout") ? "true" : "false"};
       function readSaved(){try{return JSON.parse(localStorage.getItem(savedKey)||"[]");}catch(error){return [];}}
