@@ -8,6 +8,8 @@ const questionBank = JSON.parse(
   fs.readFileSync(path.join(__dirname, "posts.json"), "utf8")
 );
 
+app.use("/public", express.static(path.join(__dirname, "public")));
+
 function escapeHtml(value = "") {
   return String(value)
     .replace(/&/g, "&amp;")
@@ -23,7 +25,10 @@ function allQuestions() {
       ...item,
       categorySlug: category.slug,
       categoryTitle: category.title,
-      categorySummary: category.summary
+      categorySummary: category.summary,
+      categoryKind: category.kind || "topic",
+      companyName: category.companyName || "",
+      companyLogo: category.logo || ""
     }))
   );
 }
@@ -47,15 +52,38 @@ function searchQuestions(searchTerm, categorySlug) {
       !query ||
       item.question.toLowerCase().includes(query) ||
       item.answer.toLowerCase().includes(query) ||
-      item.categoryTitle.toLowerCase().includes(query);
+      item.categoryTitle.toLowerCase().includes(query) ||
+      item.companyName.toLowerCase().includes(query);
     return categoryMatch && textMatch;
   });
 }
 
+function companyCategories() {
+  return questionBank.filter((item) => item.kind === "company");
+}
+
+function companyLogo(category) {
+  if (!category.logo) return "";
+  return `<img class="logo" src="${escapeHtml(category.logo)}" alt="${escapeHtml(category.title)} logo" />`;
+}
+
 function card(item) {
+  const logoMarkup = item.companyLogo
+    ? `<img class="card-logo" src="${escapeHtml(item.companyLogo)}" alt="${escapeHtml(item.categoryTitle)} logo" />`
+    : "";
+  const companyLabel = item.companyName
+    ? `<span class="chip">${escapeHtml(item.companyName)}</span>`
+    : "";
+
   return `
     <article class="card">
-      <div class="eyebrow">${escapeHtml(item.categoryTitle)}</div>
+      <div class="card-top">
+        ${logoMarkup}
+        <div>
+          <div class="eyebrow">${escapeHtml(item.categoryTitle)}</div>
+          ${companyLabel}
+        </div>
+      </div>
       <h3>${escapeHtml(item.question)}</h3>
       <p>${escapeHtml(item.answer)}</p>
       <a class="text-link" href="/question/${escapeHtml(item.categorySlug)}/${escapeHtml(item.slug)}">Read answer</a>
@@ -76,16 +104,18 @@ function page({ title, description, body }) {
       *{box-sizing:border-box}body{margin:0;font-family:Georgia,"Times New Roman",serif;color:var(--ink);background:radial-gradient(circle at top left,rgba(213,165,80,.24),transparent 25%),linear-gradient(180deg,var(--bg),#efe7d7)}
       a{text-decoration:none;color:inherit}.wrap{width:min(1180px,calc(100% - 32px));margin:0 auto}.top{padding:20px 0}.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:16px 20px;background:rgba(255,250,242,.88);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
       .brand small{display:block;color:var(--brand);text-transform:uppercase;letter-spacing:.16em;font-size:.78rem}.brand strong{font-size:1.3rem}.nav{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted)}
-      .hero,.grid,.search-form{display:grid;gap:18px}.hero{grid-template-columns:1.4fr 1fr;margin:10px 0 28px}.hero-box,.stat,.card,.panel,.detail{background:rgba(255,250,242,.93);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)}
-      .hero-box,.card,.panel,.detail{padding:24px}.hero-box h1,.detail h1{line-height:1.04;margin:14px 0 0}.hero-box h1{font-size:clamp(2.4rem,5vw,4.7rem);max-width:10ch}.detail h1{font-size:clamp(2rem,4vw,3.6rem);max-width:14ch}
+      .hero,.grid,.search-form,.company-grid{display:grid;gap:18px}.hero{grid-template-columns:1.35fr 1fr;margin:10px 0 28px}.hero-box,.stat,.card,.panel,.detail,.company-card{background:rgba(255,250,242,.93);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)}
+      .hero-box,.card,.panel,.detail,.company-card{padding:24px}.hero-box h1,.detail h1{line-height:1.04;margin:14px 0 0}.hero-box h1{font-size:clamp(2.4rem,5vw,4.7rem);max-width:10ch}.detail h1{font-size:clamp(2rem,4vw,3.6rem);max-width:14ch}
       .eyebrow{display:inline-block;color:var(--brand-dark);text-transform:uppercase;letter-spacing:.12em;font-size:.8rem;padding:8px 12px;border-radius:999px;background:rgba(213,165,80,.16)}p{color:var(--muted);line-height:1.7}
       .cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}.btn,.btn-alt,button{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border-radius:14px;font-weight:700}
       .btn{background:var(--brand);color:#fffaf2}.btn-alt{border:1px solid var(--line);color:var(--brand-dark)}.side{display:grid;gap:14px}.stat{padding:18px}.stat span{display:block;color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.12em}.stat strong{display:block;font-size:2rem;margin-top:8px}
-      .section{display:flex;justify-content:space-between;align-items:end;gap:16px;margin:28px 0 16px;flex-wrap:wrap}.section h2,.card h3{margin:0}.grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-      .card h3{font-size:1.25rem;margin-top:10px}.text-link{display:inline-block;margin-top:14px;color:var(--brand-dark);font-weight:700}.search-form{grid-template-columns:1.5fr 1fr auto}
+      .section{display:flex;justify-content:space-between;align-items:end;gap:16px;margin:28px 0 16px;flex-wrap:wrap}.section h2,.card h3,.company-card h3{margin:0}.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.company-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .card h3,.company-card h3{font-size:1.25rem;margin-top:10px}.text-link{display:inline-block;margin-top:14px;color:var(--brand-dark);font-weight:700}.search-form{grid-template-columns:1.5fr 1fr auto}
       input,select,button{width:100%;font:inherit;min-height:50px;border-radius:14px;border:1px solid var(--line);padding:0 14px;background:#fff}button{background:var(--brand-dark);color:#fffaf2;cursor:pointer}
       .stack{display:grid;gap:16px;margin:16px 0 36px}.answer-box,.tip-box{margin-top:18px;padding:18px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.7)}footer{padding:0 0 40px;text-align:center;color:var(--muted)}
-      @media (max-width:900px){.hero,.grid,.search-form{grid-template-columns:1fr}}
+      .card-top,.company-head,.detail-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.logo{width:58px;height:58px;border-radius:16px;border:1px solid var(--line);background:#fff;padding:10px;object-fit:contain}.card-logo{width:44px;height:44px;border-radius:14px;border:1px solid var(--line);background:#fff;padding:8px;object-fit:contain}.chip{display:inline-flex;margin-top:8px;padding:6px 10px;border-radius:999px;background:#efe5d1;color:var(--brand-dark);font-size:.82rem}
+      .meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.meta span{padding:7px 10px;border-radius:999px;background:#f1e7d5;color:var(--brand-dark);font-size:.84rem}.company-card p strong{color:var(--ink)}
+      @media (max-width:900px){.hero,.grid,.search-form,.company-grid{grid-template-columns:1fr}}
     </style>
   </head>
   <body>
@@ -110,39 +140,60 @@ function page({ title, description, body }) {
 }
 
 app.get("/", (req, res) => {
-  const featured = allQuestions().slice(0, 6)
-    .map(card)
+  const featured = allQuestions().slice(0, 6).map(card).join("");
+  const categories = questionBank
+    .filter((category) => category.kind !== "company")
+    .map((category) => `
+      <article class="card">
+        <div class="eyebrow">${category.questions.length} questions</div>
+        <h3>${escapeHtml(category.title)}</h3>
+        <p>${escapeHtml(category.summary)}</p>
+        <a class="text-link" href="/category/${escapeHtml(category.slug)}">Explore category</a>
+      </article>`)
     .join("");
-  const categories = questionBank.map((category) => `
-    <article class="card">
-      <div class="eyebrow">${category.questions.length} questions</div>
-      <h3>${escapeHtml(category.title)}</h3>
-      <p>${escapeHtml(category.summary)}</p>
-      <a class="text-link" href="/category/${escapeHtml(category.slug)}">Explore category</a>
-    </article>`).join("");
+  const companies = companyCategories()
+    .map((category) => `
+      <article class="company-card">
+        <div class="company-head">
+          ${companyLogo(category)}
+          <div>
+            <div class="eyebrow">Company wise</div>
+            <h3>${escapeHtml(category.title)}</h3>
+          </div>
+        </div>
+        <p>${escapeHtml(category.summary)}</p>
+        <div class="meta">
+          <span>${category.questions.length} questions</span>
+          <span>${escapeHtml(category.roleFocus || "Interview prep")}</span>
+        </div>
+        <a class="text-link" href="/category/${escapeHtml(category.slug)}">Open company set</a>
+      </article>`)
+    .join("");
 
   res.send(page({
     title: "Interview Questions and Answers",
-    description: "Interview question bank with categories, search, and answer pages.",
+    description: "Interview question bank with categories, company-wise questions, search, and answer pages.",
     body: `
       <section class="hero">
         <div class="hero-box">
           <span class="eyebrow">Original interview prep library</span>
-          <h1>Interview questions built for real practice.</h1>
-          <p>Browse software, JavaScript, React, Node.js, behavioral, and HR interview questions with sample answers and interview tips. This matches the structure of a public interview prep site without copying protected content from another website.</p>
+          <h1>Interview questions built for role practice and company targeting.</h1>
+          <p>Browse software, JavaScript, React, Node.js, behavioral, and HR interview questions, then move into company-wise sets for Google, Amazon, Microsoft, Meta, TCS, and Infosys. Company icons are stored locally and served by this app.</p>
           <div class="cta">
             <a class="btn" href="/questions">Browse all questions</a>
-            <a class="btn-alt" href="/category/software-engineering">Start with software engineering</a>
+            <a class="btn-alt" href="/category/google-interview-questions">Start with Google questions</a>
           </div>
         </div>
         <aside class="side">
           <div class="stat"><span>Question library</span><strong>${allQuestions().length}</strong></div>
           <div class="stat"><span>Categories</span><strong>${questionBank.length}</strong></div>
-          <div class="stat"><span>Format</span><strong>Question, answer, tip</strong></div>
+          <div class="stat"><span>Company tracks</span><strong>${companyCategories().length}</strong></div>
         </aside>
       </section>
-      <section class="section"><div><h2>Categories</h2><p>Each category has a landing page so the site can scale like a full interview portal.</p></div></section>
+      <section class="section"><div><h2>Topic Categories</h2><p>Foundation questions for technical, behavioral, and HR interview preparation.</p></div></section>
       <section class="grid">${categories}</section>
+      <section class="section"><div><h2>Company-Wise Interview Questions</h2><p>Dedicated company pages with locally stored company logos and focused answer sets.</p></div></section>
+      <section class="company-grid">${companies}</section>
       <section class="section"><div><h2>Featured Questions</h2><p>Representative prompts that route users into detailed answer pages.</p></div></section>
       <section class="grid">${featured}</section>`
   }));
@@ -152,17 +203,21 @@ app.get("/questions", (req, res) => {
   const q = req.query.q || "";
   const category = req.query.category || "";
   const results = searchQuestions(q, category);
-  const options = questionBank.map((item) => `<option value="${escapeHtml(item.slug)}" ${item.slug === category ? "selected" : ""}>${escapeHtml(item.title)}</option>`).join("");
-  const list = results.length ? results.map(card).join("") : `<article class="panel"><h3>No matching questions found.</h3><p>Try a broader keyword or clear the category filter.</p></article>`;
+  const options = questionBank
+    .map((item) => `<option value="${escapeHtml(item.slug)}" ${item.slug === category ? "selected" : ""}>${escapeHtml(item.title)}</option>`)
+    .join("");
+  const list = results.length
+    ? results.map(card).join("")
+    : `<article class="panel"><h3>No matching questions found.</h3><p>Try a broader keyword or clear the category filter.</p></article>`;
 
   res.send(page({
     title: "All Interview Questions",
     description: "Search and filter the interview question archive.",
     body: `
-      <section class="section"><div><h1>All Interview Questions</h1><p>Search by topic, role, or phrase. This is the main archive for the full interview library.</p></div></section>
+      <section class="section"><div><h1>All Interview Questions</h1><p>Search by topic, role, company, or phrase. This is the main archive for the full interview library.</p></div></section>
       <section class="panel">
         <form class="search-form" method="GET" action="/questions">
-          <input type="text" name="q" value="${escapeHtml(q)}" placeholder="Search interview questions or answers" />
+          <input type="text" name="q" value="${escapeHtml(q)}" placeholder="Search interview questions, answers, or companies" />
           <select name="category"><option value="">All categories</option>${options}</select>
           <button type="submit">Search</button>
         </form>
@@ -181,18 +236,39 @@ app.get("/category/:slug", (req, res) => {
     }));
   }
 
-  const items = category.questions.map((item) =>
-    card({ ...item, categorySlug: category.slug, categoryTitle: category.title })
-  ).join("");
+  const items = category.questions
+    .map((item) =>
+      card({
+        ...item,
+        categorySlug: category.slug,
+        categoryTitle: category.title,
+        companyName: category.companyName || "",
+        companyLogo: category.logo || ""
+      })
+    )
+    .join("");
+  const companyMeta = category.kind === "company"
+    ? `
+      <div class="meta">
+        <span>${escapeHtml(category.companyName)}</span>
+        <span>${escapeHtml(category.roleFocus || "General interview prep")}</span>
+      </div>`
+    : "";
 
   return res.send(page({
     title: `${category.title} Interview Questions`,
     description: category.summary,
     body: `
       <section class="detail">
-        <div class="eyebrow">Category page</div>
-        <h1>${escapeHtml(category.title)}</h1>
+        <div class="detail-head">
+          ${companyLogo(category)}
+          <div>
+            <div class="eyebrow">${category.kind === "company" ? "Company page" : "Category page"}</div>
+            <h1>${escapeHtml(category.title)}</h1>
+          </div>
+        </div>
         <p>${escapeHtml(category.summary)}</p>
+        ${companyMeta}
         <div class="cta">
           <a class="btn" href="/questions?category=${escapeHtml(category.slug)}">Filter archive by this category</a>
           <a class="btn-alt" href="/questions">Back to all questions</a>
@@ -217,21 +293,34 @@ app.get("/question/:categorySlug/:questionSlug", (req, res) => {
     .slice(0, 3)
     .map((item) => `
       <article class="card">
-        <div class="eyebrow">Related question</div>
+        <div class="card-top">
+          ${match.category.logo ? `<img class="card-logo" src="${escapeHtml(match.category.logo)}" alt="${escapeHtml(match.category.title)} logo" />` : ""}
+          <div class="eyebrow">Related question</div>
+        </div>
         <h3>${escapeHtml(item.question)}</h3>
         <a class="text-link" href="/question/${escapeHtml(match.category.slug)}/${escapeHtml(item.slug)}">Open answer</a>
       </article>
     `)
     .join("");
+  const detailLogo = companyLogo(match.category);
+  const detailCompanyMeta = match.category.companyName
+    ? `<div class="meta"><span>${escapeHtml(match.category.companyName)}</span><span>${escapeHtml(match.category.roleFocus || "Company interview set")}</span></div>`
+    : "";
 
   return res.send(page({
     title: `${match.question.question} | ${match.category.title}`,
     description: match.question.answer,
     body: `
       <article class="detail">
-        <div class="eyebrow">${escapeHtml(match.category.title)}</div>
-        <h1>${escapeHtml(match.question.question)}</h1>
+        <div class="detail-head">
+          ${detailLogo}
+          <div>
+            <div class="eyebrow">${escapeHtml(match.category.title)}</div>
+            <h1>${escapeHtml(match.question.question)}</h1>
+          </div>
+        </div>
         <p>Use this answer as a practice baseline, then adapt it to your own experience before a real interview.</p>
+        ${detailCompanyMeta}
         <div class="answer-box"><h3>Sample Answer</h3><p>${escapeHtml(match.question.answer)}</p></div>
         <div class="tip-box"><h3>Interview Tip</h3><p>${escapeHtml(match.question.tip)}</p></div>
         <div class="cta">
@@ -239,7 +328,7 @@ app.get("/question/:categorySlug/:questionSlug", (req, res) => {
           <a class="btn-alt" href="/questions">Back to archive</a>
         </div>
       </article>
-      <section class="section"><div><h2>Related Questions</h2><p>Keep users moving through the category instead of ending on a single page.</p></div></section>
+      <section class="section"><div><h2>Related Questions</h2><p>Keep users moving through the same topic or company prep set.</p></div></section>
       <section class="grid">${related}</section>`
   }));
 });

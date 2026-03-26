@@ -3,17 +3,18 @@
     "slug": "software-engineering",
     "title": "Software Engineering",
     "summary": "Coding, debugging, architecture, and delivery questions for developer interviews.",
+    "kind": "topic",
     "questions": [
       {
         "slug": "tell-me-about-yourself",
         "question": "Tell me about yourself.",
-        "answer": "I am a software engineer focused on building reliable web applications. My recent work has centered on Node.js services, frontend integration, and improving performance in existing products. I add the most value when a project needs structure, clean debugging, and steady delivery.",
+        "answer": "I am a software engineer focused on building reliable web applications. My recent work has centered on backend services, frontend integration, and improving performance in existing products. I add the most value when a project needs structure, clear debugging, and steady execution.",
         "tip": "Keep it to present role, relevant strengths, and one or two outcomes."
       },
       {
         "slug": "most-challenging-bug",
         "question": "Describe the most challenging bug you solved.",
-        "answer": "I describe the impact, explain how I reproduced it, narrowed the scope, and verified the fix. A good example is tracking an intermittent failure caused by inconsistent validation between frontend and backend services, then locking the fix in with regression tests.",
+        "answer": "I explain the impact first, then show how I reproduced the issue, narrowed the scope, and verified the fix. A strong example is tracking an intermittent failure caused by inconsistent validation between frontend and backend services, then locking the solution in with regression tests.",
         "tip": "Show your debugging process, not only the final patch."
       },
       {
@@ -27,6 +28,12 @@
         "question": "What is your approach to code reviews?",
         "answer": "I review for correctness first, then risk, then maintainability. I look for behavior changes, edge cases, missing tests, and places where the implementation does not match the intent.",
         "tip": "Specific and actionable review comments are stronger than vague opinions."
+      },
+      {
+        "slug": "microservices-vs-monolith",
+        "question": "When would you choose a monolith over microservices?",
+        "answer": "I choose a monolith when the product is early, the team is small, and the domain boundaries are still changing. A monolith is easier to test, deploy, and understand, and I only split services when the operational benefit clearly outweighs the extra complexity.",
+        "tip": "Show that architecture should match team size and product stage."
       }
     ]
   },
@@ -34,6 +41,7 @@
     "slug": "javascript",
     "title": "JavaScript",
     "summary": "Language fundamentals and real-world frontend or backend JavaScript questions.",
+    "kind": "topic",
     "questions": [
       {
         "slug": "var-let-const",
@@ -58,6 +66,12 @@
         "question": "What is a closure and why is it useful?",
         "answer": "A closure is created when a function retains access to variables from its outer scope even after that outer function has finished executing. It is useful for encapsulation, callbacks, factories, and private state.",
         "tip": "Give one practical example if time allows."
+      },
+      {
+        "slug": "this-keyword",
+        "question": "How does this work in JavaScript?",
+        "answer": "this depends on how a function is called, not only where it is defined. In object methods it usually points to the object, in constructors it points to the new instance, and in arrow functions it is inherited from the surrounding scope.",
+        "tip": "Mention arrow functions because interviewers often ask there."
       }
     ]
   },
@@ -65,6 +79,7 @@
     "slug": "react",
     "title": "React",
     "summary": "Component design, state, rendering, and performance questions for React interviews.",
+    "kind": "topic",
     "questions": [
       {
         "slug": "state-vs-props",
@@ -89,6 +104,12 @@
         "question": "Why are keys important in React lists?",
         "answer": "Keys help React identify which items changed, were added, or were removed. Stable keys improve reconciliation accuracy and prevent UI bugs like preserved state moving to the wrong item.",
         "tip": "Mention correctness as well as performance."
+      },
+      {
+        "slug": "react-performance",
+        "question": "How do you improve performance in a React app?",
+        "answer": "I start by measuring with React DevTools or browser profiling. Then I reduce unnecessary renders, keep state local where possible, avoid wasteful effects, and only add memoization where profiling shows it solves a real issue.",
+        "tip": "Start with measurement before optimization."
       }
     ]
   },
@@ -96,17 +117,18 @@
     "slug": "nodejs",
     "title": "Node.js",
     "summary": "Backend runtime, APIs, scaling, and operations questions for Node.js roles.",
+    "kind": "topic",
     "questions": [
       {
         "slug": "why-nodejs",
         "question": "Why would a team choose Node.js for a backend service?",
-        "answer": "Node.js works well when a team values JavaScript across the stack and needs efficient handling of I/O-heavy workloads such as APIs, real-time services, and integrations.",
+        "answer": "Node.js works well when a team values JavaScript across the stack and needs efficient handling of I O heavy workloads such as APIs, real-time services, and integrations.",
         "tip": "Balance strengths with realistic limits."
       },
       {
         "slug": "middleware",
         "question": "What is middleware in Express?",
-        "answer": "Middleware is a function that runs during the request-response cycle and can inspect, modify, validate, or terminate a request before it reaches the route handler.",
+        "answer": "Middleware is a function that runs during the request response cycle and can inspect, modify, validate, or terminate a request before it reaches the route handler.",
         "tip": "Use examples like authentication, logging, or validation."
       },
       {
@@ -119,7 +141,13 @@
         "slug": "blocking-event-loop",
         "question": "What does it mean to block the event loop?",
         "answer": "Blocking the event loop means running long synchronous work on the main thread so other requests cannot be processed efficiently. That creates latency spikes under load.",
-        "tip": "Connect the concept to user-facing performance."
+        "tip": "Connect the concept to user facing performance."
+      },
+      {
+        "slug": "rest-routing",
+        "question": "How do you structure RESTful routes?",
+        "answer": "I model routes around resources and use HTTP methods consistently, such as GET for reads, POST for creation, PATCH or PUT for updates, and DELETE for removals. Predictable route structure makes APIs easier to consume and document.",
+        "tip": "Keep the explanation grounded in resources and HTTP semantics."
       }
     ]
   },
@@ -127,6 +155,7 @@
     "slug": "behavioral",
     "title": "Behavioral",
     "summary": "Leadership, teamwork, ownership, and conflict questions used across many interviews.",
+    "kind": "topic",
     "questions": [
       {
         "slug": "conflict-with-coworker",
@@ -144,13 +173,19 @@
         "slug": "prioritize-work",
         "question": "How do you prioritize your work?",
         "answer": "I prioritize by business impact, dependency order, delivery risk, and deadlines. When several tasks compete, I align with stakeholders on the most important outcome and remove blockers early.",
-        "tip": "Show decision-making, not just preference."
+        "tip": "Show decision making, not just preference."
       },
       {
         "slug": "lead-without-authority",
         "question": "How do you lead when you are not the manager?",
         "answer": "I lead through clarity and execution. That means framing the problem well, proposing a practical path, reducing ambiguity, and helping others succeed without forcing ownership through title.",
         "tip": "Show influence rather than hierarchy."
+      },
+      {
+        "slug": "pressure",
+        "question": "How do you perform under pressure?",
+        "answer": "I do best when I make the situation concrete. I break the problem into immediate actions, clarify ownership, protect the highest impact work first, and keep communication short and accurate.",
+        "tip": "Show how you create order, not only how you stay calm."
       }
     ]
   },
@@ -158,6 +193,7 @@
     "slug": "hr",
     "title": "HR and General",
     "summary": "Common screening questions about goals, motivation, salary, and company fit.",
+    "kind": "topic",
     "questions": [
       {
         "slug": "why-this-company",
@@ -182,6 +218,258 @@
         "question": "What are your salary expectations?",
         "answer": "I usually give a researched range that reflects the role scope, market, and total compensation rather than a single number. I also signal flexibility while I learn more about the role.",
         "tip": "Stay professional and avoid sounding evasive."
+      },
+      {
+        "slug": "why-leaving",
+        "question": "Why are you leaving your current job?",
+        "answer": "I keep the answer forward looking. I focus on growth, better role fit, technical challenge, or mission rather than criticizing my current employer.",
+        "tip": "Never turn this into a complaint session."
+      }
+    ]
+  },
+  {
+    "slug": "google-interview-questions",
+    "title": "Google Interview Questions",
+    "summary": "Company wise Google focused interview questions covering coding, leadership, and product thinking.",
+    "kind": "company",
+    "companyName": "Google",
+    "roleFocus": "Software engineering and product roles",
+    "logo": "/public/logos/google.png",
+    "questions": [
+      {
+        "slug": "google-why-work-here",
+        "question": "Why do you want to work at Google?",
+        "answer": "I would connect my answer to Google scale, engineering culture, and the chance to work on products that reach billions of users. The strongest version also explains why my technical strengths fit the specific team or problem area.",
+        "tip": "Show real alignment with the company, not only brand prestige."
+      },
+      {
+        "slug": "google-large-scale-systems",
+        "question": "How would you design a system that scales to millions of users?",
+        "answer": "I would start by clarifying traffic patterns, read write mix, latency targets, and failure tolerance. Then I would break the design into stateless services, storage choices, caching, rate limiting, observability, and disaster recovery, while explaining tradeoffs clearly.",
+        "tip": "Google interviewers usually look for structured thinking and tradeoffs."
+      },
+      {
+        "slug": "google-difficult-problem",
+        "question": "Tell me about a difficult technical problem you solved.",
+        "answer": "I would choose a problem with ambiguity, scale, or reliability impact. Then I would explain how I diagnosed the issue, narrowed the options, made a decision, and measured the result after the fix or redesign.",
+        "tip": "Keep the story technical and measurable."
+      },
+      {
+        "slug": "google-disagreement",
+        "question": "Describe a time you disagreed with a technical decision.",
+        "answer": "I would show that I challenged the decision with evidence rather than opinion. A strong answer explains how I listened, framed the tradeoffs, aligned on user or business impact, and still supported the final direction once a decision was made.",
+        "tip": "They want strong judgment without ego."
+      },
+      {
+        "slug": "google-product-thinking",
+        "question": "How do you balance engineering quality with product speed?",
+        "answer": "I define the minimum quality bar that protects users and the system, then I reduce scope around that bar rather than shipping fragile work. I make tradeoffs explicit, document debt, and reserve time to pay it down.",
+        "tip": "This is stronger than claiming everything can always be perfect."
+      }
+    ]
+  },
+  {
+    "slug": "amazon-interview-questions",
+    "title": "Amazon Interview Questions",
+    "summary": "Company wise Amazon focused questions aligned with ownership, customer obsession, and delivery.",
+    "kind": "company",
+    "companyName": "Amazon",
+    "roleFocus": "Software engineering and leadership principle interviews",
+    "logo": "/public/logos/amazon.png",
+    "questions": [
+      {
+        "slug": "amazon-customer-obsession",
+        "question": "Tell me about a time you used customer feedback to improve a product.",
+        "answer": "I would describe the customer signal, how I validated that it represented a real pattern, and what change I made to improve the experience. The best answer ties the action back to customer impact rather than internal preference.",
+        "tip": "Anchor the story in customer outcomes."
+      },
+      {
+        "slug": "amazon-ownership",
+        "question": "Describe a time you took ownership beyond your job scope.",
+        "answer": "I would show that I stepped in because the outcome mattered, not because I wanted visibility. Then I would explain how I closed gaps, aligned stakeholders, and delivered the result without waiting for perfect conditions.",
+        "tip": "Ownership at Amazon should sound practical, not heroic."
+      },
+      {
+        "slug": "amazon-disagree-and-commit",
+        "question": "Tell me about a time you disagreed and committed.",
+        "answer": "I would explain the disagreement, the evidence behind my view, and how I supported the final decision after the team aligned. The key is showing backbone before the decision and full commitment after it.",
+        "tip": "Show both conviction and discipline."
+      },
+      {
+        "slug": "amazon-deliver-results",
+        "question": "How do you deliver results under aggressive deadlines?",
+        "answer": "I focus the team on the highest value outcome, remove blockers early, and make progress visible. I also protect the essential quality bar so speed does not create a bigger failure later.",
+        "tip": "Amazon answers are stronger when they feel operational and measurable."
+      },
+      {
+        "slug": "amazon-frugality",
+        "question": "Describe a time you solved a problem with limited resources.",
+        "answer": "I would show how I simplified the approach, reused existing assets, or automated work instead of asking for more resources immediately. The point is to prove judgment and efficiency under constraint.",
+        "tip": "Frugality is about leverage, not only cost cutting."
+      }
+    ]
+  },
+  {
+    "slug": "microsoft-interview-questions",
+    "title": "Microsoft Interview Questions",
+    "summary": "Company wise Microsoft questions centered on collaboration, design, learning, and product impact.",
+    "kind": "company",
+    "companyName": "Microsoft",
+    "roleFocus": "Software engineering and product platform roles",
+    "logo": "/public/logos/microsoft.png",
+    "questions": [
+      {
+        "slug": "microsoft-growth-mindset",
+        "question": "Tell me about a time you learned a new technology quickly.",
+        "answer": "I would describe why the learning mattered, how I structured the ramp up, and how I applied it to a real delivery. Microsoft usually values evidence that learning changed the outcome, not only that I read documentation.",
+        "tip": "Connect learning speed to execution quality."
+      },
+      {
+        "slug": "microsoft-collaboration",
+        "question": "How do you collaborate across teams with different priorities?",
+        "answer": "I establish the shared goal first, then make dependencies and tradeoffs visible. Good collaboration comes from concrete plans, clear ownership, and consistent follow up rather than assuming alignment exists automatically.",
+        "tip": "Emphasize clarity and cross team execution."
+      },
+      {
+        "slug": "microsoft-system-design",
+        "question": "How would you design a reliable cloud service?",
+        "answer": "I would start from service level expectations, then define failure domains, redundancy, monitoring, deployment safety, and incident response. Reliability is usually strongest when it is designed into operations as well as code.",
+        "tip": "Include observability and deployment strategy."
+      },
+      {
+        "slug": "microsoft-prioritization",
+        "question": "How do you prioritize technical debt against new features?",
+        "answer": "I evaluate user impact, delivery risk, and the cost of delay. Then I frame technical debt in business terms so stakeholders understand when ignoring it slows future delivery or increases operational risk.",
+        "tip": "This answer is stronger when debt is translated into impact."
+      },
+      {
+        "slug": "microsoft-feedback",
+        "question": "Describe a time you received difficult feedback.",
+        "answer": "I would choose a real example, explain what changed in my behavior, and show how I measured improvement over time. That demonstrates maturity and a growth mindset.",
+        "tip": "The key is what changed after the feedback."
+      }
+    ]
+  },
+  {
+    "slug": "meta-interview-questions",
+    "title": "Meta Interview Questions",
+    "summary": "Company wise Meta focused questions around product sense, speed, impact, and technical depth.",
+    "kind": "company",
+    "companyName": "Meta",
+    "roleFocus": "Software engineering and product infrastructure roles",
+    "logo": "/public/logos/meta.png",
+    "questions": [
+      {
+        "slug": "meta-move-fast",
+        "question": "How do you move fast without creating chaos?",
+        "answer": "I define a clear objective, keep the solution simple, and create tight feedback loops through testing, metrics, and stakeholder alignment. Speed is sustainable when the team can still see risk clearly.",
+        "tip": "Meta style answers are stronger when they show impact with discipline."
+      },
+      {
+        "slug": "meta-product-impact",
+        "question": "How do you decide which engineering work has the highest impact?",
+        "answer": "I look at user effect, business goals, and leverage. Work has high impact when it unlocks growth, improves reliability for many users, or removes a repeated bottleneck that slows the entire team.",
+        "tip": "Think in terms of scale and leverage."
+      },
+      {
+        "slug": "meta-experimentation",
+        "question": "Tell me about a time you used data to make a product decision.",
+        "answer": "I would explain the metric, the hypothesis, the data quality, and the final decision. Strong answers make clear that data informed judgment rather than replacing it.",
+        "tip": "Mention the quality and limits of the data."
+      },
+      {
+        "slug": "meta-technical-tradeoff",
+        "question": "Describe a tough tradeoff you made in system design.",
+        "answer": "I would describe the competing goals, such as speed versus consistency or simplicity versus flexibility, and explain why I chose the final design. Interviewers care about the reasoning, not only the architecture.",
+        "tip": "Frame tradeoffs in business and engineering terms."
+      },
+      {
+        "slug": "meta-ownership",
+        "question": "How do you handle an ambiguous project with little direction?",
+        "answer": "I create direction by defining the outcome, collecting constraints, and breaking the work into smaller decisions that can be validated quickly. Ambiguity becomes manageable when the team can test assumptions early.",
+        "tip": "Show initiative without pretending ambiguity disappears."
+      }
+    ]
+  },
+  {
+    "slug": "tcs-interview-questions",
+    "title": "TCS Interview Questions",
+    "summary": "Company wise TCS interview questions for entry level and service delivery oriented roles.",
+    "kind": "company",
+    "companyName": "Tata Consultancy Services",
+    "roleFocus": "Graduate hiring and enterprise delivery roles",
+    "logo": "/public/logos/tcs.png",
+    "questions": [
+      {
+        "slug": "tcs-introduction",
+        "question": "Introduce yourself for a TCS interview.",
+        "answer": "I would keep the answer structured around education, technical skills, projects, internships, and a short reason for applying to TCS. The strongest answer is concise and professional, not overly personal.",
+        "tip": "Freshers should keep this crisp and role relevant."
+      },
+      {
+        "slug": "tcs-teamwork",
+        "question": "Tell me about a time you worked effectively in a team.",
+        "answer": "I would explain the team goal, my contribution, how we coordinated, and what result we achieved. For entry level interviews, academic or project examples can work well if they show ownership and collaboration.",
+        "tip": "Show contribution, not only team membership."
+      },
+      {
+        "slug": "tcs-relocation",
+        "question": "Are you open to relocation or different project assignments?",
+        "answer": "A strong answer is flexible and professional. I would say I understand client service environments require adaptability and I am open to relocation or project changes if it supports business needs and role growth.",
+        "tip": "Service companies often test flexibility directly."
+      },
+      {
+        "slug": "tcs-strengths",
+        "question": "What are your strengths relevant to TCS?",
+        "answer": "I would focus on learning speed, discipline, communication, and consistency in execution. Then I would connect those strengths to project delivery and working in structured team environments.",
+        "tip": "Tie strengths to delivery reliability."
+      },
+      {
+        "slug": "tcs-project",
+        "question": "Explain one academic or personal project in detail.",
+        "answer": "I would explain the goal, architecture, tools used, my specific contribution, problems faced, and the final outcome. Interviewers usually want to know whether I truly understand the project rather than memorized a summary.",
+        "tip": "Be ready for deep follow up questions on your own project."
+      }
+    ]
+  },
+  {
+    "slug": "infosys-interview-questions",
+    "title": "Infosys Interview Questions",
+    "summary": "Company wise Infosys interview questions focused on communication, fundamentals, and delivery readiness.",
+    "kind": "company",
+    "companyName": "Infosys",
+    "roleFocus": "Graduate engineering and early career technology roles",
+    "logo": "/public/logos/infosys.png",
+    "questions": [
+      {
+        "slug": "infosys-why-company",
+        "question": "Why do you want to join Infosys?",
+        "answer": "I would connect the answer to training opportunities, large scale client projects, and the chance to build a strong technical foundation in a structured environment. Specific alignment is stronger than generic praise.",
+        "tip": "Show role fit and long term growth interest."
+      },
+      {
+        "slug": "infosys-communication",
+        "question": "How would you explain a technical issue to a non technical client?",
+        "answer": "I would remove jargon, focus on the business impact, explain what is happening in simple terms, and outline the next steps and expected timeline clearly. Good client communication reduces anxiety and confusion.",
+        "tip": "Clarity matters more than technical detail here."
+      },
+      {
+        "slug": "infosys-deadlines",
+        "question": "How do you handle multiple deadlines at the same time?",
+        "answer": "I prioritize by urgency, dependency, and business impact. Then I create a visible plan, communicate early if there is risk, and avoid silent delay by escalating blockers quickly.",
+        "tip": "Show planning and communication, not only hard work."
+      },
+      {
+        "slug": "infosys-adaptability",
+        "question": "Tell me about a time you adapted to a new tool or process.",
+        "answer": "I would explain the trigger for the change, how I learned the new process, and how I made sure my delivery quality stayed stable during the transition.",
+        "tip": "Infosys style answers often reward process adaptability."
+      },
+      {
+        "slug": "infosys-foundation",
+        "question": "How strong are your programming fundamentals?",
+        "answer": "I would give evidence through projects, problem solving practice, and clarity on core concepts like data structures, control flow, functions, debugging, and basic algorithms. Then I would link those fundamentals to practical project work.",
+        "tip": "Support your claim with proof, not confidence alone."
       }
     ]
   }
