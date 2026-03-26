@@ -321,6 +321,96 @@ function faqItems() {
   ];
 }
 
+function searchSuggestionTerms() {
+  const base = [
+    "google interview questions",
+    "amazon interview questions",
+    "react interview questions",
+    "node.js interview questions",
+    "hr interview questions",
+    "behavioral interview questions",
+    "coding interview questions",
+    "system design interview questions"
+  ];
+  const dynamic = questionBank.flatMap((category) => [
+    category.title,
+    category.companyName || "",
+    ...category.questions.slice(0, 2).map((item) => item.question)
+  ]);
+  return [...new Set([...base, ...dynamic].filter(Boolean))].slice(0, 120);
+}
+
+function questionSignals(category, question) {
+  const lower = `${question.question} ${question.answer} ${question.tip}`.toLowerCase();
+  const signals = [];
+
+  if (category.kind === "company") signals.push("role alignment with the company's working style");
+  if (lower.includes("debug") || lower.includes("bug")) signals.push("structured problem solving under pressure");
+  if (lower.includes("design") || lower.includes("architecture")) signals.push("tradeoff awareness and system thinking");
+  if (lower.includes("lead") || lower.includes("team") || lower.includes("conflict")) signals.push("collaboration and professional judgment");
+  if (lower.includes("code") || lower.includes("algorithm") || lower.includes("data structure")) signals.push("clear technical reasoning and correctness");
+  if (lower.includes("why") || lower.includes("motivat") || lower.includes("company")) signals.push("motivation, fit, and credibility");
+  if (lower.includes("priorit") || lower.includes("deadline") || lower.includes("pressure")) signals.push("decision making and ownership");
+  if (!signals.length) signals.push("clear thinking, relevance, and communication quality");
+
+  return signals.slice(0, 3);
+}
+
+function answerFlow(category, question) {
+  const title = category.companyName || category.title;
+  return [
+    `Start with one direct sentence that answers the question without circling around it.`,
+    `Support that answer with one concrete point from your experience or a practical example relevant to ${title}.`,
+    `Close by connecting the answer to impact, learning, or why your approach would be valuable in the role.`
+  ];
+}
+
+function interviewerReadyAnswer(category, question) {
+  return [
+    `A strong way to answer this is to open with a concise position, then explain the reasoning behind it in practical terms.`,
+    question.answer,
+    `If the interviewer asks a follow-up, expand with a short example from your work, studies, project decisions, debugging process, or team behavior rather than repeating the same wording.`
+  ];
+}
+
+function detailedAnswerMarkup(category, question) {
+  const answerParts = interviewerReadyAnswer(category, question)
+    .map((part) => `<p>${escapeHtml(part)}</p>`)
+    .join("");
+  const flow = answerFlow(category, question)
+    .map((item) => `<li>${escapeHtml(item)}</li>`)
+    .join("");
+  const signals = questionSignals(category, question)
+    .map((item) => `<li>${escapeHtml(item)}</li>`)
+    .join("");
+
+  return `
+    <section class="detail-layout">
+      <div class="detail-main">
+        <div class="answer-box">
+          <div class="section compact-section">
+            <div><h3>Interviewer-Ready Answer</h3></div>
+          </div>
+          ${answerParts}
+        </div>
+        <div class="tip-box">
+          <h3>Interview Tip</h3>
+          <p>${escapeHtml(question.tip)}</p>
+        </div>
+      </div>
+      <aside class="detail-sidebar">
+        <section class="detail-panel">
+          <h3>How To Answer It</h3>
+          <ol class="step-list">${flow}</ol>
+        </section>
+        <section class="detail-panel">
+          <h3>What The Interviewer Is Checking</h3>
+          <ul class="step-list">${signals}</ul>
+        </section>
+      </aside>
+    </section>`;
+}
+
 function webPageSchema({ title, description, siteUrl, path: pagePath, type = "WebPage" }) {
   return {
     "@context": "https://schema.org",
@@ -555,6 +645,9 @@ function page({
   const schemaMarkup = structuredDataMarkup(
     structuredData || [webPageSchema({ title, description, siteUrl: resolvedSiteUrl, path: canonicalPath })]
   );
+  const searchOptions = searchSuggestionTerms()
+    .map((item) => `<option value="${escapeHtml(item)}"></option>`)
+    .join("");
   return `<!DOCTYPE html>
   <html lang="en">
   <head>
@@ -632,6 +725,7 @@ function page({
         </div>
       </div>
     </footer>
+    <datalist id="search-suggestions">${searchOptions}</datalist>
     <script>
       ${ADSENSE_CLIENT ? "document.querySelectorAll('.adsbygoogle').forEach((ad)=>{try{(adsbygoogle = window.adsbygoogle || []).push({});}catch(error){console.error('AdSense render failed', error, ad);}});" : ""}
       const savedKey = "career-question-bank-saved";
@@ -759,7 +853,7 @@ app.get("/", (req, res) => {
           <h1>Interview questions built for confidence, structure, and company targeting.</h1>
           <p>Browse software, JavaScript, React, Node.js, coding, behavioral, HR, aptitude, resume, and company-specific preparation. Everything is free for visitors, and the website is intended to earn through ads rather than locked content.</p>
           <form class="hero-search" method="GET" action="/questions">
-            <input type="text" name="q" placeholder="Search companies, rounds, topics, or interview questions" />
+            <input type="text" name="q" list="search-suggestions" placeholder="Search companies, rounds, topics, or interview questions" />
             <button type="submit">Find questions</button>
           </form>
           <div class="cta">
@@ -873,7 +967,7 @@ app.get("/questions", (req, res) => {
       <section class="section"><div><h1>All Interview Questions</h1><p>Search by topic, role, company, or phrase. Sort the archive and use practice mode when you want to hide answers at first.</p></div></section>
       <section class="panel search-panel">
         <form class="search-form" method="GET" action="/questions">
-          <input type="text" name="q" value="${escapeHtml(q)}" placeholder="Search interview questions, answers, or companies" />
+          <input type="text" name="q" list="search-suggestions" value="${escapeHtml(q)}" placeholder="Search interview questions, answers, or companies" />
           <select name="category"><option value="">All categories</option>${options}</select>
           <select name="sort">${sortOptions}</select>
           <button type="submit">Search</button>
@@ -1029,6 +1123,16 @@ app.get("/question/:categorySlug/:questionSlug", (req, res) => {
     : `<div class="meta"><span>${escapeHtml(match.category.title)}</span><span>Updated ${escapeHtml(formatDate(dataUpdatedAt))}</span></div>`;
   const relatedGuides = guides.slice(0, 2).map(guideCard).join("");
   const answerId = `answer-${match.category.slug}-${match.question.slug}`;
+  const currentIndex = match.category.questions.findIndex((item) => item.slug === match.question.slug);
+  const previousQuestion = currentIndex > 0 ? match.category.questions[currentIndex - 1] : null;
+  const nextQuestion = currentIndex < match.category.questions.length - 1 ? match.category.questions[currentIndex + 1] : null;
+  const questionPager = previousQuestion || nextQuestion
+    ? `
+      <section class="question-nav">
+        ${previousQuestion ? `<a class="quick-start-card" href="${escapeHtml(questionUrl(match.category.slug, previousQuestion.slug))}"><strong>Previous question</strong><span>${escapeHtml(previousQuestion.question)}</span></a>` : `<div></div>`}
+        ${nextQuestion ? `<a class="quick-start-card" href="${escapeHtml(questionUrl(match.category.slug, nextQuestion.slug))}"><strong>Next question</strong><span>${escapeHtml(nextQuestion.question)}</span></a>` : `<div></div>`}
+      </section>`
+    : "";
 
   return res.send(page({
     title: `${match.question.question} | Best Answer for ${match.category.title}`,
@@ -1080,13 +1184,14 @@ app.get("/question/:categorySlug/:questionSlug", (req, res) => {
           </div>
           <p id="${escapeHtml(answerId)}">${escapeHtml(match.question.answer)}</p>
         </div>
-        <div class="tip-box"><h3>Interview Tip</h3><p>${escapeHtml(match.question.tip)}</p></div>
+        ${detailedAnswerMarkup(match.category, match.question)}
         ${renderAdBlock("Question detail ad", ADSENSE_SLOT_SECONDARY, "detail-inline")}
         <div class="cta">
           <a class="btn" href="${escapeHtml(categoryUrl(match.category))}">More ${escapeHtml(match.category.title)} questions</a>
           <a class="btn-alt" href="/questions">Back to archive</a>
         </div>
       </article>
+      ${questionPager}
       ${renderAdBlock("Related content ad", ADSENSE_SLOT, "detail-lower")}
       <section class="section"><div><h2>Related Questions</h2><p>Keep moving through the same topic or company prep set.</p></div></section>
       <section class="grid">${related}</section>
