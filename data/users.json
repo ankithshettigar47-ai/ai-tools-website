@@ -1,0 +1,14 @@
+[
+  {
+    "id": "admin-default",
+    "name": "Admin",
+    "username": "admin",
+    "email": "admin@example.com",
+    "passwordHash": "9c783df95c677f4a885329d51f6cbe8e:edaefd1c7e667836e5488ce3cf3bb420e31593ab831d333e5cda05c0aba25356b5f34ea9ab9b90f286e63e85103afda1085b58a156197e428ab7b8f83dea8b21",
+    "savedQuestions": [
+      "google-interview-questions/google-why-work-here"
+    ],
+    "isAdmin": true,
+    "createdAt": "2026-03-27T00:00:00.000Z"
+  }
+]
