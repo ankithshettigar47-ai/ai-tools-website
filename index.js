@@ -21,9 +21,10 @@ const ADSENSE_CLIENT = process.env.ADSENSE_CLIENT || "ca-pub-3320175178558120";
 const ADSENSE_SLOT = process.env.ADSENSE_SLOT || "1811439645";
 const ADSENSE_SLOT_SECONDARY = process.env.ADSENSE_SLOT_SECONDARY || "7526169863";
 const dataPath = path.join(__dirname, "posts.json");
+const researchedDataPath = path.join(__dirname, "researched_questions.json");
 const usersPath = path.join(__dirname, "data", "users.json");
 const messagesPath = path.join(__dirname, "data", "messages.json");
-let questionBank = JSON.parse(fs.readFileSync(dataPath, "utf8"));
+let questionBank = [];
 const dataUpdatedAt = fs.statSync(dataPath).mtime;
 
 const guides = [
@@ -84,6 +85,7 @@ app.use(express.json());
 app.use("/public", express.static(path.join(__dirname, "public")));
 ensureJsonFile(usersPath, []);
 ensureJsonFile(messagesPath, []);
+ensureJsonFile(researchedDataPath, []);
 app.use((req, res, next) => {
   res.locals.siteUrl = `http://localhost:${PORT}`;
   next();
@@ -127,9 +129,17 @@ function saveMessages(messages) {
 }
 
 function saveQuestionBank(nextQuestionBank) {
-  questionBank = nextQuestionBank;
   writeJson(dataPath, nextQuestionBank);
+  reloadQuestionBank();
 }
+
+function reloadQuestionBank() {
+  const primaryQuestions = JSON.parse(fs.readFileSync(dataPath, "utf8"));
+  const researchedQuestions = JSON.parse(fs.readFileSync(researchedDataPath, "utf8"));
+  questionBank = [...primaryQuestions, ...researchedQuestions];
+}
+
+reloadQuestionBank();
 
 function requireAuth(req, res) {
   if (req.currentUser) return true;
