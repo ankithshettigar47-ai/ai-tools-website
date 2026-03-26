@@ -463,23 +463,33 @@ function card(item, options = {}) {
     ? `<img class="card-logo" src="${escapeHtml(item.companyLogo)}" alt="${escapeHtml(item.categoryTitle)} logo" />`
     : "";
   const companyLabel = item.companyName ? `<span class="chip">${escapeHtml(item.companyName)}</span>` : "";
+  const summaryLabel = item.companyName || item.categoryTitle;
+  const previewId = `preview-${escapeHtml(`${item.categorySlug}-${item.slug}`)}`;
   const answerMarkup = options.practiceMode
     ? `<p class="answer-hidden">Practice mode is on. Open the detail page to reveal the sample answer.</p>`
-    : `<p>${escapeHtml(item.answer)}</p>`;
+    : `
+      <div class="card-answer" id="${previewId}" hidden>
+        <p>${escapeHtml(item.answer)}</p>
+      </div>`;
 
   return `
-    <article class="card">
+    <article class="card question-card">
       <div class="card-top">
         ${logoMarkup}
-        <div>
+        <div class="card-heading">
           <div class="eyebrow">${escapeHtml(item.categoryTitle)}</div>
           ${companyLabel}
         </div>
       </div>
       <h3>${escapeHtml(item.question)}</h3>
+      <div class="card-meta">
+        <span>${escapeHtml(summaryLabel)}</span>
+        <span>${escapeHtml(item.roleFocus || "Interview prep")}</span>
+      </div>
       ${answerMarkup}
       <div class="card-actions">
         <a class="text-link" href="${escapeHtml(questionUrl(item.categorySlug, item.slug))}">Read answer</a>
+        ${options.practiceMode ? "" : `<button type="button" class="ghost-button answer-toggle" data-target="${previewId}" aria-expanded="false">Quick preview</button>`}
         <button type="button" class="ghost-button bookmark-button" data-bookmark="${escapeHtml(`${item.categorySlug}/${item.slug}`)}">Save</button>
       </div>
     </article>
@@ -579,7 +589,8 @@ function page({
             <img class="brand-mark" src="/public/brand.svg" alt="Career Question Bank" />
             <span><small>Interview Prep</small><strong>Career Question Bank</strong></span>
           </a>
-          <nav class="nav">
+          <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav">Menu</button>
+          <nav class="nav" id="site-nav">
             <a href="/">Home</a>
             <a href="/questions">All Questions</a>
             <a href="/saved">Saved</a>
@@ -588,6 +599,9 @@ function page({
             <a href="/about">About</a>
             <a href="/faq">FAQ</a>
             <a href="/privacy">Privacy</a>
+            <a href="/terms">Terms</a>
+            <a href="/editorial-policy">Editorial</a>
+            <a href="/ad-disclosure">Ads</a>
             ${authLinks}
           </nav>
         </div>
@@ -606,10 +620,13 @@ function page({
           <a href="/faq">FAQ</a>
           <a href="/privacy">Privacy</a>
           <a href="/contact">Contact</a>
+          <a href="/terms">Terms</a>
         </div>
         <div class="footer-links">
           <a href="/questions">Question Archive</a>
           <a href="/guides">Guides</a>
+          <a href="/editorial-policy">Editorial Policy</a>
+          <a href="/ad-disclosure">Ad Disclosure</a>
           <a href="/sitemap.xml">Sitemap</a>
           <a href="/robots.txt">Robots</a>
         </div>
@@ -619,6 +636,9 @@ function page({
       ${ADSENSE_CLIENT ? "document.querySelectorAll('.adsbygoogle').forEach((ad)=>{try{(adsbygoogle = window.adsbygoogle || []).push({});}catch(error){console.error('AdSense render failed', error, ad);}});" : ""}
       const savedKey = "career-question-bank-saved";
       const isLoggedIn = ${authLinks.includes("Logout") ? "true" : "false"};
+      const navToggle = document.querySelector(".nav-toggle");
+      const nav = document.getElementById("site-nav");
+      if(navToggle && nav){navToggle.addEventListener("click",()=>{const expanded=navToggle.getAttribute("aria-expanded")==="true";navToggle.setAttribute("aria-expanded",String(!expanded));nav.classList.toggle("open",!expanded);});}
       function readSaved(){try{return JSON.parse(localStorage.getItem(savedKey)||"[]");}catch(error){return [];}}
       function writeSaved(items){localStorage.setItem(savedKey, JSON.stringify(items));}
       async function syncSaved(key){
@@ -630,6 +650,7 @@ function page({
         return response.ok;
       }
       document.querySelectorAll(".bookmark-button").forEach((button)=>{const saved=readSaved();const key=button.dataset.bookmark;if(saved.includes(key)){button.textContent="Saved";}button.addEventListener("click",async()=>{if(isLoggedIn){const ok = await syncSaved(key);button.textContent = ok ? "Saved" : "Try again";return;}const items=readSaved();if(!items.includes(key)){items.push(key);writeSaved(items);button.textContent="Saved";}});});
+      document.querySelectorAll(".answer-toggle").forEach((button)=>{button.addEventListener("click",()=>{const target=document.getElementById(button.dataset.target);if(!target)return;const nextState=target.hasAttribute("hidden");target.toggleAttribute("hidden",!nextState);button.setAttribute("aria-expanded",String(nextState));button.textContent=nextState?\"Hide preview\":\"Quick preview\";});});
       document.querySelectorAll(".copy-answer").forEach((button)=>{button.addEventListener("click",async()=>{const target=document.getElementById(button.dataset.target);if(!target)return;try{await navigator.clipboard.writeText(target.innerText.trim());button.textContent="Copied";}catch(error){button.textContent="Copy failed";}});});
     </script>
   </body>
@@ -661,6 +682,14 @@ app.get("/", (req, res) => {
   const homeFaq = faqItems();
   const featured = allQuestions().slice(0, 6).map((item) => card(item)).join("");
   const latest = allQuestions().slice(-6).reverse().map((item) => card(item, { practiceMode: true })).join("");
+  const searchHighlights = [
+    { label: "Google", href: "/questions?q=google" },
+    { label: "Amazon", href: "/questions?q=amazon" },
+    { label: "Coding", href: "/questions?q=coding" },
+    { label: "HR", href: "/questions?q=hr" },
+    { label: "Behavioral", href: "/questions?q=behavioral" },
+    { label: "Freshers", href: "/questions?q=freshers" }
+  ].map((item) => `<a href="${escapeHtml(item.href)}">${escapeHtml(item.label)}</a>`).join("");
   const categories = topicCategories()
     .map((category) => `
       <article class="card">
@@ -729,11 +758,15 @@ app.get("/", (req, res) => {
           <span class="eyebrow">Professional interview preparation</span>
           <h1>Interview questions built for confidence, structure, and company targeting.</h1>
           <p>Browse software, JavaScript, React, Node.js, coding, behavioral, HR, aptitude, resume, and company-specific preparation. Everything is free for visitors, and the website is intended to earn through ads rather than locked content.</p>
+          <form class="hero-search" method="GET" action="/questions">
+            <input type="text" name="q" placeholder="Search companies, rounds, topics, or interview questions" />
+            <button type="submit">Find questions</button>
+          </form>
           <div class="cta">
             <a class="btn" href="/questions">Browse all questions</a>
             <a class="btn-alt" href="/guides">Open preparation guides</a>
           </div>
-          <div class="search-shortcuts">
+          <div class="search-shortcuts search-shortcuts-hero">
             <a href="/questions?q=system+design">System design</a>
             <a href="/questions?q=coding">Coding rounds</a>
             <a href="/questions?q=sql">SQL</a>
@@ -746,14 +779,22 @@ app.get("/", (req, res) => {
           <div class="stat"><span>Categories</span><strong>${questionBank.length}</strong></div>
           <div class="stat"><span>Company tracks</span><strong>${companyCategories().length}</strong></div>
           <div class="stat"><span>Last updated</span><strong>${escapeHtml(formatDate(dataUpdatedAt))}</strong></div>
+          <div class="stat stat-highlight"><span>Popular searches</span><div class="pill-row">${searchHighlights}</div></div>
         </aside>
       </section>
       ${renderAdBlock("Top ad", ADSENSE_SLOT, "hero")}
+      <section class="section"><div><h2>Start Faster</h2><p>Jump into the most common preparation paths instead of scrolling through everything first.</p></div></section>
+      <section class="quick-start-grid">
+        <a class="quick-start-card" href="/questions?sort=company"><strong>Company-wise prep</strong><span>Browse interview sets by company and role focus.</span></a>
+        <a class="quick-start-card" href="/questions?q=coding"><strong>Coding rounds</strong><span>Practice data structures, algorithms, and problem-solving questions.</span></a>
+        <a class="quick-start-card" href="/questions?q=hr"><strong>HR and screening</strong><span>Prepare clear responses for common recruiter and HR questions.</span></a>
+        <a class="quick-start-card" href="/guides"><strong>Guides and strategy</strong><span>Use preparation guides to improve answer quality and confidence.</span></a>
+      </section>
       <section class="mini-grid">
         <article class="strip"><strong>Structured prep</strong><span>Topic pages, company pages, guides, and detail views.</span></article>
         <article class="strip"><strong>Searchable archive</strong><span>Filter by category, company, keyword, sort order, and page.</span></article>
         <article class="strip"><strong>Practice ready</strong><span>Each question includes a sample answer and a practical tip.</span></article>
-        <article class="strip"><strong>Professional basics</strong><span>About, FAQ, privacy, contact, sitemap, and clean 404 handling.</span></article>
+        <article class="strip"><strong>Professional basics</strong><span>About, FAQ, privacy, terms, editorial policy, contact, sitemap, and clean 404 handling.</span></article>
       </section>
       <section class="section"><div><h2>Topic Categories</h2><p>Foundation questions for technical, behavioral, HR, coding, and preparation topics.</p></div></section>
       <section class="grid">${categories}</section>
@@ -830,7 +871,7 @@ app.get("/questions", (req, res) => {
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "All Questions" }]),
     body: `
       <section class="section"><div><h1>All Interview Questions</h1><p>Search by topic, role, company, or phrase. Sort the archive and use practice mode when you want to hide answers at first.</p></div></section>
-      <section class="panel">
+      <section class="panel search-panel">
         <form class="search-form" method="GET" action="/questions">
           <input type="text" name="q" value="${escapeHtml(q)}" placeholder="Search interview questions, answers, or companies" />
           <select name="category"><option value="">All categories</option>${options}</select>
@@ -844,6 +885,11 @@ app.get("/questions", (req, res) => {
           <a href="/questions?q=aptitude">Aptitude</a>
           <a href="/questions?q=resume">Resume</a>
           <a href="/questions?q=leadership">Leadership</a>
+        </div>
+        <div class="search-panel-meta">
+          <span>${results.length} matching questions</span>
+          <span>${questionBank.length} searchable sections</span>
+          <span>${reveal ? "Answer preview mode on" : "Practice mode on"}</span>
         </div>
       </section>
       ${renderAdBlock("Archive ad", ADSENSE_SLOT, "archive-top")}
@@ -1025,7 +1071,13 @@ app.get("/question/:categorySlug/:questionSlug", (req, res) => {
         <p>Use this answer as a practice baseline, then adapt it to your own experience before a real interview.</p>
         ${detailCompanyMeta}
         <div class="answer-box">
-          <div class="section compact-section"><div><h3>Sample Answer</h3></div><button type="button" class="ghost-button copy-answer" data-target="${escapeHtml(answerId)}">Copy answer</button></div>
+          <div class="section compact-section">
+            <div><h3>Sample Answer</h3></div>
+            <div class="card-actions">
+              <button type="button" class="ghost-button answer-toggle" data-target="${escapeHtml(answerId)}" aria-expanded="true">Hide answer</button>
+              <button type="button" class="ghost-button copy-answer" data-target="${escapeHtml(answerId)}">Copy answer</button>
+            </div>
+          </div>
           <p id="${escapeHtml(answerId)}">${escapeHtml(match.question.answer)}</p>
         </div>
         <div class="tip-box"><h3>Interview Tip</h3><p>${escapeHtml(match.question.tip)}</p></div>
@@ -1555,11 +1607,122 @@ app.get("/privacy", (req, res) => {
         <p>This website serves interview preparation content and does not require user accounts to browse the library. Search queries submitted through the site are used only to render results for the current request. Advertising may be used to support the website while keeping content free for visitors.</p>
         <div class="answer-box">
           <h3>What this means in practice</h3>
-          <p>No sign-up flow is required to access the content, and there is no custom profile or resume storage in the current version of the website.</p>
+          <p>No sign-up flow is required to access the content, and there is no custom profile or resume storage in the current version of the website. If a visitor creates an account later, only the details needed for that feature are stored.</p>
         </div>
         <div class="tip-box">
-          <h3>Future updates</h3>
-          <p>If features such as accounts, saved questions, or analytics are added later, this page should be updated to reflect those changes clearly.</p>
+          <h3>Advertising and cookies</h3>
+          <p>Third-party advertising providers such as Google AdSense may use cookies or similar technologies to serve ads, measure performance, and personalize ad delivery according to their own policies. Visitors can review Google advertising settings and browser controls for more information.</p>
+        </div>
+      </section>`
+  }));
+});
+
+app.get("/terms", (req, res) => {
+  res.send(page({
+    title: "Terms and Conditions",
+    description: "Terms for using the interview preparation website and its original practice content.",
+    canonicalPath: "/terms",
+    siteUrl: res.locals.siteUrl,
+    structuredData: [
+      webPageSchema({
+        title: "Terms and Conditions",
+        description: "Terms for using the interview preparation website and its original practice content.",
+        siteUrl: res.locals.siteUrl,
+        path: "/terms"
+      }),
+      breadcrumbSchema([
+        { label: "Home", href: "/" },
+        { label: "Terms", href: "/terms" }
+      ], res.locals.siteUrl)
+    ],
+    authLinks: navAuthMarkup(req.currentUser),
+    breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Terms" }]),
+    body: `
+      <section class="detail">
+        <div class="eyebrow">Terms</div>
+        <h1>Terms and conditions.</h1>
+        <p>This website provides original interview preparation material for informational and practice use. Users should adapt answers to their own experience before any real interview and should not treat the content as employment, legal, or financial advice.</p>
+        <div class="answer-box">
+          <h3>Content use</h3>
+          <p>The site content is intended for personal preparation, browsing, and practice. Automated scraping, abusive use, or republication of the full site content without permission is not allowed.</p>
+        </div>
+        <div class="tip-box">
+          <h3>Service availability</h3>
+          <p>The website may change, expand, or remove content over time. While the site aims to be useful and accurate, no guarantee is made that every answer or company page matches every real interview exactly.</p>
+        </div>
+      </section>`
+  }));
+});
+
+app.get("/editorial-policy", (req, res) => {
+  res.send(page({
+    title: "Editorial Policy",
+    description: "How interview questions, answers, and company pages are created and maintained on the site.",
+    canonicalPath: "/editorial-policy",
+    siteUrl: res.locals.siteUrl,
+    structuredData: [
+      webPageSchema({
+        title: "Editorial Policy",
+        description: "How interview questions, answers, and company pages are created and maintained on the site.",
+        siteUrl: res.locals.siteUrl,
+        path: "/editorial-policy"
+      }),
+      breadcrumbSchema([
+        { label: "Home", href: "/" },
+        { label: "Editorial Policy", href: "/editorial-policy" }
+      ], res.locals.siteUrl)
+    ],
+    authLinks: navAuthMarkup(req.currentUser),
+    breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Editorial Policy" }]),
+    body: `
+      <section class="detail">
+        <div class="eyebrow">Editorial</div>
+        <h1>How the content is created.</h1>
+        <p>Career Question Bank publishes original interview practice material. Questions, sample answers, and tips are written as preparation baselines and organized into topic and company pages to help users study efficiently.</p>
+        <div class="answer-box">
+          <h3>Originality standard</h3>
+          <p>The site aims to avoid copying protected interview-report content directly. Instead, it summarizes recurring interview themes and rewrites them into original practice questions and answer structures.</p>
+        </div>
+        <div class="tip-box">
+          <h3>Updates and quality</h3>
+          <p>Content may be expanded, revised, or improved over time as new categories, companies, and preparation guides are added. Users should always adapt sample answers into their own experience, projects, and communication style.</p>
+        </div>
+      </section>`
+  }));
+});
+
+app.get("/ad-disclosure", (req, res) => {
+  res.send(page({
+    title: "Advertising Disclosure",
+    description: "How advertising supports the website and what visitors should expect from sponsored placements.",
+    canonicalPath: "/ad-disclosure",
+    siteUrl: res.locals.siteUrl,
+    structuredData: [
+      webPageSchema({
+        title: "Advertising Disclosure",
+        description: "How advertising supports the website and what visitors should expect from sponsored placements.",
+        siteUrl: res.locals.siteUrl,
+        path: "/ad-disclosure"
+      }),
+      breadcrumbSchema([
+        { label: "Home", href: "/" },
+        { label: "Ad Disclosure", href: "/ad-disclosure" }
+      ], res.locals.siteUrl)
+    ],
+    authLinks: navAuthMarkup(req.currentUser),
+    breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Ad Disclosure" }]),
+    body: `
+      <section class="detail">
+        <div class="eyebrow">Ads</div>
+        <h1>Advertising disclosure.</h1>
+        <p>This website is intended to remain free for visitors and may earn revenue through advertising placements. Sponsored or ad-supported areas help fund the content without requiring users to pay for access.</p>
+        <div class="answer-box">
+          <h3>Editorial separation</h3>
+          <p>Advertising does not change how interview questions are organized or answered on the site. The content library is written as practice material first, with ads placed around the content rather than replacing it.</p>
+        </div>
+        <div class="tip-box">
+          <h3>Third-party ad providers</h3>
+          <p>Some ads may be served by third-party networks such as Google AdSense. Those providers may use their own systems, policies, and technologies to deliver and measure ads on this site.</p>
         </div>
       </section>`
   }));
@@ -1651,6 +1814,9 @@ app.get("/sitemap.xml", (req, res) => {
     "/about",
     "/faq",
     "/privacy",
+    "/terms",
+    "/editorial-policy",
+    "/ad-disclosure",
     "/contact",
     ...guides.map((guide) => guideUrl(guide)),
     ...questionBank.map((category) => categoryUrl(category)),
