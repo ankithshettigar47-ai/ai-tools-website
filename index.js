@@ -17,6 +17,7 @@ const {
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const SITE_URL = String(process.env.SITE_URL || "").trim().replace(/\/+$/, "");
 const ADSENSE_CLIENT = process.env.ADSENSE_CLIENT || "ca-pub-3320175178558120";
 const ADSENSE_SLOT = process.env.ADSENSE_SLOT || "1811439645";
 const ADSENSE_SLOT_SECONDARY = process.env.ADSENSE_SLOT_SECONDARY || "7526169863";
@@ -87,7 +88,7 @@ ensureJsonFile(usersPath, []);
 ensureJsonFile(messagesPath, []);
 ensureJsonFile(researchedDataPath, []);
 app.use((req, res, next) => {
-  res.locals.siteUrl = `http://localhost:${PORT}`;
+  res.locals.siteUrl = resolveSiteUrl(req);
   next();
 });
 app.use((req, res, next) => {
@@ -168,6 +169,25 @@ function formatDate(date) {
     month: "long",
     day: "numeric"
   }).format(date);
+}
+
+function resolveSiteUrl(req) {
+  if (SITE_URL) return SITE_URL;
+  const forwardedProto = String(req.headers["x-forwarded-proto"] || "").split(",")[0].trim();
+  const protocol = forwardedProto || req.protocol || "http";
+  const forwardedHost = String(req.headers["x-forwarded-host"] || "").split(",")[0].trim();
+  const host = forwardedHost || req.headers.host || `localhost:${PORT}`;
+  return `${protocol}://${host}`;
+}
+
+function absoluteUrl(siteUrl, pagePath = "/") {
+  return `${siteUrl}${pagePath.startsWith("/") ? pagePath : `/${pagePath}`}`;
+}
+
+function truncateText(text = "", maxLength = 160) {
+  const cleaned = String(text).replace(/\s+/g, " ").trim();
+  if (cleaned.length <= maxLength) return cleaned;
+  return `${cleaned.slice(0, maxLength - 1).trimEnd()}…`;
 }
 
 function topicCategories() {
@@ -301,14 +321,122 @@ function faqItems() {
   ];
 }
 
-function jsonLdForPage({ title, description, path: pagePath }) {
-  return JSON.stringify({
+function webPageSchema({ title, description, siteUrl, path: pagePath, type = "WebPage" }) {
+  return {
     "@context": "https://schema.org",
-    "@type": "WebPage",
+    "@type": type,
     name: title,
     description,
-    url: `http://localhost:${PORT}${pagePath}`
-  });
+    url: absoluteUrl(siteUrl, pagePath)
+  };
+}
+
+function organizationSchema(siteUrl) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Career Question Bank",
+    url: siteUrl,
+    logo: absoluteUrl(siteUrl, "/public/brand.svg")
+  };
+}
+
+function websiteSchema(siteUrl) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Career Question Bank",
+    url: siteUrl,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${siteUrl}/questions?q={search_term_string}`,
+      "query-input": "required name=search_term_string"
+    }
+  };
+}
+
+function breadcrumbSchema(items, siteUrl) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.label,
+      item: item.href ? absoluteUrl(siteUrl, item.href) : undefined
+    }))
+  };
+}
+
+function faqSchema(items, siteUrl, pagePath) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    url: absoluteUrl(siteUrl, pagePath),
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer
+      }
+    }))
+  };
+}
+
+function itemListSchema({ title, description, items, siteUrl, pagePath }) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: title,
+    description,
+    url: absoluteUrl(siteUrl, pagePath),
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: items.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        url: absoluteUrl(siteUrl, item.url),
+        name: item.name
+      }))
+    }
+  };
+}
+
+function questionSchema(match, siteUrl) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "QAPage",
+    url: absoluteUrl(siteUrl, questionUrl(match.category.slug, match.question.slug)),
+    mainEntity: {
+      "@type": "Question",
+      name: match.question.question,
+      text: match.question.question,
+      answerCount: 1,
+      about: match.category.title,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: match.question.answer
+      }
+    }
+  };
+}
+
+function structuredDataMarkup(nodes) {
+  const filtered = (Array.isArray(nodes) ? nodes : [nodes]).filter(Boolean);
+  if (!filtered.length) return "";
+  if (filtered.length === 1) {
+    return `<script type="application/ld+json">${JSON.stringify(filtered[0])}</script>`;
+  }
+  const graph = {
+    "@context": "https://schema.org",
+    "@graph": filtered.map((item) => {
+      const nextItem = { ...item };
+      delete nextItem["@context"];
+      return nextItem;
+    })
+  };
+  return `<script type="application/ld+json">${JSON.stringify(graph)}</script>`;
 }
 
 function paginationLinks(basePath, currentPage, totalPages, params) {
@@ -400,7 +528,23 @@ function navAuthMarkup(user) {
   return `${adminLink}<a href="/logout">Logout</a>`;
 }
 
-function page({ title, description, body, canonicalPath = "/", jsonLd, breadcrumbs = "", authLinks = "" }) {
+function page({
+  title,
+  description,
+  body,
+  canonicalPath = "/",
+  structuredData,
+  breadcrumbs = "",
+  authLinks = "",
+  siteUrl,
+  robots = "index,follow",
+  ogType = "website"
+}) {
+  const resolvedSiteUrl = siteUrl || SITE_URL || `http://localhost:${PORT}`;
+  const canonicalUrl = absoluteUrl(resolvedSiteUrl, canonicalPath);
+  const schemaMarkup = structuredDataMarkup(
+    structuredData || [webPageSchema({ title, description, siteUrl: resolvedSiteUrl, path: canonicalPath })]
+  );
   return `<!DOCTYPE html>
   <html lang="en">
   <head>
@@ -408,15 +552,24 @@ function page({ title, description, body, canonicalPath = "/", jsonLd, breadcrum
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>${escapeHtml(title)}</title>
     <meta name="description" content="${escapeHtml(description)}" />
+    <meta name="robots" content="${escapeHtml(robots)}" />
+    <meta name="googlebot" content="${escapeHtml(robots)}" />
     <meta name="theme-color" content="#874019" />
     <meta property="og:title" content="${escapeHtml(title)}" />
     <meta property="og:description" content="${escapeHtml(description)}" />
-    <meta property="og:type" content="website" />
-    <link rel="canonical" href="${escapeHtml(`http://localhost:${PORT}${canonicalPath}`)}" />
+    <meta property="og:type" content="${escapeHtml(ogType)}" />
+    <meta property="og:url" content="${escapeHtml(canonicalUrl)}" />
+    <meta property="og:site_name" content="Career Question Bank" />
+    <meta property="og:image" content="${escapeHtml(absoluteUrl(resolvedSiteUrl, "/public/brand.svg"))}" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${escapeHtml(title)}" />
+    <meta name="twitter:description" content="${escapeHtml(description)}" />
+    <meta name="twitter:image" content="${escapeHtml(absoluteUrl(resolvedSiteUrl, "/public/brand.svg"))}" />
+    <link rel="canonical" href="${escapeHtml(canonicalUrl)}" />
     <link rel="icon" type="image/svg+xml" href="/public/favicon.svg" />
     <link rel="stylesheet" href="/public/styles.css" />
     ${ADSENSE_CLIENT ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${escapeHtml(ADSENSE_CLIENT)}" crossorigin="anonymous"></script>` : ""}
-    <script type="application/ld+json">${jsonLd || jsonLdForPage({ title, description, path: canonicalPath })}</script>
+    ${schemaMarkup}
   </head>
   <body>
     <header class="top">
@@ -488,6 +641,7 @@ function notFoundPage(title, message, user = null) {
     title,
     description: message,
     canonicalPath: "/404",
+    robots: "noindex,nofollow",
     authLinks: navAuthMarkup(user),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "404" }]),
     body: `
@@ -504,6 +658,7 @@ function notFoundPage(title, message, user = null) {
 }
 
 app.get("/", (req, res) => {
+  const homeFaq = faqItems();
   const featured = allQuestions().slice(0, 6).map((item) => card(item)).join("");
   const latest = allQuestions().slice(-6).reverse().map((item) => card(item, { practiceMode: true })).join("");
   const categories = topicCategories()
@@ -535,16 +690,38 @@ app.get("/", (req, res) => {
       </article>`)
     .join("");
   const guideMarkup = guides.slice(0, 3).map(guideCard).join("");
-  const faqMarkup = faqItems().map((item) => `
+  const faqMarkup = homeFaq.map((item) => `
     <article class="faq-item">
       <h3>${escapeHtml(item.question)}</h3>
       <p>${escapeHtml(item.answer)}</p>
     </article>`).join("");
 
   res.send(page({
-    title: "Interview Questions and Answers",
-    description: "Interview question bank with company pages, preparation guides, search, and answer walkthroughs.",
+    title: "Interview Questions and Answers for Freshers, HR, Coding, and Top Companies",
+    description: "Free interview questions and answers for freshers, coding rounds, HR interviews, behavioral interviews, and top companies like Google, Amazon, Microsoft, TCS, Infosys, and more.",
     canonicalPath: "/",
+    siteUrl: res.locals.siteUrl,
+    structuredData: [
+      webPageSchema({
+        title: "Interview Questions and Answers for Freshers, HR, Coding, and Top Companies",
+        description: "Free interview questions and answers with company-wise interview prep, coding questions, and HR interview guidance.",
+        siteUrl: res.locals.siteUrl,
+        path: "/"
+      }),
+      organizationSchema(res.locals.siteUrl),
+      websiteSchema(res.locals.siteUrl),
+      faqSchema(homeFaq, res.locals.siteUrl, "/"),
+      itemListSchema({
+        title: "Featured Interview Question Categories",
+        description: "Featured topic and company interview preparation categories.",
+        siteUrl: res.locals.siteUrl,
+        pagePath: "/",
+        items: questionBank.slice(0, 10).map((category) => ({
+          name: category.title,
+          url: categoryUrl(category)
+        }))
+      })
+    ],
     authLinks: navAuthMarkup(req.currentUser),
     body: `
       <section class="hero">
@@ -610,14 +787,45 @@ app.get("/questions", (req, res) => {
     { value: "company", label: "Company" }
   ].map((item) => `<option value="${item.value}" ${item.value === sort ? "selected" : ""}>${item.label}</option>`).join("");
   const pageState = paginate(results, pageNumber, 12);
+  const archiveTitle = q
+    ? `${String(q).trim()} Interview Questions and Answers`
+    : category
+      ? `${(byCategory(category) || {}).title || "Category"} Interview Questions and Answers`
+      : "All Interview Questions and Answers";
+  const archiveDescription = q
+    ? `Search results for ${String(q).trim()} interview questions and answers across company-wise, coding, HR, behavioral, and technical preparation pages.`
+    : "Browse all interview questions and answers with category filters, company-wise pages, coding interview prep, and HR interview practice.";
   const list = pageState.pageItems.length
     ? pageState.pageItems.map((item) => card(item, { practiceMode: !reveal })).join("")
     : `<article class="panel"><h3>No matching questions found.</h3><p>Try a broader keyword or clear the category filter.</p></article>`;
 
   res.send(page({
-    title: "All Interview Questions",
-    description: "Search, sort, and paginate the interview question archive.",
+    title: archiveTitle,
+    description: archiveDescription,
     canonicalPath: "/questions",
+    siteUrl: res.locals.siteUrl,
+    structuredData: [
+      webPageSchema({
+        title: archiveTitle,
+        description: archiveDescription,
+        siteUrl: res.locals.siteUrl,
+        path: "/questions"
+      }),
+      breadcrumbSchema([
+        { label: "Home", href: "/" },
+        { label: "All Questions", href: "/questions" }
+      ], res.locals.siteUrl),
+      itemListSchema({
+        title: archiveTitle,
+        description: archiveDescription,
+        siteUrl: res.locals.siteUrl,
+        pagePath: "/questions",
+        items: results.slice(0, 20).map((item) => ({
+          name: item.question,
+          url: questionUrl(item.categorySlug, item.slug)
+        }))
+      })
+    ],
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "All Questions" }]),
     body: `
@@ -679,9 +887,46 @@ app.get("/category/:slug", (req, res) => {
     .join("");
 
   return res.send(page({
-    title: `${category.title} Interview Questions`,
-    description: category.summary,
+    title: category.kind === "company"
+      ? `${category.companyName || category.title} Interview Questions and Answers`
+      : `${category.title} Interview Questions and Answers`,
+    description: truncateText(
+      category.kind === "company"
+        ? `${category.companyName || category.title} interview questions and answers for ${category.roleFocus || "job interviews"}. ${category.summary} ${category.questions.length} practice questions available.`
+        : `${category.summary} ${category.questions.length} interview questions and answers in this category.`
+    ),
     canonicalPath: categoryUrl(category),
+    siteUrl: res.locals.siteUrl,
+    structuredData: [
+      webPageSchema({
+        title: category.kind === "company"
+          ? `${category.companyName || category.title} Interview Questions and Answers`
+          : `${category.title} Interview Questions and Answers`,
+        description: truncateText(
+          category.kind === "company"
+            ? `${category.companyName || category.title} interview questions and answers for ${category.roleFocus || "job interviews"}. ${category.summary}`
+            : `${category.summary} ${category.questions.length} interview questions and answers in this category.`
+        ),
+        siteUrl: res.locals.siteUrl,
+        path: categoryUrl(category),
+        type: "CollectionPage"
+      }),
+      breadcrumbSchema([
+        { label: "Home", href: "/" },
+        { label: "All Questions", href: "/questions" },
+        { label: category.title, href: categoryUrl(category) }
+      ], res.locals.siteUrl),
+      itemListSchema({
+        title: `${category.title} interview questions`,
+        description: category.summary,
+        siteUrl: res.locals.siteUrl,
+        pagePath: categoryUrl(category),
+        items: category.questions.slice(0, 20).map((item) => ({
+          name: item.question,
+          url: questionUrl(category.slug, item.slug)
+        }))
+      })
+    ],
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([
       { label: "Home", href: "/" },
@@ -740,9 +985,27 @@ app.get("/question/:categorySlug/:questionSlug", (req, res) => {
   const answerId = `answer-${match.category.slug}-${match.question.slug}`;
 
   return res.send(page({
-    title: `${match.question.question} | ${match.category.title}`,
-    description: match.question.answer,
+    title: `${match.question.question} | Best Answer for ${match.category.title}`,
+    description: truncateText(match.question.answer),
     canonicalPath: questionUrl(match.category.slug, match.question.slug),
+    siteUrl: res.locals.siteUrl,
+    ogType: "article",
+    structuredData: [
+      webPageSchema({
+        title: `${match.question.question} | Best Answer for ${match.category.title}`,
+        description: truncateText(match.question.answer),
+        siteUrl: res.locals.siteUrl,
+        path: questionUrl(match.category.slug, match.question.slug),
+        type: "QAPage"
+      }),
+      breadcrumbSchema([
+        { label: "Home", href: "/" },
+        { label: "All Questions", href: "/questions" },
+        { label: match.category.title, href: categoryUrl(match.category) },
+        { label: match.question.question, href: questionUrl(match.category.slug, match.question.slug) }
+      ], res.locals.siteUrl),
+      questionSchema(match, res.locals.siteUrl)
+    ],
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([
       { label: "Home", href: "/" },
@@ -785,6 +1048,30 @@ app.get("/guides", (req, res) => {
     title: "Interview Preparation Guides",
     description: "Guides for HR, coding rounds, company preparation, resume alignment, and aptitude practice.",
     canonicalPath: "/guides",
+    siteUrl: res.locals.siteUrl,
+    structuredData: [
+      webPageSchema({
+        title: "Interview Preparation Guides",
+        description: "Guides for HR, coding rounds, company preparation, resume alignment, and aptitude practice.",
+        siteUrl: res.locals.siteUrl,
+        path: "/guides",
+        type: "CollectionPage"
+      }),
+      breadcrumbSchema([
+        { label: "Home", href: "/" },
+        { label: "Guides", href: "/guides" }
+      ], res.locals.siteUrl),
+      itemListSchema({
+        title: "Interview Preparation Guides",
+        description: "Preparation guides for interview practice.",
+        siteUrl: res.locals.siteUrl,
+        pagePath: "/guides",
+        items: guides.map((guide) => ({
+          name: guide.title,
+          url: guideUrl(guide)
+        }))
+      })
+    ],
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Guides" }]),
     body: `
@@ -808,6 +1095,21 @@ app.get("/guide/:slug", (req, res) => {
     title: guide.title,
     description: guide.summary,
     canonicalPath: guideUrl(guide),
+    siteUrl: res.locals.siteUrl,
+    structuredData: [
+      webPageSchema({
+        title: guide.title,
+        description: guide.summary,
+        siteUrl: res.locals.siteUrl,
+        path: guideUrl(guide),
+        type: "Article"
+      }),
+      breadcrumbSchema([
+        { label: "Home", href: "/" },
+        { label: "Guides", href: "/guides" },
+        { label: guide.title, href: guideUrl(guide) }
+      ], res.locals.siteUrl)
+    ],
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Guides", href: "/guides" }, { label: guide.title }]),
     body: `
@@ -826,6 +1128,8 @@ function renderAuthPage(req, config) {
     title: config.title,
     description: config.description,
     canonicalPath: config.path,
+    siteUrl: req.res.locals.siteUrl,
+    robots: "noindex,nofollow",
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: config.title }]),
     body: `
@@ -991,6 +1295,8 @@ app.get("/saved", (req, res) => {
     title: "Saved Questions",
     description: "Questions saved to your account.",
     canonicalPath: "/saved",
+    siteUrl: res.locals.siteUrl,
+    robots: "noindex,nofollow",
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Saved" }]),
     body: `
@@ -1041,6 +1347,8 @@ app.get("/admin", (req, res) => {
     title: "Admin Dashboard",
     description: "Manage categories, questions, users, and contact messages.",
     canonicalPath: "/admin",
+    siteUrl: res.locals.siteUrl,
+    robots: "noindex,nofollow",
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Admin" }]),
     body: `
@@ -1147,6 +1455,20 @@ app.get("/about", (req, res) => {
     title: "About Career Question Bank",
     description: "About the interview preparation library, company-wise question sets, and how to use the site.",
     canonicalPath: "/about",
+    siteUrl: res.locals.siteUrl,
+    structuredData: [
+      webPageSchema({
+        title: "About Career Question Bank",
+        description: "About the interview preparation library, company-wise question sets, and how to use the site.",
+        siteUrl: res.locals.siteUrl,
+        path: "/about"
+      }),
+      breadcrumbSchema([
+        { label: "Home", href: "/" },
+        { label: "About", href: "/about" }
+      ], res.locals.siteUrl),
+      organizationSchema(res.locals.siteUrl)
+    ],
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "About" }]),
     body: `
@@ -1170,7 +1492,8 @@ app.get("/about", (req, res) => {
 });
 
 app.get("/faq", (req, res) => {
-  const items = faqItems().map((item) => `
+  const questions = faqItems();
+  const items = questions.map((item) => `
     <article class="faq-item">
       <h3>${escapeHtml(item.question)}</h3>
       <p>${escapeHtml(item.answer)}</p>
@@ -1179,6 +1502,20 @@ app.get("/faq", (req, res) => {
     title: "Interview FAQ",
     description: "Frequently asked questions about using the interview question bank and practicing effectively.",
     canonicalPath: "/faq",
+    siteUrl: res.locals.siteUrl,
+    structuredData: [
+      webPageSchema({
+        title: "Interview FAQ",
+        description: "Frequently asked questions about using the interview question bank and practicing effectively.",
+        siteUrl: res.locals.siteUrl,
+        path: "/faq"
+      }),
+      breadcrumbSchema([
+        { label: "Home", href: "/" },
+        { label: "FAQ", href: "/faq" }
+      ], res.locals.siteUrl),
+      faqSchema(questions, res.locals.siteUrl, "/faq")
+    ],
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "FAQ" }]),
     body: `
@@ -1196,6 +1533,19 @@ app.get("/privacy", (req, res) => {
     title: "Privacy Policy",
     description: "Simple privacy page for the interview preparation website.",
     canonicalPath: "/privacy",
+    siteUrl: res.locals.siteUrl,
+    structuredData: [
+      webPageSchema({
+        title: "Privacy Policy",
+        description: "Simple privacy page for the interview preparation website.",
+        siteUrl: res.locals.siteUrl,
+        path: "/privacy"
+      }),
+      breadcrumbSchema([
+        { label: "Home", href: "/" },
+        { label: "Privacy", href: "/privacy" }
+      ], res.locals.siteUrl)
+    ],
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Privacy" }]),
     body: `
@@ -1215,11 +1565,24 @@ app.get("/privacy", (req, res) => {
   }));
 });
 
-function renderContactPage(user, message = "") {
+function renderContactPage(user, siteUrl, message = "") {
   return page({
     title: "Contact",
     description: "Contact page for the interview preparation website.",
     canonicalPath: "/contact",
+    siteUrl,
+    structuredData: [
+      webPageSchema({
+        title: "Contact",
+        description: "Contact page for the interview preparation website.",
+        siteUrl,
+        path: "/contact"
+      }),
+      breadcrumbSchema([
+        { label: "Home", href: "/" },
+        { label: "Contact", href: "/contact" }
+      ], siteUrl)
+    ],
     authLinks: navAuthMarkup(user),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Contact" }]),
     body: `
@@ -1242,7 +1605,7 @@ function renderContactPage(user, message = "") {
 }
 
 app.get("/contact", (req, res) => {
-  res.send(renderContactPage(req.currentUser));
+  res.send(renderContactPage(req.currentUser, res.locals.siteUrl));
 });
 
 app.post("/contact", (req, res) => {
@@ -1257,7 +1620,7 @@ app.post("/contact", (req, res) => {
     createdAt: new Date().toISOString()
   });
   saveMessages(messages);
-  res.send(renderContactPage(req.currentUser, `Thanks, ${name}. Your message was received and stored.`));
+  res.send(renderContactPage(req.currentUser, res.locals.siteUrl, `Thanks, ${name}. Your message was received and stored.`));
 });
 
 app.get("/api/questions", (req, res) => {
@@ -1271,6 +1634,11 @@ app.get("/api/questions", (req, res) => {
 app.get("/robots.txt", (req, res) => {
   res.type("text/plain").send(`User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /saved
+Disallow: /login
+Disallow: /register
+Disallow: /api/
 Sitemap: ${res.locals.siteUrl}/sitemap.xml
 `);
 });
@@ -1288,9 +1656,10 @@ app.get("/sitemap.xml", (req, res) => {
     ...questionBank.map((category) => categoryUrl(category)),
     ...questionBank.flatMap((category) => category.questions.map((question) => questionUrl(category.slug, question.slug)))
   ];
+  const lastModified = new Date(dataUpdatedAt).toISOString();
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map((url) => `  <url><loc>${res.locals.siteUrl}${escapeHtml(url)}</loc></url>`).join("\n")}
+${urls.map((url) => `  <url><loc>${res.locals.siteUrl}${escapeHtml(url)}</loc><lastmod>${lastModified}</lastmod></url>`).join("\n")}
 </urlset>`;
   res.type("application/xml").send(xml);
 });

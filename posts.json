@@ -34,6 +34,138 @@
         "question": "When would you choose a monolith over microservices?",
         "answer": "I choose a monolith when the product is early, the team is small, and the domain boundaries are still changing. A monolith is easier to test, deploy, and understand, and I only split services when the operational benefit clearly outweighs the extra complexity.",
         "tip": "Show that architecture should match team size and product stage."
+      },
+      {
+        "slug": "design-under-ambiguity",
+        "question": "How do you design a feature when requirements are still ambiguous?",
+        "answer": "I first identify the decision points that affect scope, risk, and user outcome, then I clarify those with the smallest set of questions possible. If ambiguity remains, I propose a phased implementation with explicit assumptions so the team can move forward without pretending uncertainty does not exist.",
+        "tip": "Show that you can create momentum without guessing carelessly."
+      },
+      {
+        "slug": "technical-debt",
+        "question": "How do you handle technical debt in an active product?",
+        "answer": "I do not treat all technical debt the same. I look at which debt slows delivery, increases defects, or creates operational risk, and I prioritize the parts that hurt the product most. The best approach is usually steady reduction tied to real feature work rather than waiting for a perfect cleanup window.",
+        "tip": "Prioritization matters more than calling everything debt."
+      },
+      {
+        "slug": "testing-strategy",
+        "question": "What does a good testing strategy look like for a new feature?",
+        "answer": "A good strategy covers the highest-risk behavior at the lowest reasonable cost. I usually combine a few focused unit tests, integration checks around critical flows, and enough manual verification to catch real user-path issues before release.",
+        "tip": "Talk about risk coverage, not just test quantity."
+      },
+      {
+        "slug": "production-monitoring",
+        "question": "How do you know whether a production release is healthy?",
+        "answer": "I watch the signals that reflect real user impact, such as error rate, latency, success rate, and any feature-specific business metric that should remain stable. A release is healthy when those signals stay within expected bounds and rollback criteria are clear if they do not.",
+        "tip": "Mention concrete signals instead of saying you just check logs."
+      },
+      {
+        "slug": "system-design-tradeoffs",
+        "question": "How do you explain architectural tradeoffs to non-engineers?",
+        "answer": "I translate the tradeoff into outcomes the team cares about, such as speed of delivery, reliability, cost, and future flexibility. The goal is not to simplify the engineering into something inaccurate, but to make the decision understandable and reviewable.",
+        "tip": "Connect technical choices to business consequences."
+      },
+      {
+        "slug": "incident-response",
+        "question": "What is your approach during a production incident?",
+        "answer": "I first focus on reducing user impact, then I gather enough evidence to identify the failure path, communicate status clearly, and avoid making random changes under pressure. After recovery, I document the cause and prevention steps so the same issue is less likely to repeat.",
+        "tip": "Stabilization comes before deep diagnosis."
+      },
+      {
+        "slug": "estimating-work",
+        "question": "How do you estimate engineering work realistically?",
+        "answer": "I break the work into smaller pieces, identify unknowns and dependencies, and separate the likely path from the risky path. Realistic estimates come from exposing uncertainty early instead of hiding it behind one optimistic number.",
+        "tip": "Mention dependencies and unknowns."
+      },
+      {
+        "slug": "backward-compatibility",
+        "question": "When is backward compatibility especially important?",
+        "answer": "Backward compatibility matters when existing clients, users, or internal systems depend on behavior that cannot change safely all at once. Preserving compatibility protects trust and gives teams a path to evolve systems without forcing disruption.",
+        "tip": "Show that compatibility is a product decision as well as a technical one."
+      },
+      {
+        "slug": "refactor-vs-rewrite",
+        "question": "How do you decide between refactoring and rewriting?",
+        "answer": "I prefer refactoring when the current system still has useful structure and the risk of incremental improvement is lower than a rewrite. I choose a rewrite only when the existing foundation blocks progress so deeply that incremental change becomes more expensive and less safe than replacement.",
+        "tip": "Incremental change is usually the default."
+      },
+      {
+        "slug": "cross-team-dependency",
+        "question": "How do you manage a feature that depends on another team?",
+        "answer": "I make the dependency explicit early, align on contracts and timelines, and reduce coupling where possible so progress does not stall completely. Dependency management is strongest when assumptions are written down instead of left informal.",
+        "tip": "Emphasize explicit contracts and visibility."
+      },
+      {
+        "slug": "root-cause-analysis",
+        "question": "What makes a good root cause analysis?",
+        "answer": "A good root cause analysis explains not only what failed, but why the system allowed the failure to happen and how similar failures can be prevented. It should improve understanding and action, not assign blame theatrically.",
+        "tip": "Focus on prevention, not blame."
+      },
+      {
+        "slug": "safe-rollouts",
+        "question": "How do you release risky changes safely?",
+        "answer": "I reduce risk through smaller deployments, feature flags, monitoring, clear rollback criteria, and staged rollout where possible. Safe releases come from limiting blast radius and keeping observation tight around the change.",
+        "tip": "Blast radius is a useful phrase here."
+      },
+      {
+        "slug": "engineering-ownership",
+        "question": "What does ownership mean in software engineering?",
+        "answer": "Ownership means seeing the problem through from unclear request to reliable outcome, including implementation, communication, validation, and follow-up. It is broader than writing code because it includes making sure the result actually works for users and the team.",
+        "tip": "Ownership includes follow-through."
+      },
+      {
+        "slug": "scaling-team-quality",
+        "question": "How do you maintain quality as an engineering team grows?",
+        "answer": "I rely on shared standards, code review quality, automation, and clear design decisions so consistency does not depend on one person remembering everything. Growing teams need systems that make good behavior easier.",
+        "tip": "Talk about systems, not only individual discipline."
+      },
+      {
+        "slug": "performance-bottleneck",
+        "question": "How do you identify the real bottleneck in a slow system?",
+        "answer": "I measure the user path first, then narrow the dominant cost with logs, metrics, or profiling rather than guessing from intuition. Bottlenecks are often different from where teams first feel the pain, so evidence matters.",
+        "tip": "Always anchor on measurement."
+      },
+      {
+        "slug": "designing-apis",
+        "question": "What makes an internal API easy to work with?",
+        "answer": "A good internal API is clear, stable, observable, and named around the domain instead of accidental implementation detail. Teams move faster when APIs reduce ambiguity instead of forcing everyone to rediscover the same behavior separately.",
+        "tip": "Use clarity and stability as the main points."
+      },
+      {
+        "slug": "requirements-changes",
+        "question": "How do you handle changing requirements in the middle of development?",
+        "answer": "I reassess scope based on what changed, identify what work remains valid, and update stakeholders on the cost of the new direction. Good handling of changing requirements is mostly about clarity and controlled adjustment, not frustration.",
+        "tip": "Show adaptability without sounding passive."
+      },
+      {
+        "slug": "mentoring-juniors",
+        "question": "How do you help junior engineers improve?",
+        "answer": "I try to give guidance that improves their decision-making, not just the code in front of us. That means explaining the why behind changes, creating space for them to reason aloud, and helping them build habits they can reuse independently.",
+        "tip": "Teaching the why is stronger than fixing everything yourself."
+      },
+      {
+        "slug": "engineering-metrics",
+        "question": "Which engineering metrics do you actually trust?",
+        "answer": "I trust metrics that connect to user impact or delivery health, such as failure rate, change lead time, and recovery time, but only when teams interpret them with context. Metrics help most when they guide questions rather than become vanity dashboards.",
+        "tip": "Avoid sounding metric-blind or metric-obsessed."
+      },
+      {
+        "slug": "de-risking-project",
+        "question": "How do you de-risk a large project early?",
+        "answer": "I identify the assumptions most likely to fail and test those before polishing the easier parts. Projects get safer when the hardest unknowns are surfaced quickly instead of being discovered near launch.",
+        "tip": "Unknowns should be tackled before cosmetic progress."
+      },
+      {
+        "slug": "engineering-principles",
+        "question": "What engineering principles do you rely on most?",
+        "answer": "I rely on clarity, correctness, small changes, and evidence-based decisions because those principles scale well across products and teams. Strong principles help when details are messy because they keep judgment consistent.",
+        "tip": "Keep the principles practical rather than philosophical."
+      },
+      {
+        "slug": "software-engineering-practice-strategy",
+        "question": "What is the best way to practice software engineering interview questions?",
+        "answer": "The best way is to combine understanding with repetition: read the question, answer it aloud in your own words, compare against a strong baseline, and improve one weakness at a time. Practice works best when it turns passive reading into active recall and clearer communication.",
+        "tip": "Practice aloud, not only by reading."
       }
     ]
   },
@@ -72,6 +204,138 @@
         "question": "How does this work in JavaScript?",
         "answer": "this depends on how a function is called, not only where it is defined. In object methods it usually points to the object, in constructors it points to the new instance, and in arrow functions it is inherited from the surrounding scope.",
         "tip": "Mention arrow functions because interviewers often ask there."
+      },
+      {
+        "slug": "==vs===",
+        "question": "What is the difference between == and === in JavaScript?",
+        "answer": "Double equals performs type coercion before comparison, while triple equals checks both value and type directly. In practice, I prefer triple equals because it reduces surprising behavior and makes intent clearer.",
+        "tip": "Use a short example if the interviewer wants one."
+      },
+      {
+        "slug": "array-methods",
+        "question": "When would you use map, filter, and reduce?",
+        "answer": "I use map when I want to transform every item, filter when I want to keep only matching items, and reduce when I want to combine a list into one result such as a sum, object, or grouped structure. Choosing the right method makes the code more readable because the intent is visible from the function used.",
+        "tip": "Explain intent, not only syntax."
+      },
+      {
+        "slug": "hoisting",
+        "question": "What is hoisting in JavaScript?",
+        "answer": "Hoisting means declarations are processed before code execution in their scope. Function declarations are fully available earlier, while variables declared with var are hoisted but initialized to undefined, and let or const remain in the temporal dead zone until their declaration runs.",
+        "tip": "Temporal dead zone is the important follow-up detail."
+      },
+      {
+        "slug": "debounce-throttle",
+        "question": "What is the difference between debouncing and throttling?",
+        "answer": "Debouncing delays execution until events stop firing for a period, which is useful for search inputs. Throttling limits how often a function can run during continuous activity, which is useful for scroll or resize handlers. Both control event frequency, but they optimize for different user behavior patterns.",
+        "tip": "Use search and scroll as the simplest examples."
+      },
+      {
+        "slug": "prototype-chain",
+        "question": "What is the prototype chain in JavaScript?",
+        "answer": "Objects in JavaScript can inherit properties and behavior through a linked prototype chain. When a property is not found on the object itself, the runtime looks up the chain until it either finds the property or reaches the end.",
+        "tip": "Tie the explanation to property lookup."
+      },
+      {
+        "slug": "shallow-vs-deep-copy",
+        "question": "What is the difference between a shallow copy and a deep copy?",
+        "answer": "A shallow copy duplicates the top-level container but still shares nested references, while a deep copy duplicates nested structures as well. The difference matters when updating objects because shallow copies can still allow hidden mutation of nested data.",
+        "tip": "Nested references are the key detail."
+      },
+      {
+        "slug": "rest-spread",
+        "question": "How do rest and spread syntax differ?",
+        "answer": "Spread expands values out of an iterable or object into another structure, while rest collects multiple remaining values into one variable. The syntax looks similar, but the direction of data flow is opposite.",
+        "tip": "Call out expand versus collect."
+      },
+      {
+        "slug": "destructuring",
+        "question": "Why is destructuring useful?",
+        "answer": "Destructuring makes code more readable by extracting only the values you need from arrays or objects. It also reduces repetitive access patterns and can make function parameters clearer when used carefully.",
+        "tip": "Mention readability rather than calling it only shorthand."
+      },
+      {
+        "slug": "modules-commonjs-esm",
+        "question": "What is the difference between CommonJS and ES modules?",
+        "answer": "CommonJS uses require and module.exports and is historically common in Node.js, while ES modules use import and export and align with the JavaScript language standard. The syntax, loading behavior, and tooling support differ enough that teams should be explicit about which module system they use.",
+        "tip": "Use require versus import as the simple anchor."
+      },
+      {
+        "slug": "memory-leaks-js",
+        "question": "How can memory leaks happen in JavaScript applications?",
+        "answer": "Memory leaks often happen when references are kept alive unintentionally through closures, global state, event listeners, or caches that are never cleaned up. Leaks are really about object reachability, not only about allocation.",
+        "tip": "Reachability is the core concept."
+      },
+      {
+        "slug": "null-vs-undefined",
+        "question": "What is the difference between null and undefined?",
+        "answer": "Undefined usually means a value has not been assigned, while null is typically used intentionally to represent an empty or absent value. The distinction matters because one often reflects default runtime state and the other reflects program intent.",
+        "tip": "Intentional absence is a good phrase for null."
+      },
+      {
+        "slug": "error-handling-js",
+        "question": "How do you handle errors in asynchronous JavaScript code?",
+        "answer": "I keep the error path explicit with try and catch around await-based code or catch handlers around promise chains, and I avoid swallowing errors silently. Good async error handling makes failures observable and keeps cleanup behavior predictable.",
+        "tip": "Visibility of failures matters as much as catching them."
+      },
+      {
+        "slug": "set-map-usage",
+        "question": "When would you use Set or Map instead of arrays or plain objects?",
+        "answer": "I use Set when uniqueness matters and Map when key lookups are central and keys may not be plain strings. They express intent better than forcing arrays or objects to simulate behaviors they were not designed for.",
+        "tip": "Explain the problem the structure solves."
+      },
+      {
+        "slug": "immutability-js",
+        "question": "Why is immutability useful in JavaScript applications?",
+        "answer": "Immutability makes state changes easier to reason about because old values are not being modified in place unexpectedly. This reduces side effects, improves debugging, and fits well with UI patterns that depend on detecting changes by reference.",
+        "tip": "Tie it to predictability and change detection."
+      },
+      {
+        "slug": "strict-mode",
+        "question": "What does strict mode change in JavaScript?",
+        "answer": "Strict mode removes some error-prone behavior by turning silent problems into explicit errors and tightening parts of the language semantics. It helps catch mistakes earlier and makes code behavior more deliberate.",
+        "tip": "Early error detection is the main value."
+      },
+      {
+        "slug": "microtasks-macrotasks",
+        "question": "What is the difference between microtasks and macrotasks?",
+        "answer": "Microtasks such as promise callbacks run before the event loop moves on to the next macrotask, while macrotasks include items like timers and I O callbacks. Understanding the order matters when debugging execution timing and UI responsiveness.",
+        "tip": "Execution order is what interviewers usually care about."
+      },
+      {
+        "slug": "optional-chaining",
+        "question": "When is optional chaining useful?",
+        "answer": "Optional chaining is useful when accessing nested properties that may not exist and you want to stop safely instead of throwing. It improves readability when the missing path is expected and should simply produce undefined.",
+        "tip": "Use it for expected absence, not as a substitute for good design."
+      },
+      {
+        "slug": "functional-vs-imperative-js",
+        "question": "How do functional and imperative JavaScript styles differ?",
+        "answer": "Imperative code focuses on step-by-step state changes, while functional style emphasizes transforming inputs into outputs with fewer side effects. Both are useful, and strong JavaScript code usually chooses the clearer style for the specific problem.",
+        "tip": "Do not frame one style as always superior."
+      },
+      {
+        "slug": "json-serialize-limits",
+        "question": "What are some limits of JSON serialization in JavaScript?",
+        "answer": "JSON does not preserve functions, undefined values, special object types like Map cleanly, or circular references without extra handling. It is great for simple data interchange, but it is not a full fidelity representation of arbitrary runtime state.",
+        "tip": "Mention circular references and type loss."
+      },
+      {
+        "slug": "promise-all-vs-allsettled",
+        "question": "When would you use Promise.all versus Promise.allSettled?",
+        "answer": "I use Promise.all when all tasks must succeed together and I want fast failure, while Promise.allSettled is better when I need the outcome of every task even if some fail. The right choice depends on whether partial results are still useful.",
+        "tip": "Explain fast failure versus complete results."
+      },
+      {
+        "slug": "generators-js",
+        "question": "What problem do generators solve in JavaScript?",
+        "answer": "Generators let a function pause and resume, which is useful for representing sequences, lazy iteration, or custom control flow. They are most helpful when producing values over time is clearer than building everything eagerly.",
+        "tip": "Use lazy iteration as the concrete example."
+      },
+      {
+        "slug": "javascript-practice-strategy",
+        "question": "What is the best way to practice javascript interview questions?",
+        "answer": "The best way is to combine understanding with repetition: read the question, answer it aloud in your own words, compare against a strong baseline, and improve one weakness at a time. Practice works best when it turns passive reading into active recall and clearer communication.",
+        "tip": "Practice aloud, not only by reading."
       }
     ]
   },
@@ -110,6 +374,138 @@
         "question": "How do you improve performance in a React app?",
         "answer": "I start by measuring with React DevTools or browser profiling. Then I reduce unnecessary renders, keep state local where possible, avoid wasteful effects, and only add memoization where profiling shows it solves a real issue.",
         "tip": "Start with measurement before optimization."
+      },
+      {
+        "slug": "lifting-state-up",
+        "question": "What does lifting state up mean in React?",
+        "answer": "Lifting state up means moving shared state to the closest common parent so multiple child components can use the same source of truth. It helps keep related UI in sync and avoids duplicated state that drifts out of alignment.",
+        "tip": "Use the phrase source of truth."
+      },
+      {
+        "slug": "react-context",
+        "question": "When should you use React Context?",
+        "answer": "I use Context when data such as theme, auth state, or shared settings needs to be accessed by many nested components and passing props through every level would add noise. I still use it carefully because putting too much frequently changing state in Context can cause broader rerenders.",
+        "tip": "Mention both convenience and rerender tradeoffs."
+      },
+      {
+        "slug": "component-reusability",
+        "question": "How do you make React components more reusable?",
+        "answer": "Reusable components have a clear responsibility, accept flexible props, and avoid depending on hidden assumptions from one screen. I also try to separate presentation from business rules when that makes the component easier to reuse in different contexts.",
+        "tip": "Clear responsibility is more important than adding many props."
+      },
+      {
+        "slug": "react-form-handling",
+        "question": "How do you handle complex forms in React?",
+        "answer": "I keep form state structured around the data model, validate close to the user interaction, and avoid scattered state updates that make the form hard to reason about. For larger forms, I break repeated patterns into smaller components so the form remains maintainable.",
+        "tip": "Structure and maintainability matter in form answers."
+      },
+      {
+        "slug": "react-lifecycle-hooks",
+        "question": "How do lifecycle concepts map to hooks in React?",
+        "answer": "Hooks such as useEffect cover patterns that used to be handled across lifecycle methods, but the mindset is different because effects should describe synchronization with external systems rather than mirror old class APIs directly. Thinking in effects and dependencies is more important than memorizing class method mapping.",
+        "tip": "Do not reduce hooks to a class-component translation table."
+      },
+      {
+        "slug": "server-vs-client-state",
+        "question": "What is the difference between server state and client state in React apps?",
+        "answer": "Client state usually controls UI-specific behavior such as open panels or local form input, while server state represents data fetched from external systems and has to deal with loading, freshness, and synchronization. Mixing them carelessly often creates unnecessary complexity.",
+        "tip": "Freshness and synchronization are the key distinctions."
+      },
+      {
+        "slug": "react-composition",
+        "question": "Why is composition important in React?",
+        "answer": "Composition lets small components build larger behavior without hardcoding too much into one place. It improves reuse and maintainability because behavior can be assembled from clear pieces rather than repeated or tightly coupled logic.",
+        "tip": "Mention reuse through structure, not inheritance."
+      },
+      {
+        "slug": "react-error-boundaries",
+        "question": "What problem do error boundaries solve?",
+        "answer": "Error boundaries stop rendering errors in one part of the tree from crashing the whole interface and allow a fallback UI to appear instead. They improve resilience, but they do not replace good error handling in events or async code.",
+        "tip": "Be clear about what they do not catch."
+      },
+      {
+        "slug": "state-management-choice",
+        "question": "How do you decide whether local state is enough or a shared state solution is needed?",
+        "answer": "I first look at who actually needs the data and how often it changes. If the state stays close to one area of the UI, local state is usually simpler. Shared solutions help when many distant parts of the app truly need the same source of truth.",
+        "tip": "Prefer the simplest scope that works."
+      },
+      {
+        "slug": "react-routing",
+        "question": "What should routing do well in a React application?",
+        "answer": "Routing should make navigation predictable, keep URLs meaningful, and preserve the ability to deep-link important screens. Good routing supports both user navigation and product structure without turning every state change into a route.",
+        "tip": "Meaningful URLs matter for both UX and SEO."
+      },
+      {
+        "slug": "memoization-react",
+        "question": "When is memoization useful in React?",
+        "answer": "Memoization is useful when profiling shows repeated work or rerenders are actually expensive enough to matter. Used too early, it adds complexity without improving the real user experience.",
+        "tip": "Lead with measurement before optimization."
+      },
+      {
+        "slug": "custom-hooks",
+        "question": "What makes a custom hook well-designed?",
+        "answer": "A good custom hook groups one coherent piece of reusable stateful behavior behind a simple interface. It should hide repetition, expose clear inputs and outputs, and avoid becoming a dumping ground for unrelated logic.",
+        "tip": "Coherence matters more than clever abstraction."
+      },
+      {
+        "slug": "react-accessibility",
+        "question": "What accessibility concerns matter in React apps?",
+        "answer": "The same accessibility concerns matter as in any web UI, including semantic structure, keyboard interaction, focus management, and clear labels. React does not remove those responsibilities, so component design should support accessible behavior by default.",
+        "tip": "Do not treat accessibility as only ARIA attributes."
+      },
+      {
+        "slug": "hydration-meaning",
+        "question": "What is hydration in React?",
+        "answer": "Hydration is the process where React attaches interactive behavior to HTML that was already rendered on the server. It allows faster initial content display while still enabling a dynamic client-side experience.",
+        "tip": "Explain the server-rendered HTML part clearly."
+      },
+      {
+        "slug": "rendering-bugs",
+        "question": "How do you debug unexpected rerenders in React?",
+        "answer": "I start by identifying which component rerenders, what state or props changed, and whether the rerender is actually harmful. Then I trace the source of change rather than adding memoization blindly.",
+        "tip": "Not every rerender is a bug."
+      },
+      {
+        "slug": "forms-controlled-uncontrolled",
+        "question": "When would you choose controlled versus uncontrolled form inputs?",
+        "answer": "Controlled inputs are better when validation, formatting, or immediate UI reaction matters, while uncontrolled inputs can be simpler when you only need values at submission time. The choice should match how much React truly needs to manage the field.",
+        "tip": "Match the control level to the product need."
+      },
+      {
+        "slug": "react-testing",
+        "question": "What should you test in a React component?",
+        "answer": "I test the user-visible behavior, important state transitions, and the interactions that matter most, rather than focusing only on internal implementation details. Good tests give confidence during change instead of locking the component to one internal structure.",
+        "tip": "Behavior over implementation is the stronger testing answer."
+      },
+      {
+        "slug": "suspense-purpose",
+        "question": "What problem does Suspense try to address?",
+        "answer": "Suspense is designed to help coordinate loading boundaries so parts of the interface can wait for async data or code more intentionally. The key idea is controlling loading experience structurally instead of scattering ad hoc spinners everywhere.",
+        "tip": "Structure the loading experience, do not just mention fallback text."
+      },
+      {
+        "slug": "react-reconciliation",
+        "question": "What is reconciliation in React?",
+        "answer": "Reconciliation is how React compares the previous and next element trees to decide what UI changes are needed. Keys, component identity, and tree shape all affect how efficiently and correctly this process works.",
+        "tip": "Connect reconciliation to UI updates and keys."
+      },
+      {
+        "slug": "co-locating-state",
+        "question": "Why is colocating state often a good idea?",
+        "answer": "Keeping state close to where it is used reduces unnecessary coupling and makes components easier to understand. State should move upward only when multiple parts of the UI truly need to coordinate around it.",
+        "tip": "Local clarity is usually the better default."
+      },
+      {
+        "slug": "react-bundle-size",
+        "question": "How do you keep a React app from becoming unnecessarily heavy?",
+        "answer": "I keep dependencies intentional, load code lazily where that helps, and avoid shipping large abstractions for small problems. Frontend performance is partly about runtime work and partly about the amount of code the user has to download.",
+        "tip": "Bundle size and runtime both matter."
+      },
+      {
+        "slug": "react-practice-strategy",
+        "question": "What is the best way to practice react interview questions?",
+        "answer": "The best way is to combine understanding with repetition: read the question, answer it aloud in your own words, compare against a strong baseline, and improve one weakness at a time. Practice works best when it turns passive reading into active recall and clearer communication.",
+        "tip": "Practice aloud, not only by reading."
       }
     ]
   },
@@ -148,6 +544,138 @@
         "question": "How do you structure RESTful routes?",
         "answer": "I model routes around resources and use HTTP methods consistently, such as GET for reads, POST for creation, PATCH or PUT for updates, and DELETE for removals. Predictable route structure makes APIs easier to consume and document.",
         "tip": "Keep the explanation grounded in resources and HTTP semantics."
+      },
+      {
+        "slug": "streams-use-case",
+        "question": "When are streams useful in Node.js?",
+        "answer": "Streams are useful when handling large data incrementally instead of loading everything into memory at once. They are especially helpful for files, network responses, and pipelines where memory efficiency and continuous processing matter.",
+        "tip": "Contrast incremental processing with loading the full payload."
+      },
+      {
+        "slug": "node-scaling",
+        "question": "How do you scale a Node.js API?",
+        "answer": "I start by keeping handlers non-blocking, then scale horizontally behind a load balancer, cache where it helps, and move expensive work to queues or background jobs. Good scaling also requires observability so you know what is actually limiting throughput.",
+        "tip": "Do not present scaling as only adding more servers."
+      },
+      {
+        "slug": "env-management",
+        "question": "How do you manage environment configuration in a Node.js service?",
+        "answer": "I keep secrets and environment-specific values outside the codebase, validate required configuration at startup, and use clear naming so missing or invalid settings fail early. Good configuration handling reduces deployment mistakes and makes environments easier to reason about.",
+        "tip": "Fail early is a strong phrase here."
+      },
+      {
+        "slug": "api-versioning",
+        "question": "When do you need API versioning?",
+        "answer": "I use versioning when backward-incompatible changes would otherwise break existing clients. If I can extend behavior safely without forcing consumers to change, I prefer that, but once the contract must change in a breaking way, versioning protects clients and gives the team a migration path.",
+        "tip": "Separate safe evolution from breaking changes."
+      },
+      {
+        "slug": "node-process-model",
+        "question": "How does Node.js handle many connections efficiently?",
+        "answer": "Node.js uses an event-driven model with non-blocking I O, allowing one process to manage many waiting operations without dedicating a thread to each request. The efficiency comes from not wasting the main thread on idle waiting.",
+        "tip": "Anchor the explanation on non-blocking I O."
+      },
+      {
+        "slug": "cluster-workers",
+        "question": "When would you use clustering or multiple Node.js processes?",
+        "answer": "I use multiple processes when I need to take advantage of multiple CPU cores or isolate workloads better than one event loop can handle. Node.js scales well horizontally, but each process still needs good observability and safe state design.",
+        "tip": "Mention CPU cores and isolation."
+      },
+      {
+        "slug": "background-jobs",
+        "question": "When should work move out of the request cycle into background jobs?",
+        "answer": "I move work out of the request cycle when it is slow, retryable, or not required before the user gets an immediate response. Queues help protect latency-sensitive endpoints from tasks that would otherwise block user-facing performance.",
+        "tip": "Protecting the request path is the key idea."
+      },
+      {
+        "slug": "connection-pooling",
+        "question": "Why is connection pooling important in backend services?",
+        "answer": "Connection pooling avoids the cost of creating fresh connections repeatedly and helps manage limited backend resources more predictably. It becomes especially important under load when connection overhead can become a bottleneck of its own.",
+        "tip": "Tie it to load behavior."
+      },
+      {
+        "slug": "graceful-shutdown",
+        "question": "What is graceful shutdown in a Node.js service?",
+        "answer": "Graceful shutdown means the process stops accepting new work, finishes or safely aborts in-flight work, and closes resources cleanly before exiting. This reduces dropped requests and inconsistent state during deployments or failures.",
+        "tip": "Emphasize in-flight work and cleanup."
+      },
+      {
+        "slug": "rate-limiting",
+        "question": "Why would you add rate limiting to an API?",
+        "answer": "Rate limiting protects the system from abuse, accidental overload, and unfair resource usage. It also helps keep service quality more predictable for normal users during spikes or malicious traffic.",
+        "tip": "Fairness and protection are the main reasons."
+      },
+      {
+        "slug": "node-caching",
+        "question": "How do you decide what to cache in a backend service?",
+        "answer": "I cache data that is expensive to compute or fetch repeatedly and where a bounded amount of staleness is acceptable. The value of caching depends on access patterns, invalidation strategy, and whether it actually protects the hot path.",
+        "tip": "Never talk about caching without invalidation tradeoffs."
+      },
+      {
+        "slug": "websockets-vs-http",
+        "question": "When would WebSockets be a better fit than plain HTTP?",
+        "answer": "WebSockets are useful when the server needs to push updates continuously or latency between many small interactions matters more than request-response simplicity. Plain HTTP is still better when the communication is mostly independent requests.",
+        "tip": "Show that WebSockets are not automatically better."
+      },
+      {
+        "slug": "node-security-basics",
+        "question": "What backend security basics matter in a Node.js API?",
+        "answer": "Input validation, authentication, authorization, secrets management, dependency hygiene, and careful error exposure all matter. Security is strongest when those practices are part of everyday development, not only audit time.",
+        "tip": "Authorization is not the same as authentication."
+      },
+      {
+        "slug": "logging-strategy",
+        "question": "What makes application logging useful?",
+        "answer": "Useful logging helps reconstruct behavior, correlate requests, and understand failures without flooding the system with noise. The best logs are structured, consistent, and focused on events that help operators make decisions.",
+        "tip": "Mention signal versus noise."
+      },
+      {
+        "slug": "database-transactions",
+        "question": "When are database transactions important?",
+        "answer": "Transactions are important when multiple related operations must either succeed together or fail together to preserve consistency. They are most useful when the data model would become invalid or misleading if only part of the work completed.",
+        "tip": "Preserving consistency is the heart of the answer."
+      },
+      {
+        "slug": "api-idempotency",
+        "question": "Why is idempotency useful in APIs?",
+        "answer": "Idempotency lets clients retry requests safely without causing duplicate side effects, which is especially important when networks are unreliable or operations are costly. It makes systems more resilient under real-world failure conditions.",
+        "tip": "Retries are the main motivation."
+      },
+      {
+        "slug": "queue-visibility",
+        "question": "What metrics matter for background job queues?",
+        "answer": "Queue depth, processing latency, retry rate, failure rate, and age of oldest job are all useful because they show both current health and whether work is falling behind. Queue metrics matter because backlog growth often signals user impact before support tickets do.",
+        "tip": "Mention backlog growth explicitly."
+      },
+      {
+        "slug": "service-healthchecks",
+        "question": "What should a health check endpoint really indicate?",
+        "answer": "A good health check should reflect whether the service can do the work it claims to handle, not just whether the process is running. Sometimes that means checking critical dependencies, and sometimes it means a lightweight readiness distinction instead of one generic status.",
+        "tip": "Differentiate liveness from readiness if helpful."
+      },
+      {
+        "slug": "schema-validation",
+        "question": "Why validate request payloads at the boundary?",
+        "answer": "Validation at the boundary prevents invalid data from spreading through the system and makes API behavior more predictable for clients. It also simplifies downstream logic because handlers can assume the input shape is already trustworthy.",
+        "tip": "Boundary validation reduces internal complexity."
+      },
+      {
+        "slug": "node-memory-usage",
+        "question": "How do you investigate rising memory usage in a Node.js service?",
+        "answer": "I would compare memory patterns over time, inspect whether objects are being retained unexpectedly, and relate spikes to traffic or specific code paths. Memory problems become easier to fix when the retention source is identified rather than guessed.",
+        "tip": "Retention is a stronger concept than just saying leak."
+      },
+      {
+        "slug": "circuit-breakers",
+        "question": "What problem do circuit breakers solve in distributed systems?",
+        "answer": "Circuit breakers help stop repeated calls to an unhealthy dependency from causing cascading failures and wasted resources. They improve resilience by letting the system fail more deliberately instead of collapsing under repeated timeouts.",
+        "tip": "Cascading failure is the main phrase here."
+      },
+      {
+        "slug": "nodejs-practice-strategy",
+        "question": "What is the best way to practice node.js interview questions?",
+        "answer": "The best way is to combine understanding with repetition: read the question, answer it aloud in your own words, compare against a strong baseline, and improve one weakness at a time. Practice works best when it turns passive reading into active recall and clearer communication.",
+        "tip": "Practice aloud, not only by reading."
       }
     ]
   },
@@ -204,6 +732,114 @@
         "question": "What makes a coding interview solution clean and strong?",
         "answer": "A strong solution is correct, reasonably efficient, and easy to follow. I explain the approach first, choose clear variable names, handle edge cases, and test the code mentally with small examples. Interviewers usually value clarity of reasoning almost as much as the final code.",
         "tip": "Talk through examples while coding so your reasoning stays visible."
+      },
+      {
+        "slug": "hash-map-choice",
+        "question": "Why are hash maps so common in coding interviews?",
+        "answer": "Hash maps give fast average-case lookups and make it easier to track frequency, membership, and complements without repeated scanning. Many interview problems become simpler once you recognize that fast lookup is the missing ingredient.",
+        "tip": "Fast lookup is often the key optimization."
+      },
+      {
+        "slug": "sliding-window",
+        "question": "When is the sliding window pattern useful?",
+        "answer": "Sliding window is useful when the problem involves contiguous ranges and you need to maintain information as the range expands or contracts. It often replaces repeated nested scans with a more efficient rolling calculation.",
+        "tip": "Contiguous ranges are the main clue."
+      },
+      {
+        "slug": "prefix-sum",
+        "question": "What does a prefix sum help with?",
+        "answer": "A prefix sum lets you compute range totals quickly by precomputing cumulative values once and reusing them. It is especially helpful when many subarray sum queries would otherwise repeat the same work.",
+        "tip": "Mention repeated range calculations."
+      },
+      {
+        "slug": "heap-use-case",
+        "question": "When would you use a heap in a coding problem?",
+        "answer": "A heap is useful when you repeatedly need the smallest or largest element while the collection changes over time. It helps with top-k problems, scheduling, and streaming comparisons where full sorting is unnecessary.",
+        "tip": "Top-k is the simplest example."
+      },
+      {
+        "slug": "greedy-approach",
+        "question": "How do you know whether a greedy algorithm is safe?",
+        "answer": "A greedy approach is safe only when the local best choice can be shown to lead to a globally correct solution. If that proof is missing, the fast-looking approach may just be a guess.",
+        "tip": "Say proof or justification explicitly."
+      },
+      {
+        "slug": "backtracking",
+        "question": "When should you think of backtracking?",
+        "answer": "Backtracking is a good fit when you need to explore combinations, permutations, or constrained decision trees where partial choices can be invalidated and undone systematically. The pattern works best when pruning can reduce the search space meaningfully.",
+        "tip": "Use combinations and constraints as the clues."
+      },
+      {
+        "slug": "union-find",
+        "question": "What kinds of problems is union find good for?",
+        "answer": "Union find is useful for connectivity questions where elements need to be grouped dynamically, such as checking whether nodes belong to the same component. It is especially powerful when repeated merges and connectivity checks appear together.",
+        "tip": "Connectivity is the core signal."
+      },
+      {
+        "slug": "topological-sort",
+        "question": "When do you use topological sort?",
+        "answer": "I use topological sort when dependencies form a directed acyclic graph and I need an order that respects those dependencies. Build systems, prerequisite scheduling, and dependency resolution are classic examples.",
+        "tip": "Directed acyclic graph is the important phrase."
+      },
+      {
+        "slug": "recurrence-relation",
+        "question": "How do you build confidence in a dynamic programming recurrence?",
+        "answer": "I define the state carefully, explain what smaller result it depends on, and test the recurrence on very small examples before trusting it broadly. Confidence comes from understanding what the state means, not from memorizing formulas.",
+        "tip": "State meaning comes before implementation."
+      },
+      {
+        "slug": "binary-search-answer-space",
+        "question": "What is binary search on the answer?",
+        "answer": "It is a technique where you binary search over possible answer values instead of positions in a sorted array, as long as you can test whether a candidate answer is feasible. It works when feasibility changes in a monotonic way across the search space.",
+        "tip": "Monotonic feasibility is the clue."
+      },
+      {
+        "slug": "graph-vs-tree",
+        "question": "How do graph problems differ from tree problems in interviews?",
+        "answer": "Trees usually give you stronger structure such as one path between nodes and no cycles, while graph problems require more explicit handling of cycles, visited tracking, and possibly disconnected components. That extra flexibility is what makes graph logic broader and sometimes trickier.",
+        "tip": "Cycles and disconnected components are the differentiators."
+      },
+      {
+        "slug": "invariants-coding",
+        "question": "Why are invariants useful while coding?",
+        "answer": "An invariant gives you a property that should remain true throughout the algorithm, which makes correctness easier to reason about and bugs easier to detect. Strong candidates use invariants to explain why the approach works, not only how it runs.",
+        "tip": "Invariants help both correctness and communication."
+      },
+      {
+        "slug": "complexity-communication",
+        "question": "How should you communicate time and space complexity in an interview?",
+        "answer": "I state complexity after explaining the approach and tie it to the dominant operations in the algorithm rather than reciting symbols mechanically. Good communication shows where the cost comes from and whether the tradeoff is justified.",
+        "tip": "Explain the source of the complexity."
+      },
+      {
+        "slug": "edge-case-strategy",
+        "question": "How do you systematically test edge cases while coding?",
+        "answer": "I check empty input, smallest valid input, duplicates, boundaries, sorted or reverse-sorted patterns if relevant, and any values that change branch behavior. Systematic edge-case thinking prevents many avoidable interview mistakes.",
+        "tip": "Show a repeatable testing habit."
+      },
+      {
+        "slug": "recursion-stack",
+        "question": "What risk comes with recursive solutions?",
+        "answer": "Recursive solutions can be elegant, but deep recursion can cause stack overflow or unnecessary overhead if the input size grows beyond safe limits. I keep that tradeoff in mind when choosing between recursion and iteration.",
+        "tip": "Elegance does not remove stack risk."
+      },
+      {
+        "slug": "top-k-approaches",
+        "question": "How do you choose between sorting and a heap for top-k problems?",
+        "answer": "Sorting the whole set can be simpler, but a heap is better when k is much smaller than n and you do not need full order. The right choice depends on the relative sizes and whether the data arrives all at once or as a stream.",
+        "tip": "Tie the choice to n, k, and input style."
+      },
+      {
+        "slug": "interview-narration",
+        "question": "Why does narration matter during a coding interview?",
+        "answer": "Narration keeps the interviewer aligned with my assumptions, lets them correct misunderstandings early, and makes my reasoning visible even before the code is finished. Strong narration reduces the chance that correct thinking gets mistaken for silence or confusion.",
+        "tip": "Visibility of reasoning matters."
+      },
+      {
+        "slug": "coding-interview-practice-strategy",
+        "question": "What is the best way to practice coding interview interview questions?",
+        "answer": "The best way is to combine understanding with repetition: read the question, answer it aloud in your own words, compare against a strong baseline, and improve one weakness at a time. Practice works best when it turns passive reading into active recall and clearer communication.",
+        "tip": "Practice aloud, not only by reading."
       }
     ]
   },
@@ -242,6 +878,138 @@
         "question": "How do you perform under pressure?",
         "answer": "I do best when I make the situation concrete. I break the problem into immediate actions, clarify ownership, protect the highest impact work first, and keep communication short and accurate.",
         "tip": "Show how you create order, not only how you stay calm."
+      },
+      {
+        "slug": "handled-failure",
+        "question": "Tell me about a time you failed and what you learned from it.",
+        "answer": "I describe a real situation where my judgment, communication, or execution was not strong enough, then I explain the impact and what I changed afterward. The strongest version shows that the lesson affected my later behavior, not just my wording in interviews.",
+        "tip": "Show changed behavior, not only reflection."
+      },
+      {
+        "slug": "tight-deadline",
+        "question": "Describe a time you delivered under a very tight deadline.",
+        "answer": "I explain how I reduced scope to the essential outcome, aligned stakeholders on tradeoffs, and protected the highest-risk work first. The point is to show disciplined delivery, not a story about chaotic heroics.",
+        "tip": "Make the tradeoffs visible in your answer."
+      },
+      {
+        "slug": "received-feedback",
+        "question": "How do you respond when you receive difficult feedback?",
+        "answer": "I try to separate the discomfort from the value of the feedback. First I make sure I understand the concern clearly, then I decide what action or behavior change is appropriate. Good responses to feedback show maturity and self-awareness, not defensiveness.",
+        "tip": "Understanding the concern comes before defending yourself."
+      },
+      {
+        "slug": "motivating-team",
+        "question": "How do you help a team stay motivated during a difficult project?",
+        "answer": "I help by creating clarity, making progress visible, and reducing avoidable friction. People usually do better work when priorities are understandable, small wins are recognized, and blockers are handled quickly instead of silently accumulating.",
+        "tip": "Keep this practical instead of sounding inspirational."
+      },
+      {
+        "slug": "dealt-with-ambiguity",
+        "question": "Tell me about a time you worked through ambiguity.",
+        "answer": "I explain how I identified what had to be known immediately, what could remain uncertain, and how I moved the work forward with explicit assumptions. Ambiguity handling is strongest when it produces clarity for the whole team rather than just personal comfort.",
+        "tip": "Show how you created clarity for others."
+      },
+      {
+        "slug": "disagreed-decision",
+        "question": "Tell me about a time you disagreed with a decision.",
+        "answer": "I focus on how I raised the concern respectfully, used evidence instead of ego, and then supported the final decision once it was made unless the risk was serious enough to escalate further. The point is to show judgment and professionalism together.",
+        "tip": "Respectful dissent is the theme."
+      },
+      {
+        "slug": "went-beyond-role",
+        "question": "Describe a time you went beyond your formal role.",
+        "answer": "I choose an example where I saw a gap that was hurting delivery or quality and took responsibility for closing it even though it was not assigned to me directly. Good answers show initiative that helped the team, not a need for personal credit.",
+        "tip": "Initiative should connect to team outcome."
+      },
+      {
+        "slug": "difficult-stakeholder",
+        "question": "How do you work with a difficult stakeholder?",
+        "answer": "I try to understand what pressure they are under, what outcome they care about, and where communication is breaking down. Most difficult stakeholder situations improve when assumptions are clarified and tradeoffs are made explicit instead of personal.",
+        "tip": "Depersonalize the conflict."
+      },
+      {
+        "slug": "missed-deadline",
+        "question": "Tell me about a time you missed a deadline.",
+        "answer": "I explain why the deadline was missed without hiding my role in it, what signals were missed earlier, and how I improved estimation or communication afterward. The strongest version shows responsibility and prevention rather than excuses.",
+        "tip": "Take responsibility and show improvement."
+      },
+      {
+        "slug": "building-trust",
+        "question": "How do you build trust with a new team?",
+        "answer": "I build trust through reliability, clarity, and responsiveness rather than trying to impress people quickly. Delivering on commitments and communicating early when risks appear usually matters more than big promises.",
+        "tip": "Reliability is the core idea."
+      },
+      {
+        "slug": "hard-priority-call",
+        "question": "Tell me about a time you had to make a hard priority decision.",
+        "answer": "I describe the competing needs, the criteria I used to choose, and how I communicated the tradeoff so the decision was understandable even for people who preferred a different outcome. Priority decisions are strongest when they are explainable.",
+        "tip": "Explain the criteria, not only the result."
+      },
+      {
+        "slug": "learned-quickly",
+        "question": "Describe a time you had to learn something quickly.",
+        "answer": "I explain how I reduced the learning problem into the minimum knowledge needed to make progress, then validated that understanding in practice instead of studying indefinitely. Fast learning in engineering is usually about focus more than speed alone.",
+        "tip": "Focus matters more than volume."
+      },
+      {
+        "slug": "team-under-stress",
+        "question": "How do you help a team under stress avoid bad decisions?",
+        "answer": "I slow the discussion just enough to make priorities, owners, and constraints explicit. Stress creates mistakes when teams start acting on assumptions, so structure and calm communication often prevent bigger damage.",
+        "tip": "Create structure under pressure."
+      },
+      {
+        "slug": "persuasion-example",
+        "question": "Tell me about a time you persuaded others to change direction.",
+        "answer": "I focus on how I framed the issue with evidence, acknowledged counterarguments fairly, and proposed a path that reduced risk rather than only arguing harder. Good persuasion in teams feels collaborative, not manipulative.",
+        "tip": "Evidence and fair framing matter."
+      },
+      {
+        "slug": "working-across-functions",
+        "question": "How do you work across functions like product, design, and engineering?",
+        "answer": "I make assumptions visible, ask what each function is optimizing for, and translate technical implications into practical tradeoffs. Cross-functional work improves when everyone can see how their decisions affect the others.",
+        "tip": "Translation across perspectives is the skill."
+      },
+      {
+        "slug": "ownership-example",
+        "question": "Tell me about a time you showed ownership.",
+        "answer": "I choose an example where I carried a problem from unclear status to useful resolution by coordinating people, closing gaps, and verifying the outcome instead of stopping at implementation. Ownership is follow-through under uncertainty.",
+        "tip": "Follow-through is the strongest ownership signal."
+      },
+      {
+        "slug": "de-escalated-conflict",
+        "question": "Describe a time you de-escalated tension in a team.",
+        "answer": "I explain how I separated the real issue from the emotion around it and helped the group return to shared goals and facts. De-escalation is less about being passive and more about restoring useful problem solving.",
+        "tip": "Shared goals help reset tense conversations."
+      },
+      {
+        "slug": "feedback-to-others",
+        "question": "How do you give constructive feedback to others?",
+        "answer": "I focus on specific behavior, its impact, and what better execution would look like instead of making the feedback personal or vague. Constructive feedback should help someone improve without leaving them defensive or confused.",
+        "tip": "Specific behavior is easier to act on."
+      },
+      {
+        "slug": "motivation-example",
+        "question": "What kind of work motivates you most?",
+        "answer": "I am usually most motivated by meaningful problems, clear ownership, and environments where strong execution actually improves the outcome. The answer works best when the motivation aligns naturally with the role rather than sounding generic.",
+        "tip": "Align motivation with the role."
+      },
+      {
+        "slug": "adapted-change",
+        "question": "Tell me about a time you had to adapt quickly to change.",
+        "answer": "I explain what changed, what remained important, and how I adjusted my plan without losing the core objective. Adaptability is strongest when it looks controlled and thoughtful rather than reactive.",
+        "tip": "Show controlled adjustment, not chaos."
+      },
+      {
+        "slug": "handled-unclear-feedback",
+        "question": "What do you do when feedback is vague or unclear?",
+        "answer": "I ask clarifying questions until the expected behavior is concrete enough to act on. Vague feedback only becomes useful when translated into observable changes or decisions.",
+        "tip": "Turn vagueness into specifics."
+      },
+      {
+        "slug": "behavioral-practice-strategy",
+        "question": "What is the best way to practice behavioral interview questions?",
+        "answer": "The best way is to combine understanding with repetition: read the question, answer it aloud in your own words, compare against a strong baseline, and improve one weakness at a time. Practice works best when it turns passive reading into active recall and clearer communication.",
+        "tip": "Practice aloud, not only by reading."
       }
     ]
   },
@@ -280,6 +1048,138 @@
         "question": "Why are you leaving your current job?",
         "answer": "I keep the answer forward looking. I focus on growth, better role fit, technical challenge, or mission rather than criticizing my current employer.",
         "tip": "Never turn this into a complaint session."
+      },
+      {
+        "slug": "five-years",
+        "question": "Where do you see yourself in five years?",
+        "answer": "I describe growth in responsibility, technical depth, and business impact without sounding detached from the actual role I am applying for now. A good answer shows ambition that still feels connected to the company and the work.",
+        "tip": "Keep the answer believable and role-aligned."
+      },
+      {
+        "slug": "notice-period",
+        "question": "What is your notice period and how soon can you join?",
+        "answer": "I answer directly with the official timeline and mention any flexibility only if it is realistic. Recruiters usually value clarity here more than overpromising an early start that cannot actually happen.",
+        "tip": "Be precise rather than optimistic."
+      },
+      {
+        "slug": "relocation-shifts",
+        "question": "Are you open to relocation or shift-based work if needed?",
+        "answer": "I answer honestly while showing professionalism and problem-solving rather than resistance. If I have constraints, I explain them clearly and focus on what arrangements are workable instead of making the answer emotional.",
+        "tip": "Clarity is better than trying to please everyone."
+      },
+      {
+        "slug": "why-should-we-hire-you",
+        "question": "Why should we hire you?",
+        "answer": "I connect the company needs to my strongest relevant capabilities and back that up with one or two examples of outcomes I have produced. The answer works best when it is specific to the role rather than a generic self-promotion speech.",
+        "tip": "Tie your value directly to the role requirements."
+      },
+      {
+        "slug": "career-goals",
+        "question": "What are your long-term career goals?",
+        "answer": "I connect my long-term growth to increasing responsibility, depth, and impact while still showing that I am focused on doing this role well first. Long-term answers work best when they are ambitious but realistic.",
+        "tip": "Stay ambitious without sounding detached from the role."
+      },
+      {
+        "slug": "company-research",
+        "question": "What do you know about our company?",
+        "answer": "I focus on the company product, customers, market position, or culture in a specific way that shows I prepared intentionally. A strong answer proves real interest rather than repeating one generic sentence from the homepage.",
+        "tip": "Specific preparation matters."
+      },
+      {
+        "slug": "handle-rejection",
+        "question": "How do you handle rejection or setbacks in your career?",
+        "answer": "I treat setbacks as information about what needs to improve rather than as a signal to become defensive. The strongest answer shows reflection, recovery, and a concrete change in later behavior.",
+        "tip": "Recovery and learning are the key themes."
+      },
+      {
+        "slug": "ideal-manager",
+        "question": "What kind of manager helps you do your best work?",
+        "answer": "I usually do best with managers who create clarity, give useful feedback, and trust people to execute with ownership. The point is not to sound demanding, but to describe the conditions where you perform most effectively.",
+        "tip": "Keep it professional and balanced."
+      },
+      {
+        "slug": "work-environment",
+        "question": "What kind of work environment do you prefer?",
+        "answer": "I prefer an environment with clear expectations, thoughtful collaboration, and enough autonomy to own outcomes fully. The answer is strongest when it reflects how you actually work rather than what you think sounds good.",
+        "tip": "Authenticity matters here."
+      },
+      {
+        "slug": "biggest-achievement",
+        "question": "What is your biggest professional achievement?",
+        "answer": "I choose an achievement that shows the kind of value most relevant to the role, explain the context and challenge, and make my contribution and outcome clear. The answer should show impact, not just activity.",
+        "tip": "Use a measurable outcome if possible."
+      },
+      {
+        "slug": "gap-in-resume",
+        "question": "How do you explain a gap in your resume?",
+        "answer": "I explain it directly and calmly, then focus on what I learned, improved, or handled during that period. A clear and honest explanation usually lands better than trying to over-defend the gap.",
+        "tip": "Directness is better than overexplaining."
+      },
+      {
+        "slug": "team-or-individual",
+        "question": "Do you prefer working alone or in a team?",
+        "answer": "I am comfortable with both, but the real answer depends on the problem. Deep individual work is valuable for focused execution, while teamwork is essential when alignment, feedback, and shared ownership matter.",
+        "tip": "Do not force a false either-or answer."
+      },
+      {
+        "slug": "pressure-hr",
+        "question": "How do you deal with workplace pressure?",
+        "answer": "I deal with pressure best when I clarify what matters most, reduce avoidable uncertainty, and work from concrete next steps instead of reacting emotionally. The goal is not to pretend pressure does not exist, but to stay effective within it.",
+        "tip": "Effectiveness under pressure is stronger than generic calmness."
+      },
+      {
+        "slug": "learning-plan",
+        "question": "How do you keep your skills current?",
+        "answer": "I update my skills by combining deliberate learning with practical application so new knowledge turns into usable judgment. I usually learn best when I connect reading or courses to real projects or experiments.",
+        "tip": "Practical application matters more than consuming content."
+      },
+      {
+        "slug": "why-role-change",
+        "question": "Why are you changing roles or industries?",
+        "answer": "I frame the change around stronger fit, stronger motivation, and transferable skills rather than dissatisfaction alone. The best answer makes the move sound intentional and credible.",
+        "tip": "Make the move sound deliberate."
+      },
+      {
+        "slug": "remote-work",
+        "question": "How do you work effectively in remote or hybrid settings?",
+        "answer": "I work well remotely when expectations, communication rhythms, and ownership are clear. Good remote work depends on written clarity and timely communication more than constant meetings.",
+        "tip": "Written clarity is a useful point."
+      },
+      {
+        "slug": "managing-multiple-offers",
+        "question": "What would you do if you had multiple offers?",
+        "answer": "I would compare role fit, growth, team quality, and long-term value rather than choosing only by the first visible number. Recruiters usually want to see that my decision process is thoughtful and professional.",
+        "tip": "Decision quality matters more than sounding clever."
+      },
+      {
+        "slug": "deal-breakers",
+        "question": "What factors matter most to you when choosing a job?",
+        "answer": "I care most about the quality of the role, the kind of problems I will solve, the team environment, and whether I can grow while creating real value. Compensation matters, but strong fit is broader than compensation alone.",
+        "tip": "Keep the answer balanced."
+      },
+      {
+        "slug": "availability-start",
+        "question": "When can you start contributing meaningfully after joining?",
+        "answer": "I would expect to start contributing in a limited but real way quickly by learning the product, team, and systems deliberately, then ramp up as I understand the domain. This answer works best when it shows urgency without pretending onboarding is unnecessary.",
+        "tip": "Show realistic ramp-up."
+      },
+      {
+        "slug": "why-now",
+        "question": "Why is now the right time for you to make a move?",
+        "answer": "I explain why my current experience, goals, and the opportunity in front of me now line up better than they did earlier. The answer should sound like a thoughtful career move, not restlessness.",
+        "tip": "Make timing sound intentional."
+      },
+      {
+        "slug": "team-culture",
+        "question": "What kind of team culture helps you do your best work?",
+        "answer": "I work best in cultures that value clarity, accountability, and constructive feedback because those qualities make it easier to improve quickly and collaborate well. The answer should reflect how you actually succeed on teams.",
+        "tip": "Use real qualities, not buzzwords alone."
+      },
+      {
+        "slug": "hr-practice-strategy",
+        "question": "What is the best way to practice hr and general interview questions?",
+        "answer": "The best way is to combine understanding with repetition: read the question, answer it aloud in your own words, compare against a strong baseline, and improve one weakness at a time. Practice works best when it turns passive reading into active recall and clearer communication.",
+        "tip": "Practice aloud, not only by reading."
       }
     ]
   },
@@ -339,6 +1239,114 @@
         "question": "What edge cases do you check before finishing a coding solution?",
         "answer": "I check empty input, single element cases, duplicate values, boundary indexes, extreme input sizes, and invalid or null input if the prompt allows it. I also test whether the algorithm still works for the smallest and largest realistic cases.",
         "tip": "Interviewers want to see deliberate validation, not guesswork."
+      },
+      {
+        "slug": "google-company-culture-fit",
+        "question": "What kind of culture helps you perform your best work at Google?",
+        "answer": "I do best in cultures that combine high standards with clear ownership and respectful collaboration. In a company like Google, strong culture should make decision quality and execution stronger, not just sound good in recruiting materials.",
+        "tip": "Tie culture to how work gets done."
+      },
+      {
+        "slug": "google-company-role-alignment",
+        "question": "Why do you think you are a fit for Google?",
+        "answer": "I would connect my strengths to the kind of problems Google appears to solve and the expectations of the role. The strongest fit answer is specific about what I can contribute instead of only saying I admire the brand.",
+        "tip": "Specific contribution is stronger than admiration."
+      },
+      {
+        "slug": "google-company-prioritization",
+        "question": "How do you prioritize work when everything seems urgent?",
+        "answer": "I separate urgency from impact, identify dependencies, and align with stakeholders on what really moves the outcome forward. In fast-moving environments like Google, disciplined prioritization is more valuable than reacting to every request equally.",
+        "tip": "Impact matters more than noise."
+      },
+      {
+        "slug": "google-company-customer-thinking",
+        "question": "How do you think about customer impact in your engineering decisions?",
+        "answer": "I ask how the decision affects reliability, speed, clarity, and long-term trust from the user perspective. Strong engineering at Google should connect technical choices to the actual experience of the customer.",
+        "tip": "Translate engineering into user impact."
+      },
+      {
+        "slug": "google-company-debugging-process",
+        "question": "Describe your debugging process for a complex issue.",
+        "answer": "I narrow the problem by reproducing it, identifying where reality diverges from expectation, and validating one hypothesis at a time. The point is to make the issue smaller and more observable instead of jumping between guesses.",
+        "tip": "Reduce the problem before trying random fixes."
+      },
+      {
+        "slug": "google-company-delivery-balance",
+        "question": "How do you balance delivery speed with quality?",
+        "answer": "I try to protect quality on the highest-risk paths while reducing scope where needed to keep momentum. Good engineering at Google should show judgment about where speed helps and where cutting corners creates expensive problems later.",
+        "tip": "Scope can shrink before quality does."
+      },
+      {
+        "slug": "google-company-learning",
+        "question": "How do you ramp up quickly in a new domain?",
+        "answer": "I identify the concepts that block useful progress, learn enough to make a first contribution, and then deepen understanding through real work. Fast ramp-up is usually about learning the right things in the right order.",
+        "tip": "Sequence matters more than volume."
+      },
+      {
+        "slug": "google-company-collaboration",
+        "question": "How do you work with cross-functional teams?",
+        "answer": "I make tradeoffs visible, ask what each function is optimizing for, and keep communication concrete enough for decisions to move. Cross-functional work succeeds when people can reason about the same problem from different perspectives.",
+        "tip": "Make tradeoffs visible."
+      },
+      {
+        "slug": "google-company-feedback",
+        "question": "How do you handle feedback that you disagree with at first?",
+        "answer": "I try to understand the reasoning before reacting, then I evaluate whether the concern reveals a gap in my assumptions or communication. Even when I disagree, I want the discussion to improve the outcome instead of becoming personal.",
+        "tip": "Understanding comes before defending."
+      },
+      {
+        "slug": "google-company-system-thinking",
+        "question": "How do you think about designing systems that stay reliable at scale?",
+        "answer": "I focus on clear boundaries, observability, graceful failure behavior, and realistic operational tradeoffs. Reliability at Google should be designed into the system and the rollout process, not added after incidents happen.",
+        "tip": "Reliability includes operations, not just architecture."
+      },
+      {
+        "slug": "google-company-ambiguity",
+        "question": "How do you operate when the next step is not clearly defined?",
+        "answer": "I turn ambiguity into specific questions, define the decision that matters most, and propose a path instead of waiting passively. Strong performers in companies like Google reduce uncertainty for the team rather than only managing their own discomfort.",
+        "tip": "Reduce uncertainty for the team."
+      },
+      {
+        "slug": "google-company-metrics",
+        "question": "What metrics would you watch after launching a feature?",
+        "answer": "I would watch the metrics most closely tied to user success and system health, such as adoption, error rate, latency, and any feature-specific business signal that should move. Metrics only help if they reflect real product behavior.",
+        "tip": "Use both user and system signals."
+      },
+      {
+        "slug": "google-company-ownership",
+        "question": "What does ownership mean to you in a company like Google?",
+        "answer": "Ownership means carrying a problem through ambiguity, implementation, validation, communication, and follow-up until the outcome is reliable. It is not just about writing code quickly; it is about making sure the result actually holds up.",
+        "tip": "Ownership includes follow-through."
+      },
+      {
+        "slug": "google-company-tradeoffs",
+        "question": "How do you explain tradeoffs when there is no perfect solution?",
+        "answer": "I compare the options in terms of what each one optimizes, what risk it introduces, and why one is the best fit for the real constraints. Good tradeoff communication helps teams make decisions they can defend later.",
+        "tip": "Explain what each option optimizes for."
+      },
+      {
+        "slug": "google-company-testing",
+        "question": "How do you decide what to test before release?",
+        "answer": "I prioritize tests around the highest-risk behavior, critical integrations, and the paths most likely to hurt users if they fail. A good testing approach is driven by risk and consequence, not by trying to test everything equally.",
+        "tip": "Risk-driven testing is a stronger answer."
+      },
+      {
+        "slug": "google-company-prior-experience",
+        "question": "How would your previous experience help you at Google?",
+        "answer": "I would connect my past work to the challenges this role likely faces, whether that is product quality, system reliability, debugging depth, or cross-team execution. The value of experience is strongest when it transfers directly to the next environment.",
+        "tip": "Transferable value matters more than title names."
+      },
+      {
+        "slug": "google-company-incident-learning",
+        "question": "What should a team learn after an incident?",
+        "answer": "A strong team should learn what assumptions failed, what safeguards were missing, and what changes will reduce repeat risk. The point is not to produce blame-heavy documentation, but to improve how the system and the team behave next time.",
+        "tip": "Prevention is the goal of learning."
+      },
+      {
+        "slug": "google-interview-preparation-strategy",
+        "question": "How should you prepare strategically for interviews at Google?",
+        "answer": "I would prepare by understanding the themes Google is likely to care about, practicing role-relevant questions, and rewriting sample answers into my own project and decision stories. Strategic preparation is stronger than memorizing isolated responses because it improves both accuracy and confidence.",
+        "tip": "Connect preparation to company themes and your own examples."
       }
     ]
   },
@@ -398,6 +1406,114 @@
         "question": "What do you do if you find a bug in your code during the interview?",
         "answer": "I acknowledge it directly, isolate the failing logic, explain the correction, and update the code in a controlled way. Interviewers usually respond well when a candidate debugs calmly and transparently.",
         "tip": "Do not hide mistakes. Show correction discipline."
+      },
+      {
+        "slug": "amazon-company-culture-fit",
+        "question": "What kind of culture helps you perform your best work at Amazon?",
+        "answer": "I do best in cultures that combine high standards with clear ownership and respectful collaboration. In a company like Amazon, strong culture should make decision quality and execution stronger, not just sound good in recruiting materials.",
+        "tip": "Tie culture to how work gets done."
+      },
+      {
+        "slug": "amazon-company-role-alignment",
+        "question": "Why do you think you are a fit for Amazon?",
+        "answer": "I would connect my strengths to the kind of problems Amazon appears to solve and the expectations of the role. The strongest fit answer is specific about what I can contribute instead of only saying I admire the brand.",
+        "tip": "Specific contribution is stronger than admiration."
+      },
+      {
+        "slug": "amazon-company-prioritization",
+        "question": "How do you prioritize work when everything seems urgent?",
+        "answer": "I separate urgency from impact, identify dependencies, and align with stakeholders on what really moves the outcome forward. In fast-moving environments like Amazon, disciplined prioritization is more valuable than reacting to every request equally.",
+        "tip": "Impact matters more than noise."
+      },
+      {
+        "slug": "amazon-company-customer-thinking",
+        "question": "How do you think about customer impact in your engineering decisions?",
+        "answer": "I ask how the decision affects reliability, speed, clarity, and long-term trust from the user perspective. Strong engineering at Amazon should connect technical choices to the actual experience of the customer.",
+        "tip": "Translate engineering into user impact."
+      },
+      {
+        "slug": "amazon-company-debugging-process",
+        "question": "Describe your debugging process for a complex issue.",
+        "answer": "I narrow the problem by reproducing it, identifying where reality diverges from expectation, and validating one hypothesis at a time. The point is to make the issue smaller and more observable instead of jumping between guesses.",
+        "tip": "Reduce the problem before trying random fixes."
+      },
+      {
+        "slug": "amazon-company-delivery-balance",
+        "question": "How do you balance delivery speed with quality?",
+        "answer": "I try to protect quality on the highest-risk paths while reducing scope where needed to keep momentum. Good engineering at Amazon should show judgment about where speed helps and where cutting corners creates expensive problems later.",
+        "tip": "Scope can shrink before quality does."
+      },
+      {
+        "slug": "amazon-company-learning",
+        "question": "How do you ramp up quickly in a new domain?",
+        "answer": "I identify the concepts that block useful progress, learn enough to make a first contribution, and then deepen understanding through real work. Fast ramp-up is usually about learning the right things in the right order.",
+        "tip": "Sequence matters more than volume."
+      },
+      {
+        "slug": "amazon-company-collaboration",
+        "question": "How do you work with cross-functional teams?",
+        "answer": "I make tradeoffs visible, ask what each function is optimizing for, and keep communication concrete enough for decisions to move. Cross-functional work succeeds when people can reason about the same problem from different perspectives.",
+        "tip": "Make tradeoffs visible."
+      },
+      {
+        "slug": "amazon-company-feedback",
+        "question": "How do you handle feedback that you disagree with at first?",
+        "answer": "I try to understand the reasoning before reacting, then I evaluate whether the concern reveals a gap in my assumptions or communication. Even when I disagree, I want the discussion to improve the outcome instead of becoming personal.",
+        "tip": "Understanding comes before defending."
+      },
+      {
+        "slug": "amazon-company-system-thinking",
+        "question": "How do you think about designing systems that stay reliable at scale?",
+        "answer": "I focus on clear boundaries, observability, graceful failure behavior, and realistic operational tradeoffs. Reliability at Amazon should be designed into the system and the rollout process, not added after incidents happen.",
+        "tip": "Reliability includes operations, not just architecture."
+      },
+      {
+        "slug": "amazon-company-ambiguity",
+        "question": "How do you operate when the next step is not clearly defined?",
+        "answer": "I turn ambiguity into specific questions, define the decision that matters most, and propose a path instead of waiting passively. Strong performers in companies like Amazon reduce uncertainty for the team rather than only managing their own discomfort.",
+        "tip": "Reduce uncertainty for the team."
+      },
+      {
+        "slug": "amazon-company-metrics",
+        "question": "What metrics would you watch after launching a feature?",
+        "answer": "I would watch the metrics most closely tied to user success and system health, such as adoption, error rate, latency, and any feature-specific business signal that should move. Metrics only help if they reflect real product behavior.",
+        "tip": "Use both user and system signals."
+      },
+      {
+        "slug": "amazon-company-ownership",
+        "question": "What does ownership mean to you in a company like Amazon?",
+        "answer": "Ownership means carrying a problem through ambiguity, implementation, validation, communication, and follow-up until the outcome is reliable. It is not just about writing code quickly; it is about making sure the result actually holds up.",
+        "tip": "Ownership includes follow-through."
+      },
+      {
+        "slug": "amazon-company-tradeoffs",
+        "question": "How do you explain tradeoffs when there is no perfect solution?",
+        "answer": "I compare the options in terms of what each one optimizes, what risk it introduces, and why one is the best fit for the real constraints. Good tradeoff communication helps teams make decisions they can defend later.",
+        "tip": "Explain what each option optimizes for."
+      },
+      {
+        "slug": "amazon-company-testing",
+        "question": "How do you decide what to test before release?",
+        "answer": "I prioritize tests around the highest-risk behavior, critical integrations, and the paths most likely to hurt users if they fail. A good testing approach is driven by risk and consequence, not by trying to test everything equally.",
+        "tip": "Risk-driven testing is a stronger answer."
+      },
+      {
+        "slug": "amazon-company-prior-experience",
+        "question": "How would your previous experience help you at Amazon?",
+        "answer": "I would connect my past work to the challenges this role likely faces, whether that is product quality, system reliability, debugging depth, or cross-team execution. The value of experience is strongest when it transfers directly to the next environment.",
+        "tip": "Transferable value matters more than title names."
+      },
+      {
+        "slug": "amazon-company-incident-learning",
+        "question": "What should a team learn after an incident?",
+        "answer": "A strong team should learn what assumptions failed, what safeguards were missing, and what changes will reduce repeat risk. The point is not to produce blame-heavy documentation, but to improve how the system and the team behave next time.",
+        "tip": "Prevention is the goal of learning."
+      },
+      {
+        "slug": "amazon-interview-preparation-strategy",
+        "question": "How should you prepare strategically for interviews at Amazon?",
+        "answer": "I would prepare by understanding the themes Amazon is likely to care about, practicing role-relevant questions, and rewriting sample answers into my own project and decision stories. Strategic preparation is stronger than memorizing isolated responses because it improves both accuracy and confidence.",
+        "tip": "Connect preparation to company themes and your own examples."
       }
     ]
   },
@@ -457,6 +1573,114 @@
         "question": "How do you choose the right data structure for a problem?",
         "answer": "I choose the data structure based on the operations that matter most, such as fast lookup, ordered traversal, constant time append, or efficient insertion. The best choice follows from the access pattern, not habit.",
         "tip": "Tie data structure choice to the required operations."
+      },
+      {
+        "slug": "microsoft-company-culture-fit",
+        "question": "What kind of culture helps you perform your best work at Microsoft?",
+        "answer": "I do best in cultures that combine high standards with clear ownership and respectful collaboration. In a company like Microsoft, strong culture should make decision quality and execution stronger, not just sound good in recruiting materials.",
+        "tip": "Tie culture to how work gets done."
+      },
+      {
+        "slug": "microsoft-company-role-alignment",
+        "question": "Why do you think you are a fit for Microsoft?",
+        "answer": "I would connect my strengths to the kind of problems Microsoft appears to solve and the expectations of the role. The strongest fit answer is specific about what I can contribute instead of only saying I admire the brand.",
+        "tip": "Specific contribution is stronger than admiration."
+      },
+      {
+        "slug": "microsoft-company-prioritization",
+        "question": "How do you prioritize work when everything seems urgent?",
+        "answer": "I separate urgency from impact, identify dependencies, and align with stakeholders on what really moves the outcome forward. In fast-moving environments like Microsoft, disciplined prioritization is more valuable than reacting to every request equally.",
+        "tip": "Impact matters more than noise."
+      },
+      {
+        "slug": "microsoft-company-customer-thinking",
+        "question": "How do you think about customer impact in your engineering decisions?",
+        "answer": "I ask how the decision affects reliability, speed, clarity, and long-term trust from the user perspective. Strong engineering at Microsoft should connect technical choices to the actual experience of the customer.",
+        "tip": "Translate engineering into user impact."
+      },
+      {
+        "slug": "microsoft-company-debugging-process",
+        "question": "Describe your debugging process for a complex issue.",
+        "answer": "I narrow the problem by reproducing it, identifying where reality diverges from expectation, and validating one hypothesis at a time. The point is to make the issue smaller and more observable instead of jumping between guesses.",
+        "tip": "Reduce the problem before trying random fixes."
+      },
+      {
+        "slug": "microsoft-company-delivery-balance",
+        "question": "How do you balance delivery speed with quality?",
+        "answer": "I try to protect quality on the highest-risk paths while reducing scope where needed to keep momentum. Good engineering at Microsoft should show judgment about where speed helps and where cutting corners creates expensive problems later.",
+        "tip": "Scope can shrink before quality does."
+      },
+      {
+        "slug": "microsoft-company-learning",
+        "question": "How do you ramp up quickly in a new domain?",
+        "answer": "I identify the concepts that block useful progress, learn enough to make a first contribution, and then deepen understanding through real work. Fast ramp-up is usually about learning the right things in the right order.",
+        "tip": "Sequence matters more than volume."
+      },
+      {
+        "slug": "microsoft-company-collaboration",
+        "question": "How do you work with cross-functional teams?",
+        "answer": "I make tradeoffs visible, ask what each function is optimizing for, and keep communication concrete enough for decisions to move. Cross-functional work succeeds when people can reason about the same problem from different perspectives.",
+        "tip": "Make tradeoffs visible."
+      },
+      {
+        "slug": "microsoft-company-feedback",
+        "question": "How do you handle feedback that you disagree with at first?",
+        "answer": "I try to understand the reasoning before reacting, then I evaluate whether the concern reveals a gap in my assumptions or communication. Even when I disagree, I want the discussion to improve the outcome instead of becoming personal.",
+        "tip": "Understanding comes before defending."
+      },
+      {
+        "slug": "microsoft-company-system-thinking",
+        "question": "How do you think about designing systems that stay reliable at scale?",
+        "answer": "I focus on clear boundaries, observability, graceful failure behavior, and realistic operational tradeoffs. Reliability at Microsoft should be designed into the system and the rollout process, not added after incidents happen.",
+        "tip": "Reliability includes operations, not just architecture."
+      },
+      {
+        "slug": "microsoft-company-ambiguity",
+        "question": "How do you operate when the next step is not clearly defined?",
+        "answer": "I turn ambiguity into specific questions, define the decision that matters most, and propose a path instead of waiting passively. Strong performers in companies like Microsoft reduce uncertainty for the team rather than only managing their own discomfort.",
+        "tip": "Reduce uncertainty for the team."
+      },
+      {
+        "slug": "microsoft-company-metrics",
+        "question": "What metrics would you watch after launching a feature?",
+        "answer": "I would watch the metrics most closely tied to user success and system health, such as adoption, error rate, latency, and any feature-specific business signal that should move. Metrics only help if they reflect real product behavior.",
+        "tip": "Use both user and system signals."
+      },
+      {
+        "slug": "microsoft-company-ownership",
+        "question": "What does ownership mean to you in a company like Microsoft?",
+        "answer": "Ownership means carrying a problem through ambiguity, implementation, validation, communication, and follow-up until the outcome is reliable. It is not just about writing code quickly; it is about making sure the result actually holds up.",
+        "tip": "Ownership includes follow-through."
+      },
+      {
+        "slug": "microsoft-company-tradeoffs",
+        "question": "How do you explain tradeoffs when there is no perfect solution?",
+        "answer": "I compare the options in terms of what each one optimizes, what risk it introduces, and why one is the best fit for the real constraints. Good tradeoff communication helps teams make decisions they can defend later.",
+        "tip": "Explain what each option optimizes for."
+      },
+      {
+        "slug": "microsoft-company-testing",
+        "question": "How do you decide what to test before release?",
+        "answer": "I prioritize tests around the highest-risk behavior, critical integrations, and the paths most likely to hurt users if they fail. A good testing approach is driven by risk and consequence, not by trying to test everything equally.",
+        "tip": "Risk-driven testing is a stronger answer."
+      },
+      {
+        "slug": "microsoft-company-prior-experience",
+        "question": "How would your previous experience help you at Microsoft?",
+        "answer": "I would connect my past work to the challenges this role likely faces, whether that is product quality, system reliability, debugging depth, or cross-team execution. The value of experience is strongest when it transfers directly to the next environment.",
+        "tip": "Transferable value matters more than title names."
+      },
+      {
+        "slug": "microsoft-company-incident-learning",
+        "question": "What should a team learn after an incident?",
+        "answer": "A strong team should learn what assumptions failed, what safeguards were missing, and what changes will reduce repeat risk. The point is not to produce blame-heavy documentation, but to improve how the system and the team behave next time.",
+        "tip": "Prevention is the goal of learning."
+      },
+      {
+        "slug": "microsoft-interview-preparation-strategy",
+        "question": "How should you prepare strategically for interviews at Microsoft?",
+        "answer": "I would prepare by understanding the themes Microsoft is likely to care about, practicing role-relevant questions, and rewriting sample answers into my own project and decision stories. Strategic preparation is stronger than memorizing isolated responses because it improves both accuracy and confidence.",
+        "tip": "Connect preparation to company themes and your own examples."
       }
     ]
   },
@@ -516,6 +1740,114 @@
         "question": "How do you prioritize experiments when there are many product ideas?",
         "answer": "I prioritize by expected impact, learning value, implementation cost, and reversibility. The best experiments answer an important question cheaply before the team makes a large commitment.",
         "tip": "Meta style answers often value fast learning loops."
+      },
+      {
+        "slug": "meta-company-culture-fit",
+        "question": "What kind of culture helps you perform your best work at Meta?",
+        "answer": "I do best in cultures that combine high standards with clear ownership and respectful collaboration. In a company like Meta, strong culture should make decision quality and execution stronger, not just sound good in recruiting materials.",
+        "tip": "Tie culture to how work gets done."
+      },
+      {
+        "slug": "meta-company-role-alignment",
+        "question": "Why do you think you are a fit for Meta?",
+        "answer": "I would connect my strengths to the kind of problems Meta appears to solve and the expectations of the role. The strongest fit answer is specific about what I can contribute instead of only saying I admire the brand.",
+        "tip": "Specific contribution is stronger than admiration."
+      },
+      {
+        "slug": "meta-company-prioritization",
+        "question": "How do you prioritize work when everything seems urgent?",
+        "answer": "I separate urgency from impact, identify dependencies, and align with stakeholders on what really moves the outcome forward. In fast-moving environments like Meta, disciplined prioritization is more valuable than reacting to every request equally.",
+        "tip": "Impact matters more than noise."
+      },
+      {
+        "slug": "meta-company-customer-thinking",
+        "question": "How do you think about customer impact in your engineering decisions?",
+        "answer": "I ask how the decision affects reliability, speed, clarity, and long-term trust from the user perspective. Strong engineering at Meta should connect technical choices to the actual experience of the customer.",
+        "tip": "Translate engineering into user impact."
+      },
+      {
+        "slug": "meta-company-debugging-process",
+        "question": "Describe your debugging process for a complex issue.",
+        "answer": "I narrow the problem by reproducing it, identifying where reality diverges from expectation, and validating one hypothesis at a time. The point is to make the issue smaller and more observable instead of jumping between guesses.",
+        "tip": "Reduce the problem before trying random fixes."
+      },
+      {
+        "slug": "meta-company-delivery-balance",
+        "question": "How do you balance delivery speed with quality?",
+        "answer": "I try to protect quality on the highest-risk paths while reducing scope where needed to keep momentum. Good engineering at Meta should show judgment about where speed helps and where cutting corners creates expensive problems later.",
+        "tip": "Scope can shrink before quality does."
+      },
+      {
+        "slug": "meta-company-learning",
+        "question": "How do you ramp up quickly in a new domain?",
+        "answer": "I identify the concepts that block useful progress, learn enough to make a first contribution, and then deepen understanding through real work. Fast ramp-up is usually about learning the right things in the right order.",
+        "tip": "Sequence matters more than volume."
+      },
+      {
+        "slug": "meta-company-collaboration",
+        "question": "How do you work with cross-functional teams?",
+        "answer": "I make tradeoffs visible, ask what each function is optimizing for, and keep communication concrete enough for decisions to move. Cross-functional work succeeds when people can reason about the same problem from different perspectives.",
+        "tip": "Make tradeoffs visible."
+      },
+      {
+        "slug": "meta-company-feedback",
+        "question": "How do you handle feedback that you disagree with at first?",
+        "answer": "I try to understand the reasoning before reacting, then I evaluate whether the concern reveals a gap in my assumptions or communication. Even when I disagree, I want the discussion to improve the outcome instead of becoming personal.",
+        "tip": "Understanding comes before defending."
+      },
+      {
+        "slug": "meta-company-system-thinking",
+        "question": "How do you think about designing systems that stay reliable at scale?",
+        "answer": "I focus on clear boundaries, observability, graceful failure behavior, and realistic operational tradeoffs. Reliability at Meta should be designed into the system and the rollout process, not added after incidents happen.",
+        "tip": "Reliability includes operations, not just architecture."
+      },
+      {
+        "slug": "meta-company-ambiguity",
+        "question": "How do you operate when the next step is not clearly defined?",
+        "answer": "I turn ambiguity into specific questions, define the decision that matters most, and propose a path instead of waiting passively. Strong performers in companies like Meta reduce uncertainty for the team rather than only managing their own discomfort.",
+        "tip": "Reduce uncertainty for the team."
+      },
+      {
+        "slug": "meta-company-metrics",
+        "question": "What metrics would you watch after launching a feature?",
+        "answer": "I would watch the metrics most closely tied to user success and system health, such as adoption, error rate, latency, and any feature-specific business signal that should move. Metrics only help if they reflect real product behavior.",
+        "tip": "Use both user and system signals."
+      },
+      {
+        "slug": "meta-company-ownership",
+        "question": "What does ownership mean to you in a company like Meta?",
+        "answer": "Ownership means carrying a problem through ambiguity, implementation, validation, communication, and follow-up until the outcome is reliable. It is not just about writing code quickly; it is about making sure the result actually holds up.",
+        "tip": "Ownership includes follow-through."
+      },
+      {
+        "slug": "meta-company-tradeoffs",
+        "question": "How do you explain tradeoffs when there is no perfect solution?",
+        "answer": "I compare the options in terms of what each one optimizes, what risk it introduces, and why one is the best fit for the real constraints. Good tradeoff communication helps teams make decisions they can defend later.",
+        "tip": "Explain what each option optimizes for."
+      },
+      {
+        "slug": "meta-company-testing",
+        "question": "How do you decide what to test before release?",
+        "answer": "I prioritize tests around the highest-risk behavior, critical integrations, and the paths most likely to hurt users if they fail. A good testing approach is driven by risk and consequence, not by trying to test everything equally.",
+        "tip": "Risk-driven testing is a stronger answer."
+      },
+      {
+        "slug": "meta-company-prior-experience",
+        "question": "How would your previous experience help you at Meta?",
+        "answer": "I would connect my past work to the challenges this role likely faces, whether that is product quality, system reliability, debugging depth, or cross-team execution. The value of experience is strongest when it transfers directly to the next environment.",
+        "tip": "Transferable value matters more than title names."
+      },
+      {
+        "slug": "meta-company-incident-learning",
+        "question": "What should a team learn after an incident?",
+        "answer": "A strong team should learn what assumptions failed, what safeguards were missing, and what changes will reduce repeat risk. The point is not to produce blame-heavy documentation, but to improve how the system and the team behave next time.",
+        "tip": "Prevention is the goal of learning."
+      },
+      {
+        "slug": "meta-interview-preparation-strategy",
+        "question": "How should you prepare strategically for interviews at Meta?",
+        "answer": "I would prepare by understanding the themes Meta is likely to care about, practicing role-relevant questions, and rewriting sample answers into my own project and decision stories. Strategic preparation is stronger than memorizing isolated responses because it improves both accuracy and confidence.",
+        "tip": "Connect preparation to company themes and your own examples."
       }
     ]
   },
@@ -575,6 +1907,114 @@
         "question": "How would you explain the difference between WHERE and HAVING in SQL?",
         "answer": "WHERE filters rows before grouping, while HAVING filters groups after aggregation. I usually explain it with an example using total sales or counts per department because that makes the difference obvious.",
         "tip": "Concrete examples make SQL answers much stronger."
+      },
+      {
+        "slug": "tata-consultancy-services-company-culture-fit",
+        "question": "What kind of culture helps you perform your best work at Tata Consultancy Services?",
+        "answer": "I do best in cultures that combine high standards with clear ownership and respectful collaboration. In a company like Tata Consultancy Services, strong culture should make decision quality and execution stronger, not just sound good in recruiting materials.",
+        "tip": "Tie culture to how work gets done."
+      },
+      {
+        "slug": "tata-consultancy-services-company-role-alignment",
+        "question": "Why do you think you are a fit for Tata Consultancy Services?",
+        "answer": "I would connect my strengths to the kind of problems Tata Consultancy Services appears to solve and the expectations of the role. The strongest fit answer is specific about what I can contribute instead of only saying I admire the brand.",
+        "tip": "Specific contribution is stronger than admiration."
+      },
+      {
+        "slug": "tata-consultancy-services-company-prioritization",
+        "question": "How do you prioritize work when everything seems urgent?",
+        "answer": "I separate urgency from impact, identify dependencies, and align with stakeholders on what really moves the outcome forward. In fast-moving environments like Tata Consultancy Services, disciplined prioritization is more valuable than reacting to every request equally.",
+        "tip": "Impact matters more than noise."
+      },
+      {
+        "slug": "tata-consultancy-services-company-customer-thinking",
+        "question": "How do you think about customer impact in your engineering decisions?",
+        "answer": "I ask how the decision affects reliability, speed, clarity, and long-term trust from the user perspective. Strong engineering at Tata Consultancy Services should connect technical choices to the actual experience of the customer.",
+        "tip": "Translate engineering into user impact."
+      },
+      {
+        "slug": "tata-consultancy-services-company-debugging-process",
+        "question": "Describe your debugging process for a complex issue.",
+        "answer": "I narrow the problem by reproducing it, identifying where reality diverges from expectation, and validating one hypothesis at a time. The point is to make the issue smaller and more observable instead of jumping between guesses.",
+        "tip": "Reduce the problem before trying random fixes."
+      },
+      {
+        "slug": "tata-consultancy-services-company-delivery-balance",
+        "question": "How do you balance delivery speed with quality?",
+        "answer": "I try to protect quality on the highest-risk paths while reducing scope where needed to keep momentum. Good engineering at Tata Consultancy Services should show judgment about where speed helps and where cutting corners creates expensive problems later.",
+        "tip": "Scope can shrink before quality does."
+      },
+      {
+        "slug": "tata-consultancy-services-company-learning",
+        "question": "How do you ramp up quickly in a new domain?",
+        "answer": "I identify the concepts that block useful progress, learn enough to make a first contribution, and then deepen understanding through real work. Fast ramp-up is usually about learning the right things in the right order.",
+        "tip": "Sequence matters more than volume."
+      },
+      {
+        "slug": "tata-consultancy-services-company-collaboration",
+        "question": "How do you work with cross-functional teams?",
+        "answer": "I make tradeoffs visible, ask what each function is optimizing for, and keep communication concrete enough for decisions to move. Cross-functional work succeeds when people can reason about the same problem from different perspectives.",
+        "tip": "Make tradeoffs visible."
+      },
+      {
+        "slug": "tata-consultancy-services-company-feedback",
+        "question": "How do you handle feedback that you disagree with at first?",
+        "answer": "I try to understand the reasoning before reacting, then I evaluate whether the concern reveals a gap in my assumptions or communication. Even when I disagree, I want the discussion to improve the outcome instead of becoming personal.",
+        "tip": "Understanding comes before defending."
+      },
+      {
+        "slug": "tata-consultancy-services-company-system-thinking",
+        "question": "How do you think about designing systems that stay reliable at scale?",
+        "answer": "I focus on clear boundaries, observability, graceful failure behavior, and realistic operational tradeoffs. Reliability at Tata Consultancy Services should be designed into the system and the rollout process, not added after incidents happen.",
+        "tip": "Reliability includes operations, not just architecture."
+      },
+      {
+        "slug": "tata-consultancy-services-company-ambiguity",
+        "question": "How do you operate when the next step is not clearly defined?",
+        "answer": "I turn ambiguity into specific questions, define the decision that matters most, and propose a path instead of waiting passively. Strong performers in companies like Tata Consultancy Services reduce uncertainty for the team rather than only managing their own discomfort.",
+        "tip": "Reduce uncertainty for the team."
+      },
+      {
+        "slug": "tata-consultancy-services-company-metrics",
+        "question": "What metrics would you watch after launching a feature?",
+        "answer": "I would watch the metrics most closely tied to user success and system health, such as adoption, error rate, latency, and any feature-specific business signal that should move. Metrics only help if they reflect real product behavior.",
+        "tip": "Use both user and system signals."
+      },
+      {
+        "slug": "tata-consultancy-services-company-ownership",
+        "question": "What does ownership mean to you in a company like Tata Consultancy Services?",
+        "answer": "Ownership means carrying a problem through ambiguity, implementation, validation, communication, and follow-up until the outcome is reliable. It is not just about writing code quickly; it is about making sure the result actually holds up.",
+        "tip": "Ownership includes follow-through."
+      },
+      {
+        "slug": "tata-consultancy-services-company-tradeoffs",
+        "question": "How do you explain tradeoffs when there is no perfect solution?",
+        "answer": "I compare the options in terms of what each one optimizes, what risk it introduces, and why one is the best fit for the real constraints. Good tradeoff communication helps teams make decisions they can defend later.",
+        "tip": "Explain what each option optimizes for."
+      },
+      {
+        "slug": "tata-consultancy-services-company-testing",
+        "question": "How do you decide what to test before release?",
+        "answer": "I prioritize tests around the highest-risk behavior, critical integrations, and the paths most likely to hurt users if they fail. A good testing approach is driven by risk and consequence, not by trying to test everything equally.",
+        "tip": "Risk-driven testing is a stronger answer."
+      },
+      {
+        "slug": "tata-consultancy-services-company-prior-experience",
+        "question": "How would your previous experience help you at Tata Consultancy Services?",
+        "answer": "I would connect my past work to the challenges this role likely faces, whether that is product quality, system reliability, debugging depth, or cross-team execution. The value of experience is strongest when it transfers directly to the next environment.",
+        "tip": "Transferable value matters more than title names."
+      },
+      {
+        "slug": "tata-consultancy-services-company-incident-learning",
+        "question": "What should a team learn after an incident?",
+        "answer": "A strong team should learn what assumptions failed, what safeguards were missing, and what changes will reduce repeat risk. The point is not to produce blame-heavy documentation, but to improve how the system and the team behave next time.",
+        "tip": "Prevention is the goal of learning."
+      },
+      {
+        "slug": "tata-consultancy-services-interview-preparation-strategy",
+        "question": "How should you prepare strategically for interviews at Tata Consultancy Services?",
+        "answer": "I would prepare by understanding the themes Tata Consultancy Services is likely to care about, practicing role-relevant questions, and rewriting sample answers into my own project and decision stories. Strategic preparation is stronger than memorizing isolated responses because it improves both accuracy and confidence.",
+        "tip": "Connect preparation to company themes and your own examples."
       }
     ]
   },
@@ -634,6 +2074,114 @@
         "question": "What is the difference between primary key and foreign key?",
         "answer": "A primary key uniquely identifies a row in a table, while a foreign key links one table to another by referencing a primary key. Together they help maintain data integrity and relationships.",
         "tip": "This is a common fundamentals question, so answer clearly and directly."
+      },
+      {
+        "slug": "infosys-company-culture-fit",
+        "question": "What kind of culture helps you perform your best work at Infosys?",
+        "answer": "I do best in cultures that combine high standards with clear ownership and respectful collaboration. In a company like Infosys, strong culture should make decision quality and execution stronger, not just sound good in recruiting materials.",
+        "tip": "Tie culture to how work gets done."
+      },
+      {
+        "slug": "infosys-company-role-alignment",
+        "question": "Why do you think you are a fit for Infosys?",
+        "answer": "I would connect my strengths to the kind of problems Infosys appears to solve and the expectations of the role. The strongest fit answer is specific about what I can contribute instead of only saying I admire the brand.",
+        "tip": "Specific contribution is stronger than admiration."
+      },
+      {
+        "slug": "infosys-company-prioritization",
+        "question": "How do you prioritize work when everything seems urgent?",
+        "answer": "I separate urgency from impact, identify dependencies, and align with stakeholders on what really moves the outcome forward. In fast-moving environments like Infosys, disciplined prioritization is more valuable than reacting to every request equally.",
+        "tip": "Impact matters more than noise."
+      },
+      {
+        "slug": "infosys-company-customer-thinking",
+        "question": "How do you think about customer impact in your engineering decisions?",
+        "answer": "I ask how the decision affects reliability, speed, clarity, and long-term trust from the user perspective. Strong engineering at Infosys should connect technical choices to the actual experience of the customer.",
+        "tip": "Translate engineering into user impact."
+      },
+      {
+        "slug": "infosys-company-debugging-process",
+        "question": "Describe your debugging process for a complex issue.",
+        "answer": "I narrow the problem by reproducing it, identifying where reality diverges from expectation, and validating one hypothesis at a time. The point is to make the issue smaller and more observable instead of jumping between guesses.",
+        "tip": "Reduce the problem before trying random fixes."
+      },
+      {
+        "slug": "infosys-company-delivery-balance",
+        "question": "How do you balance delivery speed with quality?",
+        "answer": "I try to protect quality on the highest-risk paths while reducing scope where needed to keep momentum. Good engineering at Infosys should show judgment about where speed helps and where cutting corners creates expensive problems later.",
+        "tip": "Scope can shrink before quality does."
+      },
+      {
+        "slug": "infosys-company-learning",
+        "question": "How do you ramp up quickly in a new domain?",
+        "answer": "I identify the concepts that block useful progress, learn enough to make a first contribution, and then deepen understanding through real work. Fast ramp-up is usually about learning the right things in the right order.",
+        "tip": "Sequence matters more than volume."
+      },
+      {
+        "slug": "infosys-company-collaboration",
+        "question": "How do you work with cross-functional teams?",
+        "answer": "I make tradeoffs visible, ask what each function is optimizing for, and keep communication concrete enough for decisions to move. Cross-functional work succeeds when people can reason about the same problem from different perspectives.",
+        "tip": "Make tradeoffs visible."
+      },
+      {
+        "slug": "infosys-company-feedback",
+        "question": "How do you handle feedback that you disagree with at first?",
+        "answer": "I try to understand the reasoning before reacting, then I evaluate whether the concern reveals a gap in my assumptions or communication. Even when I disagree, I want the discussion to improve the outcome instead of becoming personal.",
+        "tip": "Understanding comes before defending."
+      },
+      {
+        "slug": "infosys-company-system-thinking",
+        "question": "How do you think about designing systems that stay reliable at scale?",
+        "answer": "I focus on clear boundaries, observability, graceful failure behavior, and realistic operational tradeoffs. Reliability at Infosys should be designed into the system and the rollout process, not added after incidents happen.",
+        "tip": "Reliability includes operations, not just architecture."
+      },
+      {
+        "slug": "infosys-company-ambiguity",
+        "question": "How do you operate when the next step is not clearly defined?",
+        "answer": "I turn ambiguity into specific questions, define the decision that matters most, and propose a path instead of waiting passively. Strong performers in companies like Infosys reduce uncertainty for the team rather than only managing their own discomfort.",
+        "tip": "Reduce uncertainty for the team."
+      },
+      {
+        "slug": "infosys-company-metrics",
+        "question": "What metrics would you watch after launching a feature?",
+        "answer": "I would watch the metrics most closely tied to user success and system health, such as adoption, error rate, latency, and any feature-specific business signal that should move. Metrics only help if they reflect real product behavior.",
+        "tip": "Use both user and system signals."
+      },
+      {
+        "slug": "infosys-company-ownership",
+        "question": "What does ownership mean to you in a company like Infosys?",
+        "answer": "Ownership means carrying a problem through ambiguity, implementation, validation, communication, and follow-up until the outcome is reliable. It is not just about writing code quickly; it is about making sure the result actually holds up.",
+        "tip": "Ownership includes follow-through."
+      },
+      {
+        "slug": "infosys-company-tradeoffs",
+        "question": "How do you explain tradeoffs when there is no perfect solution?",
+        "answer": "I compare the options in terms of what each one optimizes, what risk it introduces, and why one is the best fit for the real constraints. Good tradeoff communication helps teams make decisions they can defend later.",
+        "tip": "Explain what each option optimizes for."
+      },
+      {
+        "slug": "infosys-company-testing",
+        "question": "How do you decide what to test before release?",
+        "answer": "I prioritize tests around the highest-risk behavior, critical integrations, and the paths most likely to hurt users if they fail. A good testing approach is driven by risk and consequence, not by trying to test everything equally.",
+        "tip": "Risk-driven testing is a stronger answer."
+      },
+      {
+        "slug": "infosys-company-prior-experience",
+        "question": "How would your previous experience help you at Infosys?",
+        "answer": "I would connect my past work to the challenges this role likely faces, whether that is product quality, system reliability, debugging depth, or cross-team execution. The value of experience is strongest when it transfers directly to the next environment.",
+        "tip": "Transferable value matters more than title names."
+      },
+      {
+        "slug": "infosys-company-incident-learning",
+        "question": "What should a team learn after an incident?",
+        "answer": "A strong team should learn what assumptions failed, what safeguards were missing, and what changes will reduce repeat risk. The point is not to produce blame-heavy documentation, but to improve how the system and the team behave next time.",
+        "tip": "Prevention is the goal of learning."
+      },
+      {
+        "slug": "infosys-interview-preparation-strategy",
+        "question": "How should you prepare strategically for interviews at Infosys?",
+        "answer": "I would prepare by understanding the themes Infosys is likely to care about, practicing role-relevant questions, and rewriting sample answers into my own project and decision stories. Strategic preparation is stronger than memorizing isolated responses because it improves both accuracy and confidence.",
+        "tip": "Connect preparation to company themes and your own examples."
       }
     ]
   },
@@ -675,6 +2223,114 @@
         "question": "What is the difference between DELETE, TRUNCATE, and DROP?",
         "answer": "DELETE removes selected rows and can be filtered, TRUNCATE clears all rows more efficiently, and DROP removes the entire table structure. I would also mention transaction behavior and recovery depending on the database context.",
         "tip": "This is a common fundamentals question, so answer in direct comparisons."
+      },
+      {
+        "slug": "wipro-company-culture-fit",
+        "question": "What kind of culture helps you perform your best work at Wipro?",
+        "answer": "I do best in cultures that combine high standards with clear ownership and respectful collaboration. In a company like Wipro, strong culture should make decision quality and execution stronger, not just sound good in recruiting materials.",
+        "tip": "Tie culture to how work gets done."
+      },
+      {
+        "slug": "wipro-company-role-alignment",
+        "question": "Why do you think you are a fit for Wipro?",
+        "answer": "I would connect my strengths to the kind of problems Wipro appears to solve and the expectations of the role. The strongest fit answer is specific about what I can contribute instead of only saying I admire the brand.",
+        "tip": "Specific contribution is stronger than admiration."
+      },
+      {
+        "slug": "wipro-company-prioritization",
+        "question": "How do you prioritize work when everything seems urgent?",
+        "answer": "I separate urgency from impact, identify dependencies, and align with stakeholders on what really moves the outcome forward. In fast-moving environments like Wipro, disciplined prioritization is more valuable than reacting to every request equally.",
+        "tip": "Impact matters more than noise."
+      },
+      {
+        "slug": "wipro-company-customer-thinking",
+        "question": "How do you think about customer impact in your engineering decisions?",
+        "answer": "I ask how the decision affects reliability, speed, clarity, and long-term trust from the user perspective. Strong engineering at Wipro should connect technical choices to the actual experience of the customer.",
+        "tip": "Translate engineering into user impact."
+      },
+      {
+        "slug": "wipro-company-debugging-process",
+        "question": "Describe your debugging process for a complex issue.",
+        "answer": "I narrow the problem by reproducing it, identifying where reality diverges from expectation, and validating one hypothesis at a time. The point is to make the issue smaller and more observable instead of jumping between guesses.",
+        "tip": "Reduce the problem before trying random fixes."
+      },
+      {
+        "slug": "wipro-company-delivery-balance",
+        "question": "How do you balance delivery speed with quality?",
+        "answer": "I try to protect quality on the highest-risk paths while reducing scope where needed to keep momentum. Good engineering at Wipro should show judgment about where speed helps and where cutting corners creates expensive problems later.",
+        "tip": "Scope can shrink before quality does."
+      },
+      {
+        "slug": "wipro-company-learning",
+        "question": "How do you ramp up quickly in a new domain?",
+        "answer": "I identify the concepts that block useful progress, learn enough to make a first contribution, and then deepen understanding through real work. Fast ramp-up is usually about learning the right things in the right order.",
+        "tip": "Sequence matters more than volume."
+      },
+      {
+        "slug": "wipro-company-collaboration",
+        "question": "How do you work with cross-functional teams?",
+        "answer": "I make tradeoffs visible, ask what each function is optimizing for, and keep communication concrete enough for decisions to move. Cross-functional work succeeds when people can reason about the same problem from different perspectives.",
+        "tip": "Make tradeoffs visible."
+      },
+      {
+        "slug": "wipro-company-feedback",
+        "question": "How do you handle feedback that you disagree with at first?",
+        "answer": "I try to understand the reasoning before reacting, then I evaluate whether the concern reveals a gap in my assumptions or communication. Even when I disagree, I want the discussion to improve the outcome instead of becoming personal.",
+        "tip": "Understanding comes before defending."
+      },
+      {
+        "slug": "wipro-company-system-thinking",
+        "question": "How do you think about designing systems that stay reliable at scale?",
+        "answer": "I focus on clear boundaries, observability, graceful failure behavior, and realistic operational tradeoffs. Reliability at Wipro should be designed into the system and the rollout process, not added after incidents happen.",
+        "tip": "Reliability includes operations, not just architecture."
+      },
+      {
+        "slug": "wipro-company-ambiguity",
+        "question": "How do you operate when the next step is not clearly defined?",
+        "answer": "I turn ambiguity into specific questions, define the decision that matters most, and propose a path instead of waiting passively. Strong performers in companies like Wipro reduce uncertainty for the team rather than only managing their own discomfort.",
+        "tip": "Reduce uncertainty for the team."
+      },
+      {
+        "slug": "wipro-company-metrics",
+        "question": "What metrics would you watch after launching a feature?",
+        "answer": "I would watch the metrics most closely tied to user success and system health, such as adoption, error rate, latency, and any feature-specific business signal that should move. Metrics only help if they reflect real product behavior.",
+        "tip": "Use both user and system signals."
+      },
+      {
+        "slug": "wipro-company-ownership",
+        "question": "What does ownership mean to you in a company like Wipro?",
+        "answer": "Ownership means carrying a problem through ambiguity, implementation, validation, communication, and follow-up until the outcome is reliable. It is not just about writing code quickly; it is about making sure the result actually holds up.",
+        "tip": "Ownership includes follow-through."
+      },
+      {
+        "slug": "wipro-company-tradeoffs",
+        "question": "How do you explain tradeoffs when there is no perfect solution?",
+        "answer": "I compare the options in terms of what each one optimizes, what risk it introduces, and why one is the best fit for the real constraints. Good tradeoff communication helps teams make decisions they can defend later.",
+        "tip": "Explain what each option optimizes for."
+      },
+      {
+        "slug": "wipro-company-testing",
+        "question": "How do you decide what to test before release?",
+        "answer": "I prioritize tests around the highest-risk behavior, critical integrations, and the paths most likely to hurt users if they fail. A good testing approach is driven by risk and consequence, not by trying to test everything equally.",
+        "tip": "Risk-driven testing is a stronger answer."
+      },
+      {
+        "slug": "wipro-company-prior-experience",
+        "question": "How would your previous experience help you at Wipro?",
+        "answer": "I would connect my past work to the challenges this role likely faces, whether that is product quality, system reliability, debugging depth, or cross-team execution. The value of experience is strongest when it transfers directly to the next environment.",
+        "tip": "Transferable value matters more than title names."
+      },
+      {
+        "slug": "wipro-company-incident-learning",
+        "question": "What should a team learn after an incident?",
+        "answer": "A strong team should learn what assumptions failed, what safeguards were missing, and what changes will reduce repeat risk. The point is not to produce blame-heavy documentation, but to improve how the system and the team behave next time.",
+        "tip": "Prevention is the goal of learning."
+      },
+      {
+        "slug": "wipro-interview-preparation-strategy",
+        "question": "How should you prepare strategically for interviews at Wipro?",
+        "answer": "I would prepare by understanding the themes Wipro is likely to care about, practicing role-relevant questions, and rewriting sample answers into my own project and decision stories. Strategic preparation is stronger than memorizing isolated responses because it improves both accuracy and confidence.",
+        "tip": "Connect preparation to company themes and your own examples."
       }
     ]
   },
@@ -716,6 +2372,114 @@
         "question": "Tell me about a time you adapted to a new process quickly.",
         "answer": "I would explain the change, how I learned it, how I reduced disruption to delivery, and what result followed. Strong answers show both adaptability and execution quality.",
         "tip": "Accenture interviews often reward structured adaptation stories."
+      },
+      {
+        "slug": "accenture-company-culture-fit",
+        "question": "What kind of culture helps you perform your best work at Accenture?",
+        "answer": "I do best in cultures that combine high standards with clear ownership and respectful collaboration. In a company like Accenture, strong culture should make decision quality and execution stronger, not just sound good in recruiting materials.",
+        "tip": "Tie culture to how work gets done."
+      },
+      {
+        "slug": "accenture-company-role-alignment",
+        "question": "Why do you think you are a fit for Accenture?",
+        "answer": "I would connect my strengths to the kind of problems Accenture appears to solve and the expectations of the role. The strongest fit answer is specific about what I can contribute instead of only saying I admire the brand.",
+        "tip": "Specific contribution is stronger than admiration."
+      },
+      {
+        "slug": "accenture-company-prioritization",
+        "question": "How do you prioritize work when everything seems urgent?",
+        "answer": "I separate urgency from impact, identify dependencies, and align with stakeholders on what really moves the outcome forward. In fast-moving environments like Accenture, disciplined prioritization is more valuable than reacting to every request equally.",
+        "tip": "Impact matters more than noise."
+      },
+      {
+        "slug": "accenture-company-customer-thinking",
+        "question": "How do you think about customer impact in your engineering decisions?",
+        "answer": "I ask how the decision affects reliability, speed, clarity, and long-term trust from the user perspective. Strong engineering at Accenture should connect technical choices to the actual experience of the customer.",
+        "tip": "Translate engineering into user impact."
+      },
+      {
+        "slug": "accenture-company-debugging-process",
+        "question": "Describe your debugging process for a complex issue.",
+        "answer": "I narrow the problem by reproducing it, identifying where reality diverges from expectation, and validating one hypothesis at a time. The point is to make the issue smaller and more observable instead of jumping between guesses.",
+        "tip": "Reduce the problem before trying random fixes."
+      },
+      {
+        "slug": "accenture-company-delivery-balance",
+        "question": "How do you balance delivery speed with quality?",
+        "answer": "I try to protect quality on the highest-risk paths while reducing scope where needed to keep momentum. Good engineering at Accenture should show judgment about where speed helps and where cutting corners creates expensive problems later.",
+        "tip": "Scope can shrink before quality does."
+      },
+      {
+        "slug": "accenture-company-learning",
+        "question": "How do you ramp up quickly in a new domain?",
+        "answer": "I identify the concepts that block useful progress, learn enough to make a first contribution, and then deepen understanding through real work. Fast ramp-up is usually about learning the right things in the right order.",
+        "tip": "Sequence matters more than volume."
+      },
+      {
+        "slug": "accenture-company-collaboration",
+        "question": "How do you work with cross-functional teams?",
+        "answer": "I make tradeoffs visible, ask what each function is optimizing for, and keep communication concrete enough for decisions to move. Cross-functional work succeeds when people can reason about the same problem from different perspectives.",
+        "tip": "Make tradeoffs visible."
+      },
+      {
+        "slug": "accenture-company-feedback",
+        "question": "How do you handle feedback that you disagree with at first?",
+        "answer": "I try to understand the reasoning before reacting, then I evaluate whether the concern reveals a gap in my assumptions or communication. Even when I disagree, I want the discussion to improve the outcome instead of becoming personal.",
+        "tip": "Understanding comes before defending."
+      },
+      {
+        "slug": "accenture-company-system-thinking",
+        "question": "How do you think about designing systems that stay reliable at scale?",
+        "answer": "I focus on clear boundaries, observability, graceful failure behavior, and realistic operational tradeoffs. Reliability at Accenture should be designed into the system and the rollout process, not added after incidents happen.",
+        "tip": "Reliability includes operations, not just architecture."
+      },
+      {
+        "slug": "accenture-company-ambiguity",
+        "question": "How do you operate when the next step is not clearly defined?",
+        "answer": "I turn ambiguity into specific questions, define the decision that matters most, and propose a path instead of waiting passively. Strong performers in companies like Accenture reduce uncertainty for the team rather than only managing their own discomfort.",
+        "tip": "Reduce uncertainty for the team."
+      },
+      {
+        "slug": "accenture-company-metrics",
+        "question": "What metrics would you watch after launching a feature?",
+        "answer": "I would watch the metrics most closely tied to user success and system health, such as adoption, error rate, latency, and any feature-specific business signal that should move. Metrics only help if they reflect real product behavior.",
+        "tip": "Use both user and system signals."
+      },
+      {
+        "slug": "accenture-company-ownership",
+        "question": "What does ownership mean to you in a company like Accenture?",
+        "answer": "Ownership means carrying a problem through ambiguity, implementation, validation, communication, and follow-up until the outcome is reliable. It is not just about writing code quickly; it is about making sure the result actually holds up.",
+        "tip": "Ownership includes follow-through."
+      },
+      {
+        "slug": "accenture-company-tradeoffs",
+        "question": "How do you explain tradeoffs when there is no perfect solution?",
+        "answer": "I compare the options in terms of what each one optimizes, what risk it introduces, and why one is the best fit for the real constraints. Good tradeoff communication helps teams make decisions they can defend later.",
+        "tip": "Explain what each option optimizes for."
+      },
+      {
+        "slug": "accenture-company-testing",
+        "question": "How do you decide what to test before release?",
+        "answer": "I prioritize tests around the highest-risk behavior, critical integrations, and the paths most likely to hurt users if they fail. A good testing approach is driven by risk and consequence, not by trying to test everything equally.",
+        "tip": "Risk-driven testing is a stronger answer."
+      },
+      {
+        "slug": "accenture-company-prior-experience",
+        "question": "How would your previous experience help you at Accenture?",
+        "answer": "I would connect my past work to the challenges this role likely faces, whether that is product quality, system reliability, debugging depth, or cross-team execution. The value of experience is strongest when it transfers directly to the next environment.",
+        "tip": "Transferable value matters more than title names."
+      },
+      {
+        "slug": "accenture-company-incident-learning",
+        "question": "What should a team learn after an incident?",
+        "answer": "A strong team should learn what assumptions failed, what safeguards were missing, and what changes will reduce repeat risk. The point is not to produce blame-heavy documentation, but to improve how the system and the team behave next time.",
+        "tip": "Prevention is the goal of learning."
+      },
+      {
+        "slug": "accenture-interview-preparation-strategy",
+        "question": "How should you prepare strategically for interviews at Accenture?",
+        "answer": "I would prepare by understanding the themes Accenture is likely to care about, practicing role-relevant questions, and rewriting sample answers into my own project and decision stories. Strategic preparation is stronger than memorizing isolated responses because it improves both accuracy and confidence.",
+        "tip": "Connect preparation to company themes and your own examples."
       }
     ]
   },
@@ -757,6 +2521,114 @@
         "question": "How do you explain your technical strengths to a non technical interviewer?",
         "answer": "I focus on the problems I can solve, the reliability of my delivery, and a few concrete project examples. That makes the answer easier to understand than listing tools without context.",
         "tip": "Translate skills into outcomes."
+      },
+      {
+        "slug": "deloitte-company-culture-fit",
+        "question": "What kind of culture helps you perform your best work at Deloitte?",
+        "answer": "I do best in cultures that combine high standards with clear ownership and respectful collaboration. In a company like Deloitte, strong culture should make decision quality and execution stronger, not just sound good in recruiting materials.",
+        "tip": "Tie culture to how work gets done."
+      },
+      {
+        "slug": "deloitte-company-role-alignment",
+        "question": "Why do you think you are a fit for Deloitte?",
+        "answer": "I would connect my strengths to the kind of problems Deloitte appears to solve and the expectations of the role. The strongest fit answer is specific about what I can contribute instead of only saying I admire the brand.",
+        "tip": "Specific contribution is stronger than admiration."
+      },
+      {
+        "slug": "deloitte-company-prioritization",
+        "question": "How do you prioritize work when everything seems urgent?",
+        "answer": "I separate urgency from impact, identify dependencies, and align with stakeholders on what really moves the outcome forward. In fast-moving environments like Deloitte, disciplined prioritization is more valuable than reacting to every request equally.",
+        "tip": "Impact matters more than noise."
+      },
+      {
+        "slug": "deloitte-company-customer-thinking",
+        "question": "How do you think about customer impact in your engineering decisions?",
+        "answer": "I ask how the decision affects reliability, speed, clarity, and long-term trust from the user perspective. Strong engineering at Deloitte should connect technical choices to the actual experience of the customer.",
+        "tip": "Translate engineering into user impact."
+      },
+      {
+        "slug": "deloitte-company-debugging-process",
+        "question": "Describe your debugging process for a complex issue.",
+        "answer": "I narrow the problem by reproducing it, identifying where reality diverges from expectation, and validating one hypothesis at a time. The point is to make the issue smaller and more observable instead of jumping between guesses.",
+        "tip": "Reduce the problem before trying random fixes."
+      },
+      {
+        "slug": "deloitte-company-delivery-balance",
+        "question": "How do you balance delivery speed with quality?",
+        "answer": "I try to protect quality on the highest-risk paths while reducing scope where needed to keep momentum. Good engineering at Deloitte should show judgment about where speed helps and where cutting corners creates expensive problems later.",
+        "tip": "Scope can shrink before quality does."
+      },
+      {
+        "slug": "deloitte-company-learning",
+        "question": "How do you ramp up quickly in a new domain?",
+        "answer": "I identify the concepts that block useful progress, learn enough to make a first contribution, and then deepen understanding through real work. Fast ramp-up is usually about learning the right things in the right order.",
+        "tip": "Sequence matters more than volume."
+      },
+      {
+        "slug": "deloitte-company-collaboration",
+        "question": "How do you work with cross-functional teams?",
+        "answer": "I make tradeoffs visible, ask what each function is optimizing for, and keep communication concrete enough for decisions to move. Cross-functional work succeeds when people can reason about the same problem from different perspectives.",
+        "tip": "Make tradeoffs visible."
+      },
+      {
+        "slug": "deloitte-company-feedback",
+        "question": "How do you handle feedback that you disagree with at first?",
+        "answer": "I try to understand the reasoning before reacting, then I evaluate whether the concern reveals a gap in my assumptions or communication. Even when I disagree, I want the discussion to improve the outcome instead of becoming personal.",
+        "tip": "Understanding comes before defending."
+      },
+      {
+        "slug": "deloitte-company-system-thinking",
+        "question": "How do you think about designing systems that stay reliable at scale?",
+        "answer": "I focus on clear boundaries, observability, graceful failure behavior, and realistic operational tradeoffs. Reliability at Deloitte should be designed into the system and the rollout process, not added after incidents happen.",
+        "tip": "Reliability includes operations, not just architecture."
+      },
+      {
+        "slug": "deloitte-company-ambiguity",
+        "question": "How do you operate when the next step is not clearly defined?",
+        "answer": "I turn ambiguity into specific questions, define the decision that matters most, and propose a path instead of waiting passively. Strong performers in companies like Deloitte reduce uncertainty for the team rather than only managing their own discomfort.",
+        "tip": "Reduce uncertainty for the team."
+      },
+      {
+        "slug": "deloitte-company-metrics",
+        "question": "What metrics would you watch after launching a feature?",
+        "answer": "I would watch the metrics most closely tied to user success and system health, such as adoption, error rate, latency, and any feature-specific business signal that should move. Metrics only help if they reflect real product behavior.",
+        "tip": "Use both user and system signals."
+      },
+      {
+        "slug": "deloitte-company-ownership",
+        "question": "What does ownership mean to you in a company like Deloitte?",
+        "answer": "Ownership means carrying a problem through ambiguity, implementation, validation, communication, and follow-up until the outcome is reliable. It is not just about writing code quickly; it is about making sure the result actually holds up.",
+        "tip": "Ownership includes follow-through."
+      },
+      {
+        "slug": "deloitte-company-tradeoffs",
+        "question": "How do you explain tradeoffs when there is no perfect solution?",
+        "answer": "I compare the options in terms of what each one optimizes, what risk it introduces, and why one is the best fit for the real constraints. Good tradeoff communication helps teams make decisions they can defend later.",
+        "tip": "Explain what each option optimizes for."
+      },
+      {
+        "slug": "deloitte-company-testing",
+        "question": "How do you decide what to test before release?",
+        "answer": "I prioritize tests around the highest-risk behavior, critical integrations, and the paths most likely to hurt users if they fail. A good testing approach is driven by risk and consequence, not by trying to test everything equally.",
+        "tip": "Risk-driven testing is a stronger answer."
+      },
+      {
+        "slug": "deloitte-company-prior-experience",
+        "question": "How would your previous experience help you at Deloitte?",
+        "answer": "I would connect my past work to the challenges this role likely faces, whether that is product quality, system reliability, debugging depth, or cross-team execution. The value of experience is strongest when it transfers directly to the next environment.",
+        "tip": "Transferable value matters more than title names."
+      },
+      {
+        "slug": "deloitte-company-incident-learning",
+        "question": "What should a team learn after an incident?",
+        "answer": "A strong team should learn what assumptions failed, what safeguards were missing, and what changes will reduce repeat risk. The point is not to produce blame-heavy documentation, but to improve how the system and the team behave next time.",
+        "tip": "Prevention is the goal of learning."
+      },
+      {
+        "slug": "deloitte-interview-preparation-strategy",
+        "question": "How should you prepare strategically for interviews at Deloitte?",
+        "answer": "I would prepare by understanding the themes Deloitte is likely to care about, practicing role-relevant questions, and rewriting sample answers into my own project and decision stories. Strategic preparation is stronger than memorizing isolated responses because it improves both accuracy and confidence.",
+        "tip": "Connect preparation to company themes and your own examples."
       }
     ]
   },
@@ -798,6 +2670,114 @@
         "question": "How do you choose between an array, linked list, hash map, and tree?",
         "answer": "I choose based on required operations such as indexed access, insertion and deletion cost, lookup speed, or ordered traversal. The best structure follows from the access pattern and performance goal of the problem.",
         "tip": "Answer by operation tradeoffs, not definitions alone."
+      },
+      {
+        "slug": "ibm-company-culture-fit",
+        "question": "What kind of culture helps you perform your best work at IBM?",
+        "answer": "I do best in cultures that combine high standards with clear ownership and respectful collaboration. In a company like IBM, strong culture should make decision quality and execution stronger, not just sound good in recruiting materials.",
+        "tip": "Tie culture to how work gets done."
+      },
+      {
+        "slug": "ibm-company-role-alignment",
+        "question": "Why do you think you are a fit for IBM?",
+        "answer": "I would connect my strengths to the kind of problems IBM appears to solve and the expectations of the role. The strongest fit answer is specific about what I can contribute instead of only saying I admire the brand.",
+        "tip": "Specific contribution is stronger than admiration."
+      },
+      {
+        "slug": "ibm-company-prioritization",
+        "question": "How do you prioritize work when everything seems urgent?",
+        "answer": "I separate urgency from impact, identify dependencies, and align with stakeholders on what really moves the outcome forward. In fast-moving environments like IBM, disciplined prioritization is more valuable than reacting to every request equally.",
+        "tip": "Impact matters more than noise."
+      },
+      {
+        "slug": "ibm-company-customer-thinking",
+        "question": "How do you think about customer impact in your engineering decisions?",
+        "answer": "I ask how the decision affects reliability, speed, clarity, and long-term trust from the user perspective. Strong engineering at IBM should connect technical choices to the actual experience of the customer.",
+        "tip": "Translate engineering into user impact."
+      },
+      {
+        "slug": "ibm-company-debugging-process",
+        "question": "Describe your debugging process for a complex issue.",
+        "answer": "I narrow the problem by reproducing it, identifying where reality diverges from expectation, and validating one hypothesis at a time. The point is to make the issue smaller and more observable instead of jumping between guesses.",
+        "tip": "Reduce the problem before trying random fixes."
+      },
+      {
+        "slug": "ibm-company-delivery-balance",
+        "question": "How do you balance delivery speed with quality?",
+        "answer": "I try to protect quality on the highest-risk paths while reducing scope where needed to keep momentum. Good engineering at IBM should show judgment about where speed helps and where cutting corners creates expensive problems later.",
+        "tip": "Scope can shrink before quality does."
+      },
+      {
+        "slug": "ibm-company-learning",
+        "question": "How do you ramp up quickly in a new domain?",
+        "answer": "I identify the concepts that block useful progress, learn enough to make a first contribution, and then deepen understanding through real work. Fast ramp-up is usually about learning the right things in the right order.",
+        "tip": "Sequence matters more than volume."
+      },
+      {
+        "slug": "ibm-company-collaboration",
+        "question": "How do you work with cross-functional teams?",
+        "answer": "I make tradeoffs visible, ask what each function is optimizing for, and keep communication concrete enough for decisions to move. Cross-functional work succeeds when people can reason about the same problem from different perspectives.",
+        "tip": "Make tradeoffs visible."
+      },
+      {
+        "slug": "ibm-company-feedback",
+        "question": "How do you handle feedback that you disagree with at first?",
+        "answer": "I try to understand the reasoning before reacting, then I evaluate whether the concern reveals a gap in my assumptions or communication. Even when I disagree, I want the discussion to improve the outcome instead of becoming personal.",
+        "tip": "Understanding comes before defending."
+      },
+      {
+        "slug": "ibm-company-system-thinking",
+        "question": "How do you think about designing systems that stay reliable at scale?",
+        "answer": "I focus on clear boundaries, observability, graceful failure behavior, and realistic operational tradeoffs. Reliability at IBM should be designed into the system and the rollout process, not added after incidents happen.",
+        "tip": "Reliability includes operations, not just architecture."
+      },
+      {
+        "slug": "ibm-company-ambiguity",
+        "question": "How do you operate when the next step is not clearly defined?",
+        "answer": "I turn ambiguity into specific questions, define the decision that matters most, and propose a path instead of waiting passively. Strong performers in companies like IBM reduce uncertainty for the team rather than only managing their own discomfort.",
+        "tip": "Reduce uncertainty for the team."
+      },
+      {
+        "slug": "ibm-company-metrics",
+        "question": "What metrics would you watch after launching a feature?",
+        "answer": "I would watch the metrics most closely tied to user success and system health, such as adoption, error rate, latency, and any feature-specific business signal that should move. Metrics only help if they reflect real product behavior.",
+        "tip": "Use both user and system signals."
+      },
+      {
+        "slug": "ibm-company-ownership",
+        "question": "What does ownership mean to you in a company like IBM?",
+        "answer": "Ownership means carrying a problem through ambiguity, implementation, validation, communication, and follow-up until the outcome is reliable. It is not just about writing code quickly; it is about making sure the result actually holds up.",
+        "tip": "Ownership includes follow-through."
+      },
+      {
+        "slug": "ibm-company-tradeoffs",
+        "question": "How do you explain tradeoffs when there is no perfect solution?",
+        "answer": "I compare the options in terms of what each one optimizes, what risk it introduces, and why one is the best fit for the real constraints. Good tradeoff communication helps teams make decisions they can defend later.",
+        "tip": "Explain what each option optimizes for."
+      },
+      {
+        "slug": "ibm-company-testing",
+        "question": "How do you decide what to test before release?",
+        "answer": "I prioritize tests around the highest-risk behavior, critical integrations, and the paths most likely to hurt users if they fail. A good testing approach is driven by risk and consequence, not by trying to test everything equally.",
+        "tip": "Risk-driven testing is a stronger answer."
+      },
+      {
+        "slug": "ibm-company-prior-experience",
+        "question": "How would your previous experience help you at IBM?",
+        "answer": "I would connect my past work to the challenges this role likely faces, whether that is product quality, system reliability, debugging depth, or cross-team execution. The value of experience is strongest when it transfers directly to the next environment.",
+        "tip": "Transferable value matters more than title names."
+      },
+      {
+        "slug": "ibm-company-incident-learning",
+        "question": "What should a team learn after an incident?",
+        "answer": "A strong team should learn what assumptions failed, what safeguards were missing, and what changes will reduce repeat risk. The point is not to produce blame-heavy documentation, but to improve how the system and the team behave next time.",
+        "tip": "Prevention is the goal of learning."
+      },
+      {
+        "slug": "ibm-interview-preparation-strategy",
+        "question": "How should you prepare strategically for interviews at IBM?",
+        "answer": "I would prepare by understanding the themes IBM is likely to care about, practicing role-relevant questions, and rewriting sample answers into my own project and decision stories. Strategic preparation is stronger than memorizing isolated responses because it improves both accuracy and confidence.",
+        "tip": "Connect preparation to company themes and your own examples."
       }
     ]
   },
@@ -839,6 +2819,114 @@
         "question": "What is the difference between INNER JOIN and LEFT JOIN?",
         "answer": "INNER JOIN returns only matching rows between tables, while LEFT JOIN returns all rows from the left table and matching rows from the right table, filling missing matches with null values.",
         "tip": "Answer with a simple comparison and, if asked, an example."
+      },
+      {
+        "slug": "capgemini-company-culture-fit",
+        "question": "What kind of culture helps you perform your best work at Capgemini?",
+        "answer": "I do best in cultures that combine high standards with clear ownership and respectful collaboration. In a company like Capgemini, strong culture should make decision quality and execution stronger, not just sound good in recruiting materials.",
+        "tip": "Tie culture to how work gets done."
+      },
+      {
+        "slug": "capgemini-company-role-alignment",
+        "question": "Why do you think you are a fit for Capgemini?",
+        "answer": "I would connect my strengths to the kind of problems Capgemini appears to solve and the expectations of the role. The strongest fit answer is specific about what I can contribute instead of only saying I admire the brand.",
+        "tip": "Specific contribution is stronger than admiration."
+      },
+      {
+        "slug": "capgemini-company-prioritization",
+        "question": "How do you prioritize work when everything seems urgent?",
+        "answer": "I separate urgency from impact, identify dependencies, and align with stakeholders on what really moves the outcome forward. In fast-moving environments like Capgemini, disciplined prioritization is more valuable than reacting to every request equally.",
+        "tip": "Impact matters more than noise."
+      },
+      {
+        "slug": "capgemini-company-customer-thinking",
+        "question": "How do you think about customer impact in your engineering decisions?",
+        "answer": "I ask how the decision affects reliability, speed, clarity, and long-term trust from the user perspective. Strong engineering at Capgemini should connect technical choices to the actual experience of the customer.",
+        "tip": "Translate engineering into user impact."
+      },
+      {
+        "slug": "capgemini-company-debugging-process",
+        "question": "Describe your debugging process for a complex issue.",
+        "answer": "I narrow the problem by reproducing it, identifying where reality diverges from expectation, and validating one hypothesis at a time. The point is to make the issue smaller and more observable instead of jumping between guesses.",
+        "tip": "Reduce the problem before trying random fixes."
+      },
+      {
+        "slug": "capgemini-company-delivery-balance",
+        "question": "How do you balance delivery speed with quality?",
+        "answer": "I try to protect quality on the highest-risk paths while reducing scope where needed to keep momentum. Good engineering at Capgemini should show judgment about where speed helps and where cutting corners creates expensive problems later.",
+        "tip": "Scope can shrink before quality does."
+      },
+      {
+        "slug": "capgemini-company-learning",
+        "question": "How do you ramp up quickly in a new domain?",
+        "answer": "I identify the concepts that block useful progress, learn enough to make a first contribution, and then deepen understanding through real work. Fast ramp-up is usually about learning the right things in the right order.",
+        "tip": "Sequence matters more than volume."
+      },
+      {
+        "slug": "capgemini-company-collaboration",
+        "question": "How do you work with cross-functional teams?",
+        "answer": "I make tradeoffs visible, ask what each function is optimizing for, and keep communication concrete enough for decisions to move. Cross-functional work succeeds when people can reason about the same problem from different perspectives.",
+        "tip": "Make tradeoffs visible."
+      },
+      {
+        "slug": "capgemini-company-feedback",
+        "question": "How do you handle feedback that you disagree with at first?",
+        "answer": "I try to understand the reasoning before reacting, then I evaluate whether the concern reveals a gap in my assumptions or communication. Even when I disagree, I want the discussion to improve the outcome instead of becoming personal.",
+        "tip": "Understanding comes before defending."
+      },
+      {
+        "slug": "capgemini-company-system-thinking",
+        "question": "How do you think about designing systems that stay reliable at scale?",
+        "answer": "I focus on clear boundaries, observability, graceful failure behavior, and realistic operational tradeoffs. Reliability at Capgemini should be designed into the system and the rollout process, not added after incidents happen.",
+        "tip": "Reliability includes operations, not just architecture."
+      },
+      {
+        "slug": "capgemini-company-ambiguity",
+        "question": "How do you operate when the next step is not clearly defined?",
+        "answer": "I turn ambiguity into specific questions, define the decision that matters most, and propose a path instead of waiting passively. Strong performers in companies like Capgemini reduce uncertainty for the team rather than only managing their own discomfort.",
+        "tip": "Reduce uncertainty for the team."
+      },
+      {
+        "slug": "capgemini-company-metrics",
+        "question": "What metrics would you watch after launching a feature?",
+        "answer": "I would watch the metrics most closely tied to user success and system health, such as adoption, error rate, latency, and any feature-specific business signal that should move. Metrics only help if they reflect real product behavior.",
+        "tip": "Use both user and system signals."
+      },
+      {
+        "slug": "capgemini-company-ownership",
+        "question": "What does ownership mean to you in a company like Capgemini?",
+        "answer": "Ownership means carrying a problem through ambiguity, implementation, validation, communication, and follow-up until the outcome is reliable. It is not just about writing code quickly; it is about making sure the result actually holds up.",
+        "tip": "Ownership includes follow-through."
+      },
+      {
+        "slug": "capgemini-company-tradeoffs",
+        "question": "How do you explain tradeoffs when there is no perfect solution?",
+        "answer": "I compare the options in terms of what each one optimizes, what risk it introduces, and why one is the best fit for the real constraints. Good tradeoff communication helps teams make decisions they can defend later.",
+        "tip": "Explain what each option optimizes for."
+      },
+      {
+        "slug": "capgemini-company-testing",
+        "question": "How do you decide what to test before release?",
+        "answer": "I prioritize tests around the highest-risk behavior, critical integrations, and the paths most likely to hurt users if they fail. A good testing approach is driven by risk and consequence, not by trying to test everything equally.",
+        "tip": "Risk-driven testing is a stronger answer."
+      },
+      {
+        "slug": "capgemini-company-prior-experience",
+        "question": "How would your previous experience help you at Capgemini?",
+        "answer": "I would connect my past work to the challenges this role likely faces, whether that is product quality, system reliability, debugging depth, or cross-team execution. The value of experience is strongest when it transfers directly to the next environment.",
+        "tip": "Transferable value matters more than title names."
+      },
+      {
+        "slug": "capgemini-company-incident-learning",
+        "question": "What should a team learn after an incident?",
+        "answer": "A strong team should learn what assumptions failed, what safeguards were missing, and what changes will reduce repeat risk. The point is not to produce blame-heavy documentation, but to improve how the system and the team behave next time.",
+        "tip": "Prevention is the goal of learning."
+      },
+      {
+        "slug": "capgemini-interview-preparation-strategy",
+        "question": "How should you prepare strategically for interviews at Capgemini?",
+        "answer": "I would prepare by understanding the themes Capgemini is likely to care about, practicing role-relevant questions, and rewriting sample answers into my own project and decision stories. Strategic preparation is stronger than memorizing isolated responses because it improves both accuracy and confidence.",
+        "tip": "Connect preparation to company themes and your own examples."
       }
     ]
   },
@@ -880,6 +2968,114 @@
         "question": "How do you use metrics to improve a product feature?",
         "answer": "I define what success means, choose a metric that reflects user or business value, and compare outcomes before and after the change. Metrics are useful when they lead to decisions, not just dashboards.",
         "tip": "Explain how the metric influenced action."
+      },
+      {
+        "slug": "flipkart-company-culture-fit",
+        "question": "What kind of culture helps you perform your best work at Flipkart?",
+        "answer": "I do best in cultures that combine high standards with clear ownership and respectful collaboration. In a company like Flipkart, strong culture should make decision quality and execution stronger, not just sound good in recruiting materials.",
+        "tip": "Tie culture to how work gets done."
+      },
+      {
+        "slug": "flipkart-company-role-alignment",
+        "question": "Why do you think you are a fit for Flipkart?",
+        "answer": "I would connect my strengths to the kind of problems Flipkart appears to solve and the expectations of the role. The strongest fit answer is specific about what I can contribute instead of only saying I admire the brand.",
+        "tip": "Specific contribution is stronger than admiration."
+      },
+      {
+        "slug": "flipkart-company-prioritization",
+        "question": "How do you prioritize work when everything seems urgent?",
+        "answer": "I separate urgency from impact, identify dependencies, and align with stakeholders on what really moves the outcome forward. In fast-moving environments like Flipkart, disciplined prioritization is more valuable than reacting to every request equally.",
+        "tip": "Impact matters more than noise."
+      },
+      {
+        "slug": "flipkart-company-customer-thinking",
+        "question": "How do you think about customer impact in your engineering decisions?",
+        "answer": "I ask how the decision affects reliability, speed, clarity, and long-term trust from the user perspective. Strong engineering at Flipkart should connect technical choices to the actual experience of the customer.",
+        "tip": "Translate engineering into user impact."
+      },
+      {
+        "slug": "flipkart-company-debugging-process",
+        "question": "Describe your debugging process for a complex issue.",
+        "answer": "I narrow the problem by reproducing it, identifying where reality diverges from expectation, and validating one hypothesis at a time. The point is to make the issue smaller and more observable instead of jumping between guesses.",
+        "tip": "Reduce the problem before trying random fixes."
+      },
+      {
+        "slug": "flipkart-company-delivery-balance",
+        "question": "How do you balance delivery speed with quality?",
+        "answer": "I try to protect quality on the highest-risk paths while reducing scope where needed to keep momentum. Good engineering at Flipkart should show judgment about where speed helps and where cutting corners creates expensive problems later.",
+        "tip": "Scope can shrink before quality does."
+      },
+      {
+        "slug": "flipkart-company-learning",
+        "question": "How do you ramp up quickly in a new domain?",
+        "answer": "I identify the concepts that block useful progress, learn enough to make a first contribution, and then deepen understanding through real work. Fast ramp-up is usually about learning the right things in the right order.",
+        "tip": "Sequence matters more than volume."
+      },
+      {
+        "slug": "flipkart-company-collaboration",
+        "question": "How do you work with cross-functional teams?",
+        "answer": "I make tradeoffs visible, ask what each function is optimizing for, and keep communication concrete enough for decisions to move. Cross-functional work succeeds when people can reason about the same problem from different perspectives.",
+        "tip": "Make tradeoffs visible."
+      },
+      {
+        "slug": "flipkart-company-feedback",
+        "question": "How do you handle feedback that you disagree with at first?",
+        "answer": "I try to understand the reasoning before reacting, then I evaluate whether the concern reveals a gap in my assumptions or communication. Even when I disagree, I want the discussion to improve the outcome instead of becoming personal.",
+        "tip": "Understanding comes before defending."
+      },
+      {
+        "slug": "flipkart-company-system-thinking",
+        "question": "How do you think about designing systems that stay reliable at scale?",
+        "answer": "I focus on clear boundaries, observability, graceful failure behavior, and realistic operational tradeoffs. Reliability at Flipkart should be designed into the system and the rollout process, not added after incidents happen.",
+        "tip": "Reliability includes operations, not just architecture."
+      },
+      {
+        "slug": "flipkart-company-ambiguity",
+        "question": "How do you operate when the next step is not clearly defined?",
+        "answer": "I turn ambiguity into specific questions, define the decision that matters most, and propose a path instead of waiting passively. Strong performers in companies like Flipkart reduce uncertainty for the team rather than only managing their own discomfort.",
+        "tip": "Reduce uncertainty for the team."
+      },
+      {
+        "slug": "flipkart-company-metrics",
+        "question": "What metrics would you watch after launching a feature?",
+        "answer": "I would watch the metrics most closely tied to user success and system health, such as adoption, error rate, latency, and any feature-specific business signal that should move. Metrics only help if they reflect real product behavior.",
+        "tip": "Use both user and system signals."
+      },
+      {
+        "slug": "flipkart-company-ownership",
+        "question": "What does ownership mean to you in a company like Flipkart?",
+        "answer": "Ownership means carrying a problem through ambiguity, implementation, validation, communication, and follow-up until the outcome is reliable. It is not just about writing code quickly; it is about making sure the result actually holds up.",
+        "tip": "Ownership includes follow-through."
+      },
+      {
+        "slug": "flipkart-company-tradeoffs",
+        "question": "How do you explain tradeoffs when there is no perfect solution?",
+        "answer": "I compare the options in terms of what each one optimizes, what risk it introduces, and why one is the best fit for the real constraints. Good tradeoff communication helps teams make decisions they can defend later.",
+        "tip": "Explain what each option optimizes for."
+      },
+      {
+        "slug": "flipkart-company-testing",
+        "question": "How do you decide what to test before release?",
+        "answer": "I prioritize tests around the highest-risk behavior, critical integrations, and the paths most likely to hurt users if they fail. A good testing approach is driven by risk and consequence, not by trying to test everything equally.",
+        "tip": "Risk-driven testing is a stronger answer."
+      },
+      {
+        "slug": "flipkart-company-prior-experience",
+        "question": "How would your previous experience help you at Flipkart?",
+        "answer": "I would connect my past work to the challenges this role likely faces, whether that is product quality, system reliability, debugging depth, or cross-team execution. The value of experience is strongest when it transfers directly to the next environment.",
+        "tip": "Transferable value matters more than title names."
+      },
+      {
+        "slug": "flipkart-company-incident-learning",
+        "question": "What should a team learn after an incident?",
+        "answer": "A strong team should learn what assumptions failed, what safeguards were missing, and what changes will reduce repeat risk. The point is not to produce blame-heavy documentation, but to improve how the system and the team behave next time.",
+        "tip": "Prevention is the goal of learning."
+      },
+      {
+        "slug": "flipkart-interview-preparation-strategy",
+        "question": "How should you prepare strategically for interviews at Flipkart?",
+        "answer": "I would prepare by understanding the themes Flipkart is likely to care about, practicing role-relevant questions, and rewriting sample answers into my own project and decision stories. Strategic preparation is stronger than memorizing isolated responses because it improves both accuracy and confidence.",
+        "tip": "Connect preparation to company themes and your own examples."
       }
     ]
   }
