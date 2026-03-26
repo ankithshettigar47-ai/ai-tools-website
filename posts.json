@@ -1,1 +1,188 @@
-[]
+[
+  {
+    "slug": "software-engineering",
+    "title": "Software Engineering",
+    "summary": "Coding, debugging, architecture, and delivery questions for developer interviews.",
+    "questions": [
+      {
+        "slug": "tell-me-about-yourself",
+        "question": "Tell me about yourself.",
+        "answer": "I am a software engineer focused on building reliable web applications. My recent work has centered on Node.js services, frontend integration, and improving performance in existing products. I add the most value when a project needs structure, clean debugging, and steady delivery.",
+        "tip": "Keep it to present role, relevant strengths, and one or two outcomes."
+      },
+      {
+        "slug": "most-challenging-bug",
+        "question": "Describe the most challenging bug you solved.",
+        "answer": "I describe the impact, explain how I reproduced it, narrowed the scope, and verified the fix. A good example is tracking an intermittent failure caused by inconsistent validation between frontend and backend services, then locking the fix in with regression tests.",
+        "tip": "Show your debugging process, not only the final patch."
+      },
+      {
+        "slug": "quality-under-deadlines",
+        "question": "How do you maintain quality under tight deadlines?",
+        "answer": "I reduce risk by cutting scope before cutting quality. I identify the essential outcome, remove noncritical work, keep the change small, and protect the release with tests around the highest-risk paths.",
+        "tip": "Balance delivery speed with engineering judgment."
+      },
+      {
+        "slug": "code-review-approach",
+        "question": "What is your approach to code reviews?",
+        "answer": "I review for correctness first, then risk, then maintainability. I look for behavior changes, edge cases, missing tests, and places where the implementation does not match the intent.",
+        "tip": "Specific and actionable review comments are stronger than vague opinions."
+      }
+    ]
+  },
+  {
+    "slug": "javascript",
+    "title": "JavaScript",
+    "summary": "Language fundamentals and real-world frontend or backend JavaScript questions.",
+    "questions": [
+      {
+        "slug": "var-let-const",
+        "question": "What is the difference between var, let, and const?",
+        "answer": "var is function-scoped and can be redeclared. let is block-scoped and can be reassigned. const is block-scoped and cannot be reassigned after initialization. In modern JavaScript, const is the default and let is used when a value must change.",
+        "tip": "Mention scope, reassignment, and hoisting behavior."
+      },
+      {
+        "slug": "promises-async-await",
+        "question": "How do promises differ from async and await?",
+        "answer": "Promises are the underlying abstraction for asynchronous results. async and await are syntax on top of promises that make asynchronous code easier to read and maintain.",
+        "tip": "Do not describe them as separate systems."
+      },
+      {
+        "slug": "event-loop",
+        "question": "Can you explain the JavaScript event loop?",
+        "answer": "JavaScript runs on a single main call stack. Asynchronous work is handled by the runtime and queued for later execution. The event loop checks when the stack is clear and then processes queued callbacks and microtasks.",
+        "tip": "Keep the explanation conceptual and tied to performance."
+      },
+      {
+        "slug": "closures",
+        "question": "What is a closure and why is it useful?",
+        "answer": "A closure is created when a function retains access to variables from its outer scope even after that outer function has finished executing. It is useful for encapsulation, callbacks, factories, and private state.",
+        "tip": "Give one practical example if time allows."
+      }
+    ]
+  },
+  {
+    "slug": "react",
+    "title": "React",
+    "summary": "Component design, state, rendering, and performance questions for React interviews.",
+    "questions": [
+      {
+        "slug": "state-vs-props",
+        "question": "What is the difference between state and props?",
+        "answer": "Props are inputs passed into a component from its parent, while state is data managed by the component itself or by a hook used inside it. Props help components stay reusable, and state handles changing values over time.",
+        "tip": "Explain data flow, not only definitions."
+      },
+      {
+        "slug": "useeffect-purpose",
+        "question": "What is useEffect for?",
+        "answer": "useEffect is for synchronizing a component with external systems such as network requests, subscriptions, timers, or browser APIs. It should not be the default place for logic that can be derived during render.",
+        "tip": "This answer is stronger when you mention external systems."
+      },
+      {
+        "slug": "controlled-components",
+        "question": "What are controlled components?",
+        "answer": "A controlled component is a form element whose value is driven by React state. This gives the application control over validation, formatting, and submission flow.",
+        "tip": "Tie the concept to real form handling."
+      },
+      {
+        "slug": "keys-in-lists",
+        "question": "Why are keys important in React lists?",
+        "answer": "Keys help React identify which items changed, were added, or were removed. Stable keys improve reconciliation accuracy and prevent UI bugs like preserved state moving to the wrong item.",
+        "tip": "Mention correctness as well as performance."
+      }
+    ]
+  },
+  {
+    "slug": "nodejs",
+    "title": "Node.js",
+    "summary": "Backend runtime, APIs, scaling, and operations questions for Node.js roles.",
+    "questions": [
+      {
+        "slug": "why-nodejs",
+        "question": "Why would a team choose Node.js for a backend service?",
+        "answer": "Node.js works well when a team values JavaScript across the stack and needs efficient handling of I/O-heavy workloads such as APIs, real-time services, and integrations.",
+        "tip": "Balance strengths with realistic limits."
+      },
+      {
+        "slug": "middleware",
+        "question": "What is middleware in Express?",
+        "answer": "Middleware is a function that runs during the request-response cycle and can inspect, modify, validate, or terminate a request before it reaches the route handler.",
+        "tip": "Use examples like authentication, logging, or validation."
+      },
+      {
+        "slug": "error-handling",
+        "question": "How do you handle errors in a Node.js API?",
+        "answer": "I separate expected client errors from unexpected server errors, use consistent response formats, and make sure asynchronous failures are passed to centralized error handlers.",
+        "tip": "Mention both response design and observability."
+      },
+      {
+        "slug": "blocking-event-loop",
+        "question": "What does it mean to block the event loop?",
+        "answer": "Blocking the event loop means running long synchronous work on the main thread so other requests cannot be processed efficiently. That creates latency spikes under load.",
+        "tip": "Connect the concept to user-facing performance."
+      }
+    ]
+  },
+  {
+    "slug": "behavioral",
+    "title": "Behavioral",
+    "summary": "Leadership, teamwork, ownership, and conflict questions used across many interviews.",
+    "questions": [
+      {
+        "slug": "conflict-with-coworker",
+        "question": "Tell me about a time you had a conflict with a coworker.",
+        "answer": "I focus on the disagreement, explain how I listened, clarified assumptions, and used shared goals or data to resolve it. I avoid blaming language and show how the working relationship improved afterward.",
+        "tip": "Demonstrate maturity and collaboration."
+      },
+      {
+        "slug": "mistake-at-work",
+        "question": "Describe a mistake you made at work.",
+        "answer": "I choose a real mistake, state the impact honestly, and explain the corrective actions I took. The key is to show accountability, learning, and a system improvement that reduced the chance of repetition.",
+        "tip": "Do not use a fake weakness disguised as a strength."
+      },
+      {
+        "slug": "prioritize-work",
+        "question": "How do you prioritize your work?",
+        "answer": "I prioritize by business impact, dependency order, delivery risk, and deadlines. When several tasks compete, I align with stakeholders on the most important outcome and remove blockers early.",
+        "tip": "Show decision-making, not just preference."
+      },
+      {
+        "slug": "lead-without-authority",
+        "question": "How do you lead when you are not the manager?",
+        "answer": "I lead through clarity and execution. That means framing the problem well, proposing a practical path, reducing ambiguity, and helping others succeed without forcing ownership through title.",
+        "tip": "Show influence rather than hierarchy."
+      }
+    ]
+  },
+  {
+    "slug": "hr",
+    "title": "HR and General",
+    "summary": "Common screening questions about goals, motivation, salary, and company fit.",
+    "questions": [
+      {
+        "slug": "why-this-company",
+        "question": "Why do you want to work here?",
+        "answer": "I connect the company to my skills and the type of problems I want to solve. A strong answer references the product, team, mission, or technical challenges in a specific way.",
+        "tip": "Specific alignment is stronger than generic admiration."
+      },
+      {
+        "slug": "strengths",
+        "question": "What are your greatest strengths?",
+        "answer": "I choose strengths that are relevant to the role and support them with evidence. For example, I might highlight structured problem solving, calm execution under ambiguity, and strong ownership.",
+        "tip": "Back each strength with proof."
+      },
+      {
+        "slug": "weaknesses",
+        "question": "What is your greatest weakness?",
+        "answer": "I answer honestly with a real limitation that I am actively improving. The best version includes what I noticed, what I changed, and what the current state is now.",
+        "tip": "Choose a real growth area and show progress."
+      },
+      {
+        "slug": "salary-expectations",
+        "question": "What are your salary expectations?",
+        "answer": "I usually give a researched range that reflects the role scope, market, and total compensation rather than a single number. I also signal flexibility while I learn more about the role.",
+        "tip": "Stay professional and avoid sounding evasive."
+      }
+    ]
+  }
+]
