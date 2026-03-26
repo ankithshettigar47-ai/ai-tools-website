@@ -211,7 +211,7 @@ p {
 }
 
 .search-form {
-  grid-template-columns: 1.5fr 1fr 1fr auto;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr auto;
 }
 
 input,
@@ -429,6 +429,22 @@ button {
   margin: 14px 0 12px;
 }
 
+.tag-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 12px 0 6px;
+}
+
+.tag-row span {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(135, 64, 25, 0.1);
+  color: var(--accent-deep);
+  font-size: 0.83rem;
+  border: 1px solid rgba(135, 64, 25, 0.14);
+}
+
 .card-answer {
   margin-top: 12px;
   padding-top: 12px;
@@ -437,6 +453,15 @@ button {
 
 .card-answer[hidden] {
   display: none;
+}
+
+.card-actions form {
+  margin: 0;
+}
+
+.card-actions form button {
+  width: auto;
+  min-height: 40px;
 }
 
 .answer-hidden {
@@ -496,6 +521,10 @@ button {
   padding: 22px;
 }
 
+.panel form {
+  margin: 0;
+}
+
 .search-panel {
   display: grid;
   gap: 14px;
@@ -505,6 +534,12 @@ button {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.progress-button.is-active {
+  background: var(--accent);
+  color: #fffaf2;
+  border-color: var(--accent);
 }
 
 .detail p + .meta {
@@ -601,6 +636,10 @@ footer {
 
 .footer-note {
   margin-top: 10px;
+}
+
+.faq-item form {
+  margin: 0;
 }
 
 .faq-list {

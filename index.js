@@ -108,6 +108,11 @@ function readUsers() {
     if (user.passwordHash === "demo") {
       user.passwordHash = hashPassword("admin123");
       user.savedQuestions = user.savedQuestions || [];
+      user.progress = user.progress || {};
+      changed = true;
+    }
+    if (!user.progress) {
+      user.progress = {};
       changed = true;
     }
   });
@@ -190,6 +195,26 @@ function truncateText(text = "", maxLength = 160) {
   return `${cleaned.slice(0, maxLength - 1).trimEnd()}…`;
 }
 
+function classifyQuestion(category, question) {
+  const source = `${category.title} ${category.companyName || ""} ${question.question} ${question.answer} ${question.tip}`.toLowerCase();
+  const tags = new Set();
+
+  if (category.kind === "company") tags.add("company");
+  if (source.includes("code") || source.includes("algorithm") || source.includes("data structure") || source.includes("complexity")) tags.add("coding");
+  if (source.includes("design") || source.includes("architecture") || source.includes("api") || source.includes("scale")) tags.add("system-design");
+  if (source.includes("behavior") || source.includes("conflict") || source.includes("team") || source.includes("lead") || source.includes("feedback")) tags.add("behavioral");
+  if (source.includes("salary") || source.includes("relocation") || source.includes("company") || source.includes("hire") || category.slug === "hr") tags.add("hr");
+  if (source.includes("debug") || source.includes("bug") || source.includes("incident")) tags.add("debugging");
+  if (source.includes("fresher") || source.includes("intern") || source.includes("graduate")) tags.add("fresher");
+  if (source.includes("sql") || source.includes("database") || source.includes("query")) tags.add("database");
+  if (source.includes("react")) tags.add("react");
+  if (source.includes("javascript")) tags.add("javascript");
+  if (source.includes("node")) tags.add("nodejs");
+  if (!tags.size) tags.add(category.kind === "company" ? "company-prep" : "technical");
+
+  return Array.from(tags).slice(0, 4);
+}
+
 function topicCategories() {
   return questionBank.filter((item) => item.kind !== "company");
 }
@@ -207,6 +232,7 @@ function allQuestions() {
       companyName: category.companyName || "",
       companyLogo: category.logo || "",
       roleFocus: category.roleFocus || "",
+      tags: classifyQuestion(category, item),
       orderScore: categoryIndex * 100 + questionIndex
     }))
   );
@@ -260,10 +286,12 @@ function sortQuestions(items, sortBy) {
   return sorted;
 }
 
-function searchQuestions(searchTerm, categorySlug, sortBy) {
+function searchQuestions(searchTerm, categorySlug, sortBy, tagFilter = "") {
   const query = String(searchTerm || "").trim().toLowerCase();
+  const normalizedTag = String(tagFilter || "").trim().toLowerCase();
   const filtered = allQuestions().filter((item) => {
     const categoryMatch = !categorySlug || item.categorySlug === categorySlug;
+    const tagMatch = !normalizedTag || item.tags.includes(normalizedTag);
     const textMatch =
       !query ||
       item.question.toLowerCase().includes(query) ||
@@ -271,7 +299,7 @@ function searchQuestions(searchTerm, categorySlug, sortBy) {
       item.categoryTitle.toLowerCase().includes(query) ||
       item.companyName.toLowerCase().includes(query) ||
       item.tip.toLowerCase().includes(query);
-    return categoryMatch && textMatch;
+    return categoryMatch && tagMatch && textMatch;
   });
   return sortQuestions(filtered, sortBy);
 }
@@ -340,6 +368,25 @@ function searchSuggestionTerms() {
   return [...new Set([...base, ...dynamic].filter(Boolean))].slice(0, 120);
 }
 
+const tagOptions = [
+  { value: "", label: "All rounds" },
+  { value: "company", label: "Company" },
+  { value: "coding", label: "Coding" },
+  { value: "system-design", label: "System Design" },
+  { value: "behavioral", label: "Behavioral" },
+  { value: "hr", label: "HR" },
+  { value: "debugging", label: "Debugging" },
+  { value: "fresher", label: "Fresher" },
+  { value: "database", label: "Database" }
+];
+
+function formatTag(tag) {
+  return String(tag || "")
+    .split("-")
+    .map((part) => part ? `${part[0].toUpperCase()}${part.slice(1)}` : part)
+    .join(" ");
+}
+
 function questionSignals(category, question) {
   const lower = `${question.question} ${question.answer} ${question.tip}`.toLowerCase();
   const signals = [];
@@ -383,6 +430,17 @@ function detailedAnswerMarkup(category, question) {
   const signals = questionSignals(category, question)
     .map((item) => `<li>${escapeHtml(item)}</li>`)
     .join("");
+  const exampleAnswer = truncateText(`${question.answer} ${question.tip}`, 340);
+  const commonMistakes = [
+    "Answering too generally without a concrete example or reason.",
+    "Sounding memorized instead of adapting the answer to your own experience.",
+    "Ignoring the actual question and drifting into unrelated background."
+  ].map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+  const followUps = [
+    `Can you give a specific example from your experience?`,
+    `What tradeoff or challenge made this harder than it first looked?`,
+    `How would you adapt the same answer for this role or company?`
+  ].map((item) => `<li>${escapeHtml(item)}</li>`).join("");
 
   return `
     <section class="detail-layout">
@@ -397,6 +455,10 @@ function detailedAnswerMarkup(category, question) {
           <h3>Interview Tip</h3>
           <p>${escapeHtml(question.tip)}</p>
         </div>
+        <div class="answer-box">
+          <h3>Example Way To Say It</h3>
+          <p>${escapeHtml(exampleAnswer)}</p>
+        </div>
       </div>
       <aside class="detail-sidebar">
         <section class="detail-panel">
@@ -406,6 +468,14 @@ function detailedAnswerMarkup(category, question) {
         <section class="detail-panel">
           <h3>What The Interviewer Is Checking</h3>
           <ul class="step-list">${signals}</ul>
+        </section>
+        <section class="detail-panel">
+          <h3>Common Mistakes</h3>
+          <ul class="step-list">${commonMistakes}</ul>
+        </section>
+        <section class="detail-panel">
+          <h3>Likely Follow-Up Questions</h3>
+          <ul class="step-list">${followUps}</ul>
         </section>
       </aside>
     </section>`;
@@ -555,6 +625,8 @@ function card(item, options = {}) {
   const companyLabel = item.companyName ? `<span class="chip">${escapeHtml(item.companyName)}</span>` : "";
   const summaryLabel = item.companyName || item.categoryTitle;
   const previewId = `preview-${escapeHtml(`${item.categorySlug}-${item.slug}`)}`;
+  const progressKey = `${item.categorySlug}/${item.slug}`;
+  const tagMarkup = (item.tags || []).slice(0, 3).map((tag) => `<span>${escapeHtml(formatTag(tag))}</span>`).join("");
   const answerMarkup = options.practiceMode
     ? `<p class="answer-hidden">Practice mode is on. Open the detail page to reveal the sample answer.</p>`
     : `
@@ -576,10 +648,13 @@ function card(item, options = {}) {
         <span>${escapeHtml(summaryLabel)}</span>
         <span>${escapeHtml(item.roleFocus || "Interview prep")}</span>
       </div>
+      ${tagMarkup ? `<div class="tag-row">${tagMarkup}</div>` : ""}
       ${answerMarkup}
       <div class="card-actions">
         <a class="text-link" href="${escapeHtml(questionUrl(item.categorySlug, item.slug))}">Read answer</a>
         ${options.practiceMode ? "" : `<button type="button" class="ghost-button answer-toggle" data-target="${previewId}" aria-expanded="false">Quick preview</button>`}
+        <button type="button" class="ghost-button progress-button" data-progress="${escapeHtml(progressKey)}" data-status="practiced">Practiced</button>
+        <button type="button" class="ghost-button progress-button" data-progress="${escapeHtml(progressKey)}" data-status="revise">Revise</button>
         <button type="button" class="ghost-button bookmark-button" data-bookmark="${escapeHtml(`${item.categorySlug}/${item.slug}`)}">Save</button>
       </div>
     </article>
@@ -687,6 +762,7 @@ function page({
             <a href="/">Home</a>
             <a href="/questions">All Questions</a>
             <a href="/saved">Saved</a>
+            <a href="/progress">Progress</a>
             <a href="/guides">Guides</a>
             <a href="/contact">Contact</a>
             <a href="/about">About</a>
@@ -714,6 +790,7 @@ function page({
           <a href="/privacy">Privacy</a>
           <a href="/contact">Contact</a>
           <a href="/terms">Terms</a>
+          <a href="/progress">Progress</a>
         </div>
         <div class="footer-links">
           <a href="/questions">Question Archive</a>
@@ -729,12 +806,15 @@ function page({
     <script>
       ${ADSENSE_CLIENT ? "document.querySelectorAll('.adsbygoogle').forEach((ad)=>{try{(adsbygoogle = window.adsbygoogle || []).push({});}catch(error){console.error('AdSense render failed', error, ad);}});" : ""}
       const savedKey = "career-question-bank-saved";
+      const progressKey = "career-question-bank-progress";
       const isLoggedIn = ${authLinks.includes("Logout") ? "true" : "false"};
       const navToggle = document.querySelector(".nav-toggle");
       const nav = document.getElementById("site-nav");
       if(navToggle && nav){navToggle.addEventListener("click",()=>{const expanded=navToggle.getAttribute("aria-expanded")==="true";navToggle.setAttribute("aria-expanded",String(!expanded));nav.classList.toggle("open",!expanded);});}
       function readSaved(){try{return JSON.parse(localStorage.getItem(savedKey)||"[]");}catch(error){return [];}}
       function writeSaved(items){localStorage.setItem(savedKey, JSON.stringify(items));}
+      function readProgress(){try{return JSON.parse(localStorage.getItem(progressKey)||"{}");}catch(error){return {};}}
+      function writeProgress(items){localStorage.setItem(progressKey, JSON.stringify(items));}
       async function syncSaved(key){
         const response = await fetch("/api/saved", {
           method: "POST",
@@ -743,7 +823,16 @@ function page({
         });
         return response.ok;
       }
+      async function syncProgress(key,status){
+        const response = await fetch("/api/progress", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ key, status })
+        });
+        return response.ok;
+      }
       document.querySelectorAll(".bookmark-button").forEach((button)=>{const saved=readSaved();const key=button.dataset.bookmark;if(saved.includes(key)){button.textContent="Saved";}button.addEventListener("click",async()=>{if(isLoggedIn){const ok = await syncSaved(key);button.textContent = ok ? "Saved" : "Try again";return;}const items=readSaved();if(!items.includes(key)){items.push(key);writeSaved(items);button.textContent="Saved";}});});
+      document.querySelectorAll(".progress-button").forEach((button)=>{const key=button.dataset.progress;const status=button.dataset.status;const progress=readProgress();if(progress[key]===status){button.classList.add("is-active");}button.addEventListener("click",async()=>{const items=readProgress();items[key]=status;writeProgress(items);document.querySelectorAll('.progress-button[data-progress=\"'+key+'\"]').forEach((peer)=>peer.classList.toggle('is-active', peer.dataset.status===status));if(isLoggedIn){const ok = await syncProgress(key,status);if(!ok){button.textContent='Retry';}}});});
       document.querySelectorAll(".answer-toggle").forEach((button)=>{button.addEventListener("click",()=>{const target=document.getElementById(button.dataset.target);if(!target)return;const nextState=target.hasAttribute("hidden");target.toggleAttribute("hidden",!nextState);button.setAttribute("aria-expanded",String(nextState));button.textContent=nextState?\"Hide preview\":\"Quick preview\";});});
       document.querySelectorAll(".copy-answer").forEach((button)=>{button.addEventListener("click",async()=>{const target=document.getElementById(button.dataset.target);if(!target)return;try{await navigator.clipboard.writeText(target.innerText.trim());button.textContent="Copied";}catch(error){button.textContent="Copy failed";}});});
     </script>
@@ -911,10 +1000,12 @@ app.get("/questions", (req, res) => {
   const q = req.query.q || "";
   const category = req.query.category || "";
   const sort = req.query.sort || "latest";
+  const tag = req.query.tag || "";
   const reveal = req.query.reveal === "1";
   const pageNumber = Number.parseInt(req.query.page || "1", 10);
-  const results = searchQuestions(q, category, sort);
+  const results = searchQuestions(q, category, sort, tag);
   const options = questionBank.map((item) => `<option value="${escapeHtml(item.slug)}" ${item.slug === category ? "selected" : ""}>${escapeHtml(item.title)}</option>`).join("");
+  const tagSelectOptions = tagOptions.map((item) => `<option value="${escapeHtml(item.value)}" ${item.value === tag ? "selected" : ""}>${escapeHtml(item.label)}</option>`).join("");
   const sortOptions = [
     { value: "latest", label: "Latest" },
     { value: "alpha", label: "Alphabetical" },
@@ -969,20 +1060,23 @@ app.get("/questions", (req, res) => {
         <form class="search-form" method="GET" action="/questions">
           <input type="text" name="q" list="search-suggestions" value="${escapeHtml(q)}" placeholder="Search interview questions, answers, or companies" />
           <select name="category"><option value="">All categories</option>${options}</select>
+          <select name="tag">${tagSelectOptions}</select>
           <select name="sort">${sortOptions}</select>
           <button type="submit">Search</button>
           <input type="hidden" name="reveal" value="${reveal ? "1" : "0"}" />
         </form>
         <div class="search-shortcuts">
-          <a href="${escapeHtml(buildQuery("/questions", { q, category, sort, reveal: reveal ? 0 : 1 }))}">${reveal ? "Enable practice mode" : "Reveal answer previews"}</a>
-          <a href="/questions?q=company">Company prep</a>
-          <a href="/questions?q=aptitude">Aptitude</a>
-          <a href="/questions?q=resume">Resume</a>
-          <a href="/questions?q=leadership">Leadership</a>
+          <a href="${escapeHtml(buildQuery("/questions", { q, category, tag, sort, reveal: reveal ? 0 : 1 }))}">${reveal ? "Enable practice mode" : "Reveal answer previews"}</a>
+          <a href="/questions?tag=company">Company prep</a>
+          <a href="/questions?tag=coding">Coding</a>
+          <a href="/questions?tag=behavioral">Behavioral</a>
+          <a href="/questions?tag=hr">HR</a>
+          <a href="/questions?tag=system-design">System design</a>
         </div>
         <div class="search-panel-meta">
           <span>${results.length} matching questions</span>
           <span>${questionBank.length} searchable sections</span>
+          <span>${escapeHtml(tag ? formatTag(tag) : "All rounds")}</span>
           <span>${reveal ? "Answer preview mode on" : "Practice mode on"}</span>
         </div>
       </section>
@@ -990,7 +1084,7 @@ app.get("/questions", (req, res) => {
       <section class="section"><div><h2>${results.length} results found</h2><p>Page ${pageState.currentPage} of ${pageState.totalPages}. Last content update: ${escapeHtml(formatDate(dataUpdatedAt))}.</p></div></section>
       <section class="stack">${list}</section>
       ${renderAdBlock("Archive lower ad", ADSENSE_SLOT_SECONDARY, "archive-bottom")}
-      ${paginationLinks("/questions", pageState.currentPage, pageState.totalPages, { q, category, sort, reveal: reveal ? 1 : 0 })}`
+      ${paginationLinks("/questions", pageState.currentPage, pageState.totalPages, { q, category, tag, sort, reveal: reveal ? 1 : 0 })}`
   }));
 });
 
@@ -1007,8 +1101,20 @@ app.get("/category/:slug", (req, res) => {
     categoryTitle: category.title,
     companyName: category.companyName || "",
     companyLogo: category.logo || "",
-    roleFocus: category.roleFocus || ""
+    roleFocus: category.roleFocus || "",
+    tags: classifyQuestion(category, item)
   }));
+  const tagCounts = categoryQuestions.reduce((acc, item) => {
+    item.tags.forEach((tag) => {
+      acc[tag] = (acc[tag] || 0) + 1;
+    });
+    return acc;
+  }, {});
+  const topTags = Object.entries(tagCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4)
+    .map(([tag, count]) => `<a href="${escapeHtml(buildQuery("/questions", { category: category.slug, tag }))}">${escapeHtml(formatTag(tag))} (${count})</a>`)
+    .join("");
   const pageState = paginate(categoryQuestions, pageNumber, 10);
   const items = pageState.pageItems.map((item) => card(item)).join("");
   const companyMeta = category.kind === "company"
@@ -1025,6 +1131,31 @@ app.get("/category/:slug", (req, res) => {
         <a class="text-link" href="${escapeHtml(categoryUrl(item))}">Open</a>
       </article>`)
     .join("");
+  const prepOrder = category.kind === "company"
+    ? [
+        "Start with role fit and company motivation questions so your opening impression is strong.",
+        "Move into the most common round types on this page, especially the tags shown in the focus area.",
+        "Finish by practicing your best project examples, debugging stories, and concise follow-up answers."
+      ]
+    : [
+        "Read the question first and answer it aloud before opening the full sample.",
+        "Use the answer as a baseline, then rewrite it in your own examples and wording.",
+        "Repeat the same questions after a gap so the response becomes natural instead of memorized."
+      ];
+  const prepMarkup = prepOrder.map((step) => `<li>${escapeHtml(step)}</li>`).join("");
+  const companyInsights = category.kind === "company"
+    ? `
+      <section class="quick-start-grid">
+        <article class="detail-panel"><h3>What this company usually tests</h3><p>${escapeHtml(category.roleFocus || "Problem solving, communication, and role fit.")}</p></article>
+        <article class="detail-panel"><h3>Most common round tags</h3><div class="pill-row">${topTags || "<span>No tags yet</span>"}</div></article>
+        <article class="detail-panel"><h3>Best prep order</h3><ol class="step-list">${prepMarkup}</ol></article>
+        <article class="detail-panel"><h3>How to use this page</h3><p>Start with the highest-frequency themes, practice the detailed answers aloud, and keep your project stories ready for follow-up questions.</p></article>
+      </section>`
+    : `
+      <section class="quick-start-grid">
+        <article class="detail-panel"><h3>Most common round tags</h3><div class="pill-row">${topTags || "<span>No tags yet</span>"}</div></article>
+        <article class="detail-panel"><h3>Best prep order</h3><ol class="step-list">${prepMarkup}</ol></article>
+      </section>`;
 
   return res.send(page({
     title: category.kind === "company"
@@ -1089,6 +1220,7 @@ app.get("/category/:slug", (req, res) => {
           <a class="btn-alt" href="/questions">Back to all questions</a>
         </div>
       </section>
+      ${companyInsights}
       ${renderAdBlock("Category ad", ADSENSE_SLOT, "category-top")}
       <section class="stack">${items}</section>
       ${renderAdBlock("Category lower ad", ADSENSE_SLOT_SECONDARY, "category-bottom")}
@@ -1121,8 +1253,10 @@ app.get("/question/:categorySlug/:questionSlug", (req, res) => {
   const detailCompanyMeta = match.category.companyName
     ? `<div class="meta"><span>${escapeHtml(match.category.companyName)}</span><span>${escapeHtml(match.category.roleFocus || "Company interview set")}</span><span>Updated ${escapeHtml(formatDate(dataUpdatedAt))}</span></div>`
     : `<div class="meta"><span>${escapeHtml(match.category.title)}</span><span>Updated ${escapeHtml(formatDate(dataUpdatedAt))}</span></div>`;
+  const detailTags = classifyQuestion(match.category, match.question).map((tag) => `<span>${escapeHtml(formatTag(tag))}</span>`).join("");
   const relatedGuides = guides.slice(0, 2).map(guideCard).join("");
   const answerId = `answer-${match.category.slug}-${match.question.slug}`;
+  const progressKey = `${match.category.slug}/${match.question.slug}`;
   const currentIndex = match.category.questions.findIndex((item) => item.slug === match.question.slug);
   const previousQuestion = currentIndex > 0 ? match.category.questions[currentIndex - 1] : null;
   const nextQuestion = currentIndex < match.category.questions.length - 1 ? match.category.questions[currentIndex + 1] : null;
@@ -1174,11 +1308,14 @@ app.get("/question/:categorySlug/:questionSlug", (req, res) => {
         </div>
         <p>Use this answer as a practice baseline, then adapt it to your own experience before a real interview.</p>
         ${detailCompanyMeta}
+        ${detailTags ? `<div class="tag-row">${detailTags}</div>` : ""}
         <div class="answer-box">
           <div class="section compact-section">
             <div><h3>Sample Answer</h3></div>
             <div class="card-actions">
               <button type="button" class="ghost-button answer-toggle" data-target="${escapeHtml(answerId)}" aria-expanded="true">Hide answer</button>
+              <button type="button" class="ghost-button progress-button" data-progress="${escapeHtml(progressKey)}" data-status="practiced">Practiced</button>
+              <button type="button" class="ghost-button progress-button" data-progress="${escapeHtml(progressKey)}" data-status="revise">Revise</button>
               <button type="button" class="ghost-button copy-answer" data-target="${escapeHtml(answerId)}">Copy answer</button>
             </div>
           </div>
@@ -1375,6 +1512,7 @@ app.post("/register", (req, res) => {
     email,
     passwordHash: hashPassword(password),
     savedQuestions: [],
+    progress: {},
     isAdmin: false,
     createdAt: new Date().toISOString()
   };
@@ -1486,11 +1624,82 @@ app.post("/api/saved", (req, res) => {
   return res.json({ ok: true, savedQuestions: user.savedQuestions });
 });
 
+app.get("/progress", (req, res) => {
+  const serverProgress = req.currentUser?.progress || {};
+  const trackedItems = allQuestions().filter((item) => serverProgress[`${item.categorySlug}/${item.slug}`]);
+  const summary = Object.values(serverProgress).reduce((acc, status) => {
+    acc[status] = (acc[status] || 0) + 1;
+    return acc;
+  }, {});
+
+  res.send(page({
+    title: "Interview Progress",
+    description: "Track practiced, revise-later, and question progress across the interview library.",
+    canonicalPath: "/progress",
+    siteUrl: res.locals.siteUrl,
+    authLinks: navAuthMarkup(req.currentUser),
+    breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Progress" }]),
+    body: `
+      <section class="detail">
+        <div class="eyebrow">Progress</div>
+        <h1>Track what you have practiced.</h1>
+        <p>${req.currentUser ? "Your account-backed progress is shown below and can be updated from question cards and detail pages." : "Progress works in your browser even without login. Create an account if you want to keep progress across devices later."}</p>
+        <div class="meta">
+          <span>${summary.practiced || 0} practiced</span>
+          <span>${summary.revise || 0} revise later</span>
+          <span>${summary.completed || 0} completed</span>
+        </div>
+      </section>
+      <section class="quick-start-grid">
+        <article class="detail-panel"><h3>How to use progress</h3><p>Mark questions as practiced after your first run, use revise later for weak spots, and return to this page to see where your effort is going.</p></article>
+        <article class="detail-panel"><h3>Best habit</h3><p>Combine progress tracking with answer practice aloud. The value is not only remembering the question, but improving how naturally and clearly you respond.</p></article>
+      </section>
+      <section class="section"><div><h2>Recently tracked questions</h2><p>Questions you have already interacted with through the progress controls.</p></div></section>
+      <section class="stack" id="progress-results">${trackedItems.length ? trackedItems.slice(0, 18).map((item) => card(item)).join("") : `<article class="panel"><h3>No progress yet.</h3><p>Start marking questions from the archive or detail pages.</p></article>`}</section>`
+  }));
+});
+
+app.post("/api/progress", (req, res) => {
+  const key = String(req.body.key || "").trim();
+  const status = String(req.body.status || "").trim();
+  if (!key || !status) {
+    return res.status(400).json({ ok: false, error: "invalid_progress_payload" });
+  }
+  if (!req.currentUser) {
+    return res.json({ ok: true, mode: "local_only" });
+  }
+  const users = readUsers();
+  const user = users.find((item) => item.id === req.currentUser.id);
+  if (!user) {
+    return res.status(404).json({ ok: false, error: "user_not_found" });
+  }
+  user.progress = user.progress || {};
+  user.progress[key] = status;
+  saveUsers(users);
+  req.currentUser.progress = user.progress;
+  return res.json({ ok: true, progress: user.progress });
+});
+
 app.get("/admin", (req, res) => {
   if (!requireAdmin(req, res)) return;
   const messages = readMessages().slice().reverse();
   const users = readUsers();
   const categoryOptions = questionBank.map((item) => `<option value="${escapeHtml(item.slug)}">${escapeHtml(item.title)}</option>`).join("");
+  const recentQuestions = questionBank
+    .flatMap((category) => category.questions.slice(-4).map((question) => ({ category, question })))
+    .slice(-12)
+    .reverse()
+    .map(({ category, question }) => `
+      <article class="faq-item">
+        <h3>${escapeHtml(question.question)}</h3>
+        <p><strong>${escapeHtml(category.title)}</strong></p>
+        <div class="card-actions">
+          <a class="text-link" href="${escapeHtml(questionUrl(category.slug, question.slug))}">Open</a>
+          <a class="text-link" href="${escapeHtml(`/admin/question/${category.slug}/${question.slug}/edit`)}">Edit</a>
+          <form method="POST" action="${escapeHtml(`/admin/question/${category.slug}/${question.slug}/delete`)}"><button type="submit">Delete</button></form>
+        </div>
+      </article>`)
+    .join("");
   const messageMarkup = messages.length
     ? messages.slice(0, 12).map((item) => `
       <article class="faq-item">
@@ -1549,6 +1758,8 @@ app.get("/admin", (req, res) => {
           </form>
         </article>
       </section>
+      <section class="section"><div><h2>Recent Questions</h2><p>Edit or remove recently managed questions from the dashboard.</p></div></section>
+      <section class="faq-list">${recentQuestions || `<article class="panel"><h3>No questions yet.</h3></article>`}</section>
       <section class="section"><div><h2>Recent Messages</h2><p>Latest contact submissions stored by the backend.</p></div></section>
       <section class="faq-list">${messageMarkup}</section>`
   }));
@@ -1605,6 +1816,81 @@ app.post("/admin/question", (req, res) => {
   );
   saveQuestionBank(nextQuestionBank);
   res.redirect(questionUrl(category.slug, nextQuestion.slug));
+});
+
+app.get("/admin/question/:categorySlug/:questionSlug/edit", (req, res) => {
+  if (!requireAdmin(req, res)) return;
+  const match = byQuestion(req.params.categorySlug, req.params.questionSlug);
+  if (!match) {
+    return res.redirect("/admin");
+  }
+  res.send(page({
+    title: "Edit Question",
+    description: "Edit an existing interview question.",
+    canonicalPath: `/admin/question/${match.category.slug}/${match.question.slug}/edit`,
+    siteUrl: res.locals.siteUrl,
+    robots: "noindex,nofollow",
+    authLinks: navAuthMarkup(req.currentUser),
+    breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Admin", href: "/admin" }, { label: "Edit Question" }]),
+    body: `
+      <section class="detail">
+        <div class="eyebrow">Admin</div>
+        <h1>Edit question.</h1>
+        <p>Update the question, answer, and tip while keeping the current routing intact.</p>
+      </section>
+      <section class="panel">
+        <form class="contact-form" method="POST" action="${escapeHtml(`/admin/question/${match.category.slug}/${match.question.slug}/edit`)}">
+          <input type="text" name="slug" value="${escapeHtml(match.question.slug)}" required />
+          <input type="text" name="question" value="${escapeHtml(match.question.question)}" required />
+          <textarea name="answer" rows="8" required>${escapeHtml(match.question.answer)}</textarea>
+          <input type="text" name="tip" value="${escapeHtml(match.question.tip)}" required />
+          <button type="submit">Save changes</button>
+        </form>
+      </section>`
+  }));
+});
+
+app.post("/admin/question/:categorySlug/:questionSlug/edit", (req, res) => {
+  if (!requireAdmin(req, res)) return;
+  const match = byQuestion(req.params.categorySlug, req.params.questionSlug);
+  if (!match) {
+    return res.redirect("/admin");
+  }
+  const nextQuestion = {
+    slug: String(req.body.slug || "").trim(),
+    question: String(req.body.question || "").trim(),
+    answer: String(req.body.answer || "").trim(),
+    tip: String(req.body.tip || "").trim()
+  };
+  if (!nextQuestion.slug || !nextQuestion.question || !nextQuestion.answer || !nextQuestion.tip) {
+    return res.redirect(`/admin/question/${encodeURIComponent(match.category.slug)}/${encodeURIComponent(match.question.slug)}/edit`);
+  }
+  const nextQuestionBank = questionBank.map((category) =>
+    category.slug === match.category.slug
+      ? {
+          ...category,
+          questions: category.questions.map((item) =>
+            item.slug === match.question.slug ? nextQuestion : item
+          )
+        }
+      : category
+  );
+  saveQuestionBank(nextQuestionBank);
+  res.redirect(questionUrl(match.category.slug, nextQuestion.slug));
+});
+
+app.post("/admin/question/:categorySlug/:questionSlug/delete", (req, res) => {
+  if (!requireAdmin(req, res)) return;
+  const nextQuestionBank = questionBank.map((category) =>
+    category.slug === req.params.categorySlug
+      ? {
+          ...category,
+          questions: category.questions.filter((item) => item.slug !== req.params.questionSlug)
+        }
+      : category
+  );
+  saveQuestionBank(nextQuestionBank);
+  res.redirect(`/category/${encodeURIComponent(req.params.categorySlug)}`);
 });
 
 app.get("/about", (req, res) => {
@@ -1895,7 +2181,8 @@ app.get("/api/questions", (req, res) => {
   const q = req.query.q || "";
   const category = req.query.category || "";
   const sort = req.query.sort || "latest";
-  const results = searchQuestions(q, category, sort);
+  const tag = req.query.tag || "";
+  const results = searchQuestions(q, category, sort, tag);
   res.json({ total: results.length, categories: questionBank.length, results });
 });
 
@@ -1919,6 +2206,7 @@ app.get("/sitemap.xml", (req, res) => {
     "/about",
     "/faq",
     "/privacy",
+    "/progress",
     "/terms",
     "/editorial-policy",
     "/ad-disclosure",
