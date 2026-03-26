@@ -152,6 +152,62 @@
     ]
   },
   {
+    "slug": "coding-interview",
+    "title": "Coding Interview",
+    "summary": "Problem solving, data structures, algorithms, and coding round questions with interview ready answers.",
+    "kind": "topic",
+    "questions": [
+      {
+        "slug": "two-sum-approach",
+        "question": "How would you solve the Two Sum problem efficiently?",
+        "answer": "I would use a hash map to store numbers I have already seen and their indexes. As I scan the array, I compute the complement needed to reach the target and check whether it already exists in the map. That gives an O n time solution with O n extra space, which is better than the O n squared brute force approach.",
+        "tip": "State the brute force first, then improve it with a hash map."
+      },
+      {
+        "slug": "reverse-linked-list",
+        "question": "How do you reverse a singly linked list?",
+        "answer": "I would iterate through the list while keeping three pointers: previous, current, and next. For each node, I store the next node, reverse the current pointer to previous, then move the window forward. This solves the problem in O n time and O 1 extra space.",
+        "tip": "Be explicit about pointer updates because that is where candidates make mistakes."
+      },
+      {
+        "slug": "binary-search-when",
+        "question": "When should you use binary search?",
+        "answer": "I use binary search when the search space is sorted or can be treated as monotonic. The main advantage is reducing time complexity from O n to O log n. I also watch for off by one errors and make sure the loop condition and boundary updates are consistent.",
+        "tip": "Mention the sorted or monotonic requirement."
+      },
+      {
+        "slug": "dfs-vs-bfs",
+        "question": "What is the difference between DFS and BFS?",
+        "answer": "Depth first search explores one path deeply before backtracking, while breadth first search explores level by level. BFS is useful for shortest path problems in unweighted graphs, and DFS is often simpler for traversal, cycle detection, and recursive exploration problems.",
+        "tip": "Tie each traversal method to common use cases."
+      },
+      {
+        "slug": "dynamic-programming",
+        "question": "How do you recognize a dynamic programming problem?",
+        "answer": "I look for overlapping subproblems and optimal substructure. If the same smaller computations repeat and the overall solution can be built from those smaller results, dynamic programming is usually a good fit. I often start with recursion, define the state clearly, and then convert to memoization or tabulation.",
+        "tip": "State definition is usually the hardest part, so mention it directly."
+      },
+      {
+        "slug": "time-space-tradeoff",
+        "question": "How do you talk about time and space tradeoffs in coding interviews?",
+        "answer": "I compare the current solution against alternatives and explain what resource is being optimized. For example, using a hash map may reduce time from O n squared to O n at the cost of extra space. Interviewers usually care that I understand why the tradeoff is worth it for the problem constraints.",
+        "tip": "Do not just name complexities. Explain why the tradeoff matters."
+      },
+      {
+        "slug": "recursion-vs-iteration",
+        "question": "When would you choose recursion over iteration?",
+        "answer": "I use recursion when the problem structure is naturally recursive, such as trees, divide and conquer, or backtracking. I switch to iteration if recursion depth could become unsafe or if an iterative solution is easier to control for performance and memory usage.",
+        "tip": "Mention call stack limits because that shows practical awareness."
+      },
+      {
+        "slug": "explain-clean-code-solution",
+        "question": "What makes a coding interview solution clean and strong?",
+        "answer": "A strong solution is correct, reasonably efficient, and easy to follow. I explain the approach first, choose clear variable names, handle edge cases, and test the code mentally with small examples. Interviewers usually value clarity of reasoning almost as much as the final code.",
+        "tip": "Talk through examples while coding so your reasoning stays visible."
+      }
+    ]
+  },
+  {
     "slug": "behavioral",
     "title": "Behavioral",
     "summary": "Leadership, teamwork, ownership, and conflict questions used across many interviews.",
@@ -265,6 +321,24 @@
         "question": "How do you balance engineering quality with product speed?",
         "answer": "I define the minimum quality bar that protects users and the system, then I reduce scope around that bar rather than shipping fragile work. I make tradeoffs explicit, document debt, and reserve time to pay it down.",
         "tip": "This is stronger than claiming everything can always be perfect."
+      },
+      {
+        "slug": "google-coding-round",
+        "question": "How would you approach a Google coding round problem you have never seen before?",
+        "answer": "I would first restate the problem, confirm inputs and constraints, and work through a small example aloud. Then I would identify a simple baseline solution, improve it step by step, and only start coding once the approach is clear. Google coding rounds usually reward structured reasoning and edge case awareness, not rushed code.",
+        "tip": "Show problem solving discipline before optimization."
+      },
+      {
+        "slug": "google-complexity",
+        "question": "How do you analyze the time and space complexity of your solution?",
+        "answer": "I walk through the dominant operations in the algorithm and explain how many times each one runs relative to input size. I also separate auxiliary memory from input storage and note any recursion stack costs when relevant.",
+        "tip": "Keep the explanation tied directly to the code path."
+      },
+      {
+        "slug": "google-edge-cases",
+        "question": "What edge cases do you check before finishing a coding solution?",
+        "answer": "I check empty input, single element cases, duplicate values, boundary indexes, extreme input sizes, and invalid or null input if the prompt allows it. I also test whether the algorithm still works for the smallest and largest realistic cases.",
+        "tip": "Interviewers want to see deliberate validation, not guesswork."
       }
     ]
   },
@@ -306,6 +380,24 @@
         "question": "Describe a time you solved a problem with limited resources.",
         "answer": "I would show how I simplified the approach, reused existing assets, or automated work instead of asking for more resources immediately. The point is to prove judgment and efficiency under constraint.",
         "tip": "Frugality is about leverage, not only cost cutting."
+      },
+      {
+        "slug": "amazon-coding-clarity",
+        "question": "How do you balance writing optimal code with writing code quickly in an interview?",
+        "answer": "I start with a correct and explainable solution, then improve it if the constraints justify it. That lets me show forward progress and solid reasoning before I chase a more complex optimization.",
+        "tip": "Correctness first, then optimization."
+      },
+      {
+        "slug": "amazon-bar-raiser",
+        "question": "How do you handle feedback that your first approach is not strong enough?",
+        "answer": "I respond by clarifying the gap, adjusting quickly, and showing that I can improve the solution without getting defensive. Strong interview performance includes adaptability under pressure.",
+        "tip": "This is about coachability as much as technical skill."
+      },
+      {
+        "slug": "amazon-coding-bug",
+        "question": "What do you do if you find a bug in your code during the interview?",
+        "answer": "I acknowledge it directly, isolate the failing logic, explain the correction, and update the code in a controlled way. Interviewers usually respond well when a candidate debugs calmly and transparently.",
+        "tip": "Do not hide mistakes. Show correction discipline."
       }
     ]
   },
@@ -347,6 +439,24 @@
         "question": "Describe a time you received difficult feedback.",
         "answer": "I would choose a real example, explain what changed in my behavior, and show how I measured improvement over time. That demonstrates maturity and a growth mindset.",
         "tip": "The key is what changed after the feedback."
+      },
+      {
+        "slug": "microsoft-coding-design",
+        "question": "How do you write code that is both correct and maintainable during an interview?",
+        "answer": "I use clear function boundaries, descriptive variable names, and a straightforward control flow. I avoid clever shortcuts that are hard to explain and make sure the solution is readable enough that another engineer could maintain it later.",
+        "tip": "Maintainability matters more than showing off syntax tricks."
+      },
+      {
+        "slug": "microsoft-testing-solution",
+        "question": "How do you test your coding solution before you finish?",
+        "answer": "I run through normal cases, edge cases, and one failure prone path such as duplicates or empty input. I also walk line by line through the algorithm with a small example to confirm state changes are correct.",
+        "tip": "A short but systematic test pass is usually enough."
+      },
+      {
+        "slug": "microsoft-data-structures",
+        "question": "How do you choose the right data structure for a problem?",
+        "answer": "I choose the data structure based on the operations that matter most, such as fast lookup, ordered traversal, constant time append, or efficient insertion. The best choice follows from the access pattern, not habit.",
+        "tip": "Tie data structure choice to the required operations."
       }
     ]
   },
@@ -388,6 +498,24 @@
         "question": "How do you handle an ambiguous project with little direction?",
         "answer": "I create direction by defining the outcome, collecting constraints, and breaking the work into smaller decisions that can be validated quickly. Ambiguity becomes manageable when the team can test assumptions early.",
         "tip": "Show initiative without pretending ambiguity disappears."
+      },
+      {
+        "slug": "meta-coding-speed",
+        "question": "How do you solve coding questions quickly without losing accuracy?",
+        "answer": "I make speed come from structure, not rushing. I clarify the problem, use a simple example, pick the right data structure, and code in small verified steps so errors do not multiply.",
+        "tip": "Fast and sloppy is weaker than steady and correct."
+      },
+      {
+        "slug": "meta-scalable-feature",
+        "question": "How would you design a feature that could grow rapidly in usage?",
+        "answer": "I would think about traffic spikes, caching, storage growth, and monitoring from the start. Rapid growth usually exposes weak assumptions around bottlenecks and operational visibility, so I design with headroom and good metrics.",
+        "tip": "Product growth answers should include operational readiness."
+      },
+      {
+        "slug": "meta-prioritize-experiments",
+        "question": "How do you prioritize experiments when there are many product ideas?",
+        "answer": "I prioritize by expected impact, learning value, implementation cost, and reversibility. The best experiments answer an important question cheaply before the team makes a large commitment.",
+        "tip": "Meta style answers often value fast learning loops."
       }
     ]
   },
@@ -429,6 +557,24 @@
         "question": "Explain one academic or personal project in detail.",
         "answer": "I would explain the goal, architecture, tools used, my specific contribution, problems faced, and the final outcome. Interviewers usually want to know whether I truly understand the project rather than memorized a summary.",
         "tip": "Be ready for deep follow up questions on your own project."
+      },
+      {
+        "slug": "tcs-basic-coding",
+        "question": "How would you solve a basic coding problem like checking whether a number is prime?",
+        "answer": "I would explain the straightforward logic first, then improve it by checking divisors only up to the square root of the number. That shows both correctness and awareness of simple optimization.",
+        "tip": "Even basic coding questions should include complexity thinking."
+      },
+      {
+        "slug": "tcs-oops",
+        "question": "What are the main principles of object oriented programming?",
+        "answer": "The core principles are encapsulation, inheritance, polymorphism, and abstraction. I would explain each one briefly and connect it to how real code becomes easier to organize and reuse.",
+        "tip": "Give one simple example if asked for follow up."
+      },
+      {
+        "slug": "tcs-sql-basics",
+        "question": "How would you explain the difference between WHERE and HAVING in SQL?",
+        "answer": "WHERE filters rows before grouping, while HAVING filters groups after aggregation. I usually explain it with an example using total sales or counts per department because that makes the difference obvious.",
+        "tip": "Concrete examples make SQL answers much stronger."
       }
     ]
   },
@@ -470,6 +616,270 @@
         "question": "How strong are your programming fundamentals?",
         "answer": "I would give evidence through projects, problem solving practice, and clarity on core concepts like data structures, control flow, functions, debugging, and basic algorithms. Then I would link those fundamentals to practical project work.",
         "tip": "Support your claim with proof, not confidence alone."
+      },
+      {
+        "slug": "infosys-basic-program",
+        "question": "How would you explain a simple program you wrote recently?",
+        "answer": "I would describe the problem, the inputs, the main logic, and why I structured the code that way. Then I would mention one improvement I would make if I had more time, which shows reflection and ownership.",
+        "tip": "Keep it simple but show real understanding."
+      },
+      {
+        "slug": "infosys-debugging",
+        "question": "What is your approach when a program is not working as expected?",
+        "answer": "I reproduce the issue consistently, isolate the failing part, inspect assumptions, and test one change at a time. Good debugging is systematic and evidence driven rather than random trial and error.",
+        "tip": "Process matters more than sounding fast."
+      },
+      {
+        "slug": "infosys-database-basics",
+        "question": "What is the difference between primary key and foreign key?",
+        "answer": "A primary key uniquely identifies a row in a table, while a foreign key links one table to another by referencing a primary key. Together they help maintain data integrity and relationships.",
+        "tip": "This is a common fundamentals question, so answer clearly and directly."
+      }
+    ]
+  },
+  {
+    "slug": "wipro-interview-questions",
+    "title": "Wipro Interview Questions",
+    "summary": "Company wise Wipro interview questions for service delivery, fresher hiring, and technical fundamentals.",
+    "kind": "company",
+    "companyName": "Wipro",
+    "roleFocus": "Graduate hiring and client delivery roles",
+    "logo": "/public/logos/wipro.png",
+    "questions": [
+      {
+        "slug": "wipro-introduction",
+        "question": "How would you introduce yourself in a Wipro interview?",
+        "answer": "I would give a short, structured introduction covering education, technical strengths, relevant projects, and why I am interested in Wipro. The goal is to sound clear and role focused rather than generic.",
+        "tip": "Freshers should keep this concise and connected to skills."
+      },
+      {
+        "slug": "wipro-relocation",
+        "question": "Are you comfortable with relocation and flexible project assignments?",
+        "answer": "A strong answer is professional and adaptable. I would say I understand service companies work across locations and clients, and I am open to relocation or role adjustments when business needs require it.",
+        "tip": "This is often a flexibility check rather than a trap."
+      },
+      {
+        "slug": "wipro-coding-basics",
+        "question": "How would you solve a simple coding task like reversing a string?",
+        "answer": "I would explain the straightforward approach first, such as iterating from the end or using two pointers, and then mention the time and space complexity. Even basic questions are stronger when I explain why the solution works.",
+        "tip": "Do not rush past fundamentals. Explain clearly."
+      },
+      {
+        "slug": "wipro-teamwork",
+        "question": "Tell me about a time you worked well in a team.",
+        "answer": "I would describe the objective, my role, how the team coordinated, and what result we achieved. A good answer shows both collaboration and individual contribution.",
+        "tip": "Show your part in the success, not only the group outcome."
+      },
+      {
+        "slug": "wipro-sql",
+        "question": "What is the difference between DELETE, TRUNCATE, and DROP?",
+        "answer": "DELETE removes selected rows and can be filtered, TRUNCATE clears all rows more efficiently, and DROP removes the entire table structure. I would also mention transaction behavior and recovery depending on the database context.",
+        "tip": "This is a common fundamentals question, so answer in direct comparisons."
+      }
+    ]
+  },
+  {
+    "slug": "accenture-interview-questions",
+    "title": "Accenture Interview Questions",
+    "summary": "Company wise Accenture interview questions covering consulting style communication, delivery, and technical execution.",
+    "kind": "company",
+    "companyName": "Accenture",
+    "roleFocus": "Technology consulting and software delivery roles",
+    "logo": "/public/logos/accenture.png",
+    "questions": [
+      {
+        "slug": "accenture-why-company",
+        "question": "Why do you want to join Accenture?",
+        "answer": "I would connect my answer to exposure across industries, structured career growth, and the chance to work on large transformation programs. The strongest answer links my own strengths to consulting and delivery style work.",
+        "tip": "Specific fit is stronger than generic praise."
+      },
+      {
+        "slug": "accenture-client-communication",
+        "question": "How do you explain technical issues to a client with limited technical knowledge?",
+        "answer": "I focus on business impact, remove jargon, and explain the issue, risk, and next steps in plain language. The goal is clarity and confidence, not technical impressiveness.",
+        "tip": "Consulting roles value communication discipline."
+      },
+      {
+        "slug": "accenture-prioritization",
+        "question": "How do you manage multiple deliverables with different stakeholders?",
+        "answer": "I align on priority early, make dependencies visible, and track the work against deadlines and business impact. If there is conflict, I escalate early rather than let hidden delays build up.",
+        "tip": "Show planning and stakeholder management together."
+      },
+      {
+        "slug": "accenture-coding-round",
+        "question": "How would you handle a coding round where the problem has multiple valid solutions?",
+        "answer": "I would compare the options based on complexity, readability, and constraints, then choose the most appropriate one and explain why. Interviewers want to see reasoned choices, not only final code.",
+        "tip": "Tradeoff discussion usually makes the answer stronger."
+      },
+      {
+        "slug": "accenture-change-management",
+        "question": "Tell me about a time you adapted to a new process quickly.",
+        "answer": "I would explain the change, how I learned it, how I reduced disruption to delivery, and what result followed. Strong answers show both adaptability and execution quality.",
+        "tip": "Accenture interviews often reward structured adaptation stories."
+      }
+    ]
+  },
+  {
+    "slug": "deloitte-interview-questions",
+    "title": "Deloitte Interview Questions",
+    "summary": "Company wise Deloitte interview questions focused on problem solving, client readiness, and analytical communication.",
+    "kind": "company",
+    "companyName": "Deloitte",
+    "roleFocus": "Consulting, analytics, and technology roles",
+    "logo": "/public/logos/deloitte.png",
+    "questions": [
+      {
+        "slug": "deloitte-problem-solving",
+        "question": "How do you approach an unfamiliar business problem?",
+        "answer": "I start by defining the problem clearly, identifying constraints, and separating assumptions from facts. Then I break the issue into smaller components, prioritize the highest impact questions, and move toward a recommendation supported by evidence.",
+        "tip": "Structured thinking matters as much as the final answer."
+      },
+      {
+        "slug": "deloitte-client-pressure",
+        "question": "How do you handle pressure from demanding clients or deadlines?",
+        "answer": "I respond by clarifying expectations, protecting the highest value work, and communicating status and risk early. Pressure becomes manageable when the team has a realistic plan and no hidden surprises.",
+        "tip": "Show calm execution, not only endurance."
+      },
+      {
+        "slug": "deloitte-data-analysis",
+        "question": "How do you turn data into a useful recommendation?",
+        "answer": "I begin with the business question, then validate the quality of the data, analyze the relevant patterns, and translate the result into a practical recommendation with tradeoffs. Data matters most when it changes a decision.",
+        "tip": "Tie analysis back to action."
+      },
+      {
+        "slug": "deloitte-teamwork",
+        "question": "Tell me about a time you worked with people from different backgrounds.",
+        "answer": "I would show how I adjusted communication, aligned on goals, and used different strengths within the group to improve the outcome. Good teamwork across different backgrounds depends on clarity and respect.",
+        "tip": "Make the result measurable if possible."
+      },
+      {
+        "slug": "deloitte-technical-fundamentals",
+        "question": "How do you explain your technical strengths to a non technical interviewer?",
+        "answer": "I focus on the problems I can solve, the reliability of my delivery, and a few concrete project examples. That makes the answer easier to understand than listing tools without context.",
+        "tip": "Translate skills into outcomes."
+      }
+    ]
+  },
+  {
+    "slug": "ibm-interview-questions",
+    "title": "IBM Interview Questions",
+    "summary": "Company wise IBM interview questions for software engineering, enterprise systems, and technical communication.",
+    "kind": "company",
+    "companyName": "IBM",
+    "roleFocus": "Software engineering and enterprise platform roles",
+    "logo": "/public/logos/ibm.png",
+    "questions": [
+      {
+        "slug": "ibm-why-company",
+        "question": "Why do you want to work at IBM?",
+        "answer": "I would connect my answer to IBM's enterprise scale, engineering depth, and the chance to work on systems that matter in regulated and large business environments. A strong answer links those strengths to my own interests and skills.",
+        "tip": "Show fit with enterprise technology, not only brand recognition."
+      },
+      {
+        "slug": "ibm-system-reliability",
+        "question": "How do you think about reliability in enterprise software?",
+        "answer": "I think about reliability through monitoring, fault tolerance, change safety, clear recovery paths, and predictable behavior under load. Enterprise systems often succeed or fail on operational discipline as much as on features.",
+        "tip": "Include operations, not only code quality."
+      },
+      {
+        "slug": "ibm-clean-code",
+        "question": "What makes code maintainable over the long term?",
+        "answer": "Maintainable code has clear boundaries, readable naming, consistent structure, focused functions, and tests around important behavior. It should be understandable by the next engineer without needing private context.",
+        "tip": "This is stronger when you mention future team maintenance."
+      },
+      {
+        "slug": "ibm-debugging",
+        "question": "Describe your debugging approach for a production issue.",
+        "answer": "I first define the impact, gather evidence, reproduce the issue if possible, and narrow the scope using logs or metrics. Then I apply the fix carefully and verify that the original symptom and downstream effects are both resolved.",
+        "tip": "Show discipline under real operational pressure."
+      },
+      {
+        "slug": "ibm-data-structures",
+        "question": "How do you choose between an array, linked list, hash map, and tree?",
+        "answer": "I choose based on required operations such as indexed access, insertion and deletion cost, lookup speed, or ordered traversal. The best structure follows from the access pattern and performance goal of the problem.",
+        "tip": "Answer by operation tradeoffs, not definitions alone."
+      }
+    ]
+  },
+  {
+    "slug": "capgemini-interview-questions",
+    "title": "Capgemini Interview Questions",
+    "summary": "Company wise Capgemini interview questions for technical delivery, adaptability, and client project readiness.",
+    "kind": "company",
+    "companyName": "Capgemini",
+    "roleFocus": "Software delivery and consulting aligned roles",
+    "logo": "/public/logos/capgemini.png",
+    "questions": [
+      {
+        "slug": "capgemini-introduction",
+        "question": "How would you introduce yourself in a Capgemini interview?",
+        "answer": "I would give a short summary of my education or experience, relevant technical strengths, project work, and the reason I see Capgemini as a good fit. The strongest version is concise and tailored to the role.",
+        "tip": "Good introductions are specific and controlled."
+      },
+      {
+        "slug": "capgemini-learning",
+        "question": "How do you learn new tools when a project changes direction?",
+        "answer": "I prioritize the parts needed for immediate delivery, build a quick working understanding, and validate my learning through small practical tasks. That keeps the project moving while I deepen expertise.",
+        "tip": "Show both speed and reliability."
+      },
+      {
+        "slug": "capgemini-coding",
+        "question": "How would you solve a simple array problem in a coding round?",
+        "answer": "I would clarify the input and expected output, work through a small example, choose the simplest correct approach, and then improve it if the constraints require better performance. This keeps the coding process clear and controlled.",
+        "tip": "Use examples before code."
+      },
+      {
+        "slug": "capgemini-team-client",
+        "question": "How do you balance internal teamwork with client expectations?",
+        "answer": "I keep internal ownership clear while making client expectations visible to the team. That reduces confusion and helps ensure the delivered work matches both technical quality and external commitments.",
+        "tip": "Balanced communication is the key idea here."
+      },
+      {
+        "slug": "capgemini-sql-join",
+        "question": "What is the difference between INNER JOIN and LEFT JOIN?",
+        "answer": "INNER JOIN returns only matching rows between tables, while LEFT JOIN returns all rows from the left table and matching rows from the right table, filling missing matches with null values.",
+        "tip": "Answer with a simple comparison and, if asked, an example."
+      }
+    ]
+  },
+  {
+    "slug": "flipkart-interview-questions",
+    "title": "Flipkart Interview Questions",
+    "summary": "Company wise Flipkart interview questions focused on ecommerce scale, product thinking, and coding rounds.",
+    "kind": "company",
+    "companyName": "Flipkart",
+    "roleFocus": "Software engineering and product platform roles",
+    "logo": "/public/logos/flipkart.png",
+    "questions": [
+      {
+        "slug": "flipkart-scale",
+        "question": "How would you design a system for high traffic shopping events?",
+        "answer": "I would think about caching, inventory consistency, rate limiting, queue based processing, observability, and graceful degradation under peak load. High traffic ecommerce systems need both scale and operational control.",
+        "tip": "Mention peak traffic behavior, not only normal traffic."
+      },
+      {
+        "slug": "flipkart-product-thinking",
+        "question": "How do you prioritize engineering work for an ecommerce product?",
+        "answer": "I prioritize by customer impact, revenue sensitivity, operational risk, and implementation leverage. For an ecommerce platform, work that protects checkout, search relevance, or inventory accuracy is usually high priority.",
+        "tip": "Tie prioritization to business impact."
+      },
+      {
+        "slug": "flipkart-coding-round",
+        "question": "How do you approach a coding round with limited time?",
+        "answer": "I begin with problem clarification, establish a baseline approach quickly, and improve only where the constraints clearly require it. Time pressure is easier to manage when the solution stays visible and testable throughout.",
+        "tip": "Do not chase the final optimization too early."
+      },
+      {
+        "slug": "flipkart-bug-fix",
+        "question": "Tell me about a time you fixed a user facing production issue.",
+        "answer": "I would describe the symptom, business impact, diagnosis path, fix, and how I made sure the issue would not silently return. Strong answers show urgency with control.",
+        "tip": "Keep the story technical and outcome driven."
+      },
+      {
+        "slug": "flipkart-data-usage",
+        "question": "How do you use metrics to improve a product feature?",
+        "answer": "I define what success means, choose a metric that reflects user or business value, and compare outcomes before and after the change. Metrics are useful when they lead to decisions, not just dashboards.",
+        "tip": "Explain how the metric influenced action."
       }
     ]
   }
