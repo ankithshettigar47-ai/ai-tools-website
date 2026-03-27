@@ -211,7 +211,7 @@ p {
 }
 
 .search-form {
-  grid-template-columns: 1.5fr 1fr 1fr 1fr auto;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr auto;
 }
 
 input,
@@ -445,6 +445,34 @@ button {
   border: 1px solid rgba(135, 64, 25, 0.14);
 }
 
+.coding-meta,
+.coding-summary,
+.code-box-head {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.coding-meta {
+  margin: 8px 0 4px;
+}
+
+.coding-summary {
+  margin: 14px 0 8px;
+}
+
+.coding-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #1f2e3b;
+  color: #edf5fb;
+  font-size: 0.8rem;
+  border: 1px solid rgba(31, 46, 59, 0.16);
+}
+
 .card-answer {
   margin-top: 12px;
   padding-top: 12px;
@@ -553,6 +581,28 @@ button {
   border-radius: 18px;
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.72);
+}
+
+.code-block {
+  margin: 0;
+  padding: 16px;
+  overflow-x: auto;
+  border-radius: 16px;
+  background: #201810;
+  color: #f7efe2;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.code-box-head {
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.code-box-head h3 {
+  margin: 0;
 }
 
 .logo {

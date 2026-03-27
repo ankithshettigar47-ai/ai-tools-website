@@ -196,7 +196,7 @@ function truncateText(text = "", maxLength = 160) {
 }
 
 function classifyQuestion(category, question) {
-  const source = `${category.title} ${category.companyName || ""} ${question.question} ${question.answer} ${question.tip}`.toLowerCase();
+  const source = `${category.title} ${category.companyName || ""} ${question.question} ${question.answer} ${question.tip} ${question.solution || ""} ${question.code || ""}`.toLowerCase();
   const tags = new Set();
 
   if (category.kind === "company") tags.add("company");
@@ -215,6 +215,59 @@ function classifyQuestion(category, question) {
   return Array.from(tags).slice(0, 4);
 }
 
+function isCodingQuestion(category, question, existingTags = null) {
+  const tags = existingTags || classifyQuestion(category, question);
+  return tags.includes("coding") || Boolean(question.solution || question.code) || /^coding-/.test(category.slug);
+}
+
+function codingPatterns(category, question) {
+  const slug = String(category.slug || "").toLowerCase();
+  const source = `${category.title} ${question.question} ${question.answer} ${question.solution || ""}`.toLowerCase();
+  const patterns = [];
+
+  if (slug.includes("hash-map") || source.includes("hash map")) patterns.push("Hash Map");
+  if (slug.includes("sliding-window") || source.includes("sliding window")) patterns.push("Sliding Window");
+  if (slug.includes("two-pointer") || source.includes("two pointer")) patterns.push("Two Pointer");
+  if (slug.includes("stack") || slug.includes("queue") || source.includes("stack") || source.includes("queue")) patterns.push("Stack/Queue");
+  if (slug.includes("binary-search") || source.includes("binary search")) patterns.push("Binary Search");
+  if (slug.includes("linked-list") || source.includes("linked list")) patterns.push("Linked List");
+  if (slug.includes("tree") || source.includes("binary tree") || source.includes("bst")) patterns.push("Tree");
+  if (slug.includes("graph") || source.includes("graph") || source.includes("bfs")) patterns.push("Graph/BFS");
+  if (slug.includes("dp") || source.includes("dynamic programming") || source.includes("recurrence")) patterns.push("Dynamic Programming");
+  if (slug.includes("backtracking") || source.includes("backtrack")) patterns.push("Backtracking");
+
+  return patterns.slice(0, 3);
+}
+
+function codingDifficulty(category, question) {
+  if (!isCodingQuestion(category, question)) return "";
+  const source = `${category.title} ${question.question} ${question.answer} ${question.solution || ""}`.toLowerCase();
+
+  if (
+    source.includes("word ladder") ||
+    source.includes("n-queens") ||
+    source.includes("edit distance") ||
+    source.includes("minimum window substring") ||
+    source.includes("open the lock") ||
+    source.includes("pacific atlantic")
+  ) {
+    return "Hard";
+  }
+
+  if (
+    source.includes("graph") ||
+    source.includes("dynamic programming") ||
+    source.includes("binary search on the answer") ||
+    source.includes("linked list") ||
+    source.includes("three sum") ||
+    source.includes("combination")
+  ) {
+    return "Medium";
+  }
+
+  return "Easy";
+}
+
 function topicCategories() {
   return questionBank.filter((item) => item.kind !== "company");
 }
@@ -225,16 +278,22 @@ function companyCategories() {
 
 function allQuestions() {
   return questionBank.flatMap((category, categoryIndex) =>
-    category.questions.map((item, questionIndex) => ({
-      ...item,
-      categorySlug: category.slug,
-      categoryTitle: category.title,
-      companyName: category.companyName || "",
-      companyLogo: category.logo || "",
-      roleFocus: category.roleFocus || "",
-      tags: classifyQuestion(category, item),
-      orderScore: categoryIndex * 100 + questionIndex
-    }))
+    category.questions.map((item, questionIndex) => {
+      const tags = classifyQuestion(category, item);
+      return {
+        ...item,
+        categorySlug: category.slug,
+        categoryTitle: category.title,
+        companyName: category.companyName || "",
+        companyLogo: category.logo || "",
+        roleFocus: category.roleFocus || "",
+        tags,
+        isCoding: isCodingQuestion(category, item, tags),
+        patterns: codingPatterns(category, item),
+        difficulty: codingDifficulty(category, item),
+        orderScore: categoryIndex * 100 + questionIndex
+      };
+    })
   );
 }
 
@@ -286,20 +345,25 @@ function sortQuestions(items, sortBy) {
   return sorted;
 }
 
-function searchQuestions(searchTerm, categorySlug, sortBy, tagFilter = "") {
+function searchQuestions(searchTerm, categorySlug, sortBy, tagFilter = "", codingOnly = false, patternFilter = "") {
   const query = String(searchTerm || "").trim().toLowerCase();
   const normalizedTag = String(tagFilter || "").trim().toLowerCase();
+  const normalizedPattern = String(patternFilter || "").trim().toLowerCase();
   const filtered = allQuestions().filter((item) => {
     const categoryMatch = !categorySlug || item.categorySlug === categorySlug;
     const tagMatch = !normalizedTag || item.tags.includes(normalizedTag);
+    const codingMatch = !codingOnly || item.isCoding;
+    const patternMatch = !normalizedPattern || item.patterns.some((pattern) => pattern.toLowerCase() === normalizedPattern);
     const textMatch =
       !query ||
       item.question.toLowerCase().includes(query) ||
       item.answer.toLowerCase().includes(query) ||
+      String(item.solution || "").toLowerCase().includes(query) ||
+      String(item.code || "").toLowerCase().includes(query) ||
       item.categoryTitle.toLowerCase().includes(query) ||
       item.companyName.toLowerCase().includes(query) ||
       item.tip.toLowerCase().includes(query);
-    return categoryMatch && tagMatch && textMatch;
+    return categoryMatch && tagMatch && codingMatch && patternMatch && textMatch;
   });
   return sortQuestions(filtered, sortBy);
 }
@@ -380,6 +444,20 @@ const tagOptions = [
   { value: "database", label: "Database" }
 ];
 
+const codingPatternOptions = [
+  { value: "", label: "All coding patterns" },
+  { value: "Hash Map", label: "Hash Map" },
+  { value: "Sliding Window", label: "Sliding Window" },
+  { value: "Two Pointer", label: "Two Pointer" },
+  { value: "Stack/Queue", label: "Stack/Queue" },
+  { value: "Binary Search", label: "Binary Search" },
+  { value: "Linked List", label: "Linked List" },
+  { value: "Tree", label: "Tree" },
+  { value: "Graph/BFS", label: "Graph/BFS" },
+  { value: "Dynamic Programming", label: "Dynamic Programming" },
+  { value: "Backtracking", label: "Backtracking" }
+];
+
 function formatTag(tag) {
   return String(tag || "")
     .split("-")
@@ -441,6 +519,23 @@ function detailedAnswerMarkup(category, question) {
     `What tradeoff or challenge made this harder than it first looked?`,
     `How would you adapt the same answer for this role or company?`
   ].map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+  const solutionBox = question.solution
+    ? `
+      <div class="answer-box">
+        <h3>Step-By-Step Solution</h3>
+        <p>${escapeHtml(question.solution)}</p>
+      </div>`
+    : "";
+  const codeBox = question.code
+    ? `
+      <div class="answer-box">
+        <div class="code-box-head">
+          <h3>Reference Code</h3>
+          <button type="button" class="ghost-button copy-snippet" data-target="code-${escapeHtml(`${category.slug}-${question.slug}`)}">Copy code</button>
+        </div>
+        <pre class="code-block" id="code-${escapeHtml(`${category.slug}-${question.slug}`)}"><code>${escapeHtml(question.code)}</code></pre>
+      </div>`
+    : "";
 
   return `
     <section class="detail-layout">
@@ -459,6 +554,8 @@ function detailedAnswerMarkup(category, question) {
           <h3>Example Way To Say It</h3>
           <p>${escapeHtml(exampleAnswer)}</p>
         </div>
+        ${solutionBox}
+        ${codeBox}
       </div>
       <aside class="detail-sidebar">
         <section class="detail-panel">
@@ -627,6 +724,15 @@ function card(item, options = {}) {
   const previewId = `preview-${escapeHtml(`${item.categorySlug}-${item.slug}`)}`;
   const progressKey = `${item.categorySlug}/${item.slug}`;
   const tagMarkup = (item.tags || []).slice(0, 3).map((tag) => `<span>${escapeHtml(formatTag(tag))}</span>`).join("");
+  const codingMeta = item.isCoding
+    ? `
+      <div class="coding-meta">
+        ${item.difficulty ? `<span class="coding-badge">${escapeHtml(item.difficulty)}</span>` : ""}
+        ${(item.patterns || []).slice(0, 2).map((pattern) => `<span class="coding-badge">${escapeHtml(pattern)}</span>`).join("")}
+        ${item.solution ? `<span class="coding-badge">Has solution</span>` : ""}
+        ${item.code ? `<span class="coding-badge">Has code</span>` : ""}
+      </div>`
+    : "";
   const answerMarkup = options.practiceMode
     ? `<p class="answer-hidden">Practice mode is on. Open the detail page to reveal the sample answer.</p>`
     : `
@@ -648,6 +754,7 @@ function card(item, options = {}) {
         <span>${escapeHtml(summaryLabel)}</span>
         <span>${escapeHtml(item.roleFocus || "Interview prep")}</span>
       </div>
+      ${codingMeta}
       ${tagMarkup ? `<div class="tag-row">${tagMarkup}</div>` : ""}
       ${answerMarkup}
       <div class="card-actions">
@@ -761,6 +868,7 @@ function page({
           <nav class="nav" id="site-nav">
             <a href="/">Home</a>
             <a href="/questions">All Questions</a>
+            <a href="/coding">Coding</a>
             <a href="/saved">Saved</a>
             <a href="/progress">Progress</a>
             <a href="/guides">Guides</a>
@@ -835,6 +943,7 @@ function page({
       document.querySelectorAll(".progress-button").forEach((button)=>{const key=button.dataset.progress;const status=button.dataset.status;const progress=readProgress();if(progress[key]===status){button.classList.add("is-active");}button.addEventListener("click",async()=>{const items=readProgress();items[key]=status;writeProgress(items);document.querySelectorAll('.progress-button[data-progress=\"'+key+'\"]').forEach((peer)=>peer.classList.toggle('is-active', peer.dataset.status===status));if(isLoggedIn){const ok = await syncProgress(key,status);if(!ok){button.textContent='Retry';}}});});
       document.querySelectorAll(".answer-toggle").forEach((button)=>{button.addEventListener("click",()=>{const target=document.getElementById(button.dataset.target);if(!target)return;const nextState=target.hasAttribute("hidden");target.toggleAttribute("hidden",!nextState);button.setAttribute("aria-expanded",String(nextState));button.textContent=nextState?\"Hide preview\":\"Quick preview\";});});
       document.querySelectorAll(".copy-answer").forEach((button)=>{button.addEventListener("click",async()=>{const target=document.getElementById(button.dataset.target);if(!target)return;try{await navigator.clipboard.writeText(target.innerText.trim());button.textContent="Copied";}catch(error){button.textContent="Copy failed";}});});
+      document.querySelectorAll(".copy-snippet").forEach((button)=>{button.addEventListener("click",async()=>{const target=document.getElementById(button.dataset.target);if(!target)return;try{await navigator.clipboard.writeText(target.innerText.trim());button.textContent="Copied";}catch(error){button.textContent="Copy failed";}});});
     </script>
   </body>
   </html>`;
@@ -1001,11 +1110,14 @@ app.get("/questions", (req, res) => {
   const category = req.query.category || "";
   const sort = req.query.sort || "latest";
   const tag = req.query.tag || "";
+  const coding = req.query.coding === "1";
+  const pattern = req.query.pattern || "";
   const reveal = req.query.reveal === "1";
   const pageNumber = Number.parseInt(req.query.page || "1", 10);
-  const results = searchQuestions(q, category, sort, tag);
+  const results = searchQuestions(q, category, sort, tag, coding, pattern);
   const options = questionBank.map((item) => `<option value="${escapeHtml(item.slug)}" ${item.slug === category ? "selected" : ""}>${escapeHtml(item.title)}</option>`).join("");
   const tagSelectOptions = tagOptions.map((item) => `<option value="${escapeHtml(item.value)}" ${item.value === tag ? "selected" : ""}>${escapeHtml(item.label)}</option>`).join("");
+  const patternSelectOptions = codingPatternOptions.map((item) => `<option value="${escapeHtml(item.value)}" ${item.value === pattern ? "selected" : ""}>${escapeHtml(item.label)}</option>`).join("");
   const sortOptions = [
     { value: "latest", label: "Latest" },
     { value: "alpha", label: "Alphabetical" },
@@ -1055,20 +1167,25 @@ app.get("/questions", (req, res) => {
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "All Questions" }]),
     body: `
-      <section class="section"><div><h1>All Interview Questions</h1><p>Search by topic, role, company, or phrase. Sort the archive and use practice mode when you want to hide answers at first.</p></div></section>
+      <section class="section"><div><h1>${coding ? "Coding Interview Questions" : "All Interview Questions"}</h1><p>${coding ? "Browse coding problems with solution writeups, JavaScript reference code, pattern labels, and practice-friendly navigation." : "Search by topic, role, company, or phrase. Sort the archive and use practice mode when you want to hide answers at first."}</p></div></section>
       <section class="panel search-panel">
         <form class="search-form" method="GET" action="/questions">
           <input type="text" name="q" list="search-suggestions" value="${escapeHtml(q)}" placeholder="Search interview questions, answers, or companies" />
           <select name="category"><option value="">All categories</option>${options}</select>
           <select name="tag">${tagSelectOptions}</select>
+          <select name="pattern">${patternSelectOptions}</select>
           <select name="sort">${sortOptions}</select>
           <button type="submit">Search</button>
+          <input type="hidden" name="coding" value="${coding ? "1" : "0"}" />
           <input type="hidden" name="reveal" value="${reveal ? "1" : "0"}" />
         </form>
         <div class="search-shortcuts">
-          <a href="${escapeHtml(buildQuery("/questions", { q, category, tag, sort, reveal: reveal ? 0 : 1 }))}">${reveal ? "Enable practice mode" : "Reveal answer previews"}</a>
+          <a href="${escapeHtml(buildQuery("/questions", { q, category, tag, sort, coding: coding ? 1 : 0, pattern, reveal: reveal ? 0 : 1 }))}">${reveal ? "Enable practice mode" : "Reveal answer previews"}</a>
+          <a href="${escapeHtml(buildQuery("/questions", { coding: coding ? 0 : 1, q, category, tag, sort, pattern, reveal: reveal ? 1 : 0 }))}">${coding ? "Show all question types" : "Coding mode"}</a>
           <a href="/questions?tag=company">Company prep</a>
-          <a href="/questions?tag=coding">Coding</a>
+          <a href="/questions?tag=coding&coding=1">Coding</a>
+          <a href="/questions?coding=1&pattern=Dynamic+Programming">Dynamic programming</a>
+          <a href="/questions?coding=1&pattern=Graph%2FBFS">Graph/BFS</a>
           <a href="/questions?tag=behavioral">Behavioral</a>
           <a href="/questions?tag=hr">HR</a>
           <a href="/questions?tag=system-design">System design</a>
@@ -1077,6 +1194,8 @@ app.get("/questions", (req, res) => {
           <span>${results.length} matching questions</span>
           <span>${questionBank.length} searchable sections</span>
           <span>${escapeHtml(tag ? formatTag(tag) : "All rounds")}</span>
+          <span>${escapeHtml(pattern || "All coding patterns")}</span>
+          <span>${coding ? "Coding mode on" : "Mixed interview mode"}</span>
           <span>${reveal ? "Answer preview mode on" : "Practice mode on"}</span>
         </div>
       </section>
@@ -1084,8 +1203,17 @@ app.get("/questions", (req, res) => {
       <section class="section"><div><h2>${results.length} results found</h2><p>Page ${pageState.currentPage} of ${pageState.totalPages}. Last content update: ${escapeHtml(formatDate(dataUpdatedAt))}.</p></div></section>
       <section class="stack">${list}</section>
       ${renderAdBlock("Archive lower ad", ADSENSE_SLOT_SECONDARY, "archive-bottom")}
-      ${paginationLinks("/questions", pageState.currentPage, pageState.totalPages, { q, category, tag, sort, reveal: reveal ? 1 : 0 })}`
+      ${paginationLinks("/questions", pageState.currentPage, pageState.totalPages, { q, category, tag, sort, coding: coding ? 1 : 0, pattern, reveal: reveal ? 1 : 0 })}`
   }));
+});
+
+app.get("/coding", (req, res) => {
+  const query = new URLSearchParams();
+  query.set("coding", "1");
+  query.set("tag", "coding");
+  if (req.query.pattern) query.set("pattern", String(req.query.pattern));
+  if (req.query.q) query.set("q", String(req.query.q));
+  res.redirect(`/questions?${query.toString()}`);
 });
 
 app.get("/category/:slug", (req, res) => {
@@ -1102,7 +1230,10 @@ app.get("/category/:slug", (req, res) => {
     companyName: category.companyName || "",
     companyLogo: category.logo || "",
     roleFocus: category.roleFocus || "",
-    tags: classifyQuestion(category, item)
+    tags: classifyQuestion(category, item),
+    isCoding: isCodingQuestion(category, item),
+    patterns: codingPatterns(category, item),
+    difficulty: codingDifficulty(category, item)
   }));
   const tagCounts = categoryQuestions.reduce((acc, item) => {
     item.tags.forEach((tag) => {
@@ -1143,6 +1274,17 @@ app.get("/category/:slug", (req, res) => {
         "Repeat the same questions after a gap so the response becomes natural instead of memorized."
       ];
   const prepMarkup = prepOrder.map((step) => `<li>${escapeHtml(step)}</li>`).join("");
+  const codingPatternSummary = categoryQuestions
+    .flatMap((item) => item.patterns || [])
+    .reduce((acc, pattern) => {
+      acc[pattern] = (acc[pattern] || 0) + 1;
+      return acc;
+    }, {});
+  const topPatterns = Object.entries(codingPatternSummary)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4)
+    .map(([pattern, count]) => `<a href="${escapeHtml(buildQuery("/questions", { category: category.slug, coding: 1, pattern }))}">${escapeHtml(pattern)} (${count})</a>`)
+    .join("");
   const companyInsights = category.kind === "company"
     ? `
       <section class="quick-start-grid">
@@ -1155,6 +1297,7 @@ app.get("/category/:slug", (req, res) => {
       <section class="quick-start-grid">
         <article class="detail-panel"><h3>Most common round tags</h3><div class="pill-row">${topTags || "<span>No tags yet</span>"}</div></article>
         <article class="detail-panel"><h3>Best prep order</h3><ol class="step-list">${prepMarkup}</ol></article>
+        ${categoryQuestions.some((item) => item.isCoding) ? `<article class="detail-panel"><h3>Top coding patterns</h3><div class="pill-row">${topPatterns || "<span>No coding pattern data yet</span>"}</div></article>` : ""}
       </section>`;
 
   return res.send(page({
@@ -1217,6 +1360,7 @@ app.get("/category/:slug", (req, res) => {
         ${companyMeta}
         <div class="cta">
           <a class="btn" href="${escapeHtml(buildQuery("/questions", { category: category.slug }))}">Filter archive by this category</a>
+          ${categoryQuestions.some((item) => item.isCoding) ? `<a class="btn-alt" href="${escapeHtml(buildQuery("/questions", { category: category.slug, coding: 1 }))}">Coding-only view</a>` : ""}
           <a class="btn-alt" href="/questions">Back to all questions</a>
         </div>
       </section>
@@ -1254,17 +1398,44 @@ app.get("/question/:categorySlug/:questionSlug", (req, res) => {
     ? `<div class="meta"><span>${escapeHtml(match.category.companyName)}</span><span>${escapeHtml(match.category.roleFocus || "Company interview set")}</span><span>Updated ${escapeHtml(formatDate(dataUpdatedAt))}</span></div>`
     : `<div class="meta"><span>${escapeHtml(match.category.title)}</span><span>Updated ${escapeHtml(formatDate(dataUpdatedAt))}</span></div>`;
   const detailTags = classifyQuestion(match.category, match.question).map((tag) => `<span>${escapeHtml(formatTag(tag))}</span>`).join("");
+  const isCoding = isCodingQuestion(match.category, match.question);
+  const detailPatterns = codingPatterns(match.category, match.question);
+  const detailDifficulty = codingDifficulty(match.category, match.question);
+  const codingSummary = isCoding
+    ? `
+      <section class="coding-summary">
+        ${detailDifficulty ? `<span class="coding-badge">${escapeHtml(detailDifficulty)}</span>` : ""}
+        ${detailPatterns.map((pattern) => `<span class="coding-badge">${escapeHtml(pattern)}</span>`).join("")}
+        ${match.question.solution ? `<span class="coding-badge">Detailed solution</span>` : ""}
+        ${match.question.code ? `<span class="coding-badge">JavaScript code</span>` : ""}
+      </section>`
+    : "";
   const relatedGuides = guides.slice(0, 2).map(guideCard).join("");
   const answerId = `answer-${match.category.slug}-${match.question.slug}`;
   const progressKey = `${match.category.slug}/${match.question.slug}`;
   const currentIndex = match.category.questions.findIndex((item) => item.slug === match.question.slug);
   const previousQuestion = currentIndex > 0 ? match.category.questions[currentIndex - 1] : null;
   const nextQuestion = currentIndex < match.category.questions.length - 1 ? match.category.questions[currentIndex + 1] : null;
+  const codingQuestionsInArchive = isCoding
+    ? allQuestions().filter((item) => item.isCoding)
+    : [];
+  const codingArchiveIndex = isCoding
+    ? codingQuestionsInArchive.findIndex((item) => item.categorySlug === match.category.slug && item.slug === match.question.slug)
+    : -1;
+  const previousCodingQuestion = codingArchiveIndex > 0 ? codingQuestionsInArchive[codingArchiveIndex - 1] : null;
+  const nextCodingQuestion = codingArchiveIndex >= 0 && codingArchiveIndex < codingQuestionsInArchive.length - 1 ? codingQuestionsInArchive[codingArchiveIndex + 1] : null;
   const questionPager = previousQuestion || nextQuestion
     ? `
       <section class="question-nav">
         ${previousQuestion ? `<a class="quick-start-card" href="${escapeHtml(questionUrl(match.category.slug, previousQuestion.slug))}"><strong>Previous question</strong><span>${escapeHtml(previousQuestion.question)}</span></a>` : `<div></div>`}
         ${nextQuestion ? `<a class="quick-start-card" href="${escapeHtml(questionUrl(match.category.slug, nextQuestion.slug))}"><strong>Next question</strong><span>${escapeHtml(nextQuestion.question)}</span></a>` : `<div></div>`}
+      </section>`
+    : "";
+  const codingPager = previousCodingQuestion || nextCodingQuestion
+    ? `
+      <section class="question-nav">
+        ${previousCodingQuestion ? `<a class="quick-start-card" href="${escapeHtml(questionUrl(previousCodingQuestion.categorySlug, previousCodingQuestion.slug))}"><strong>Previous coding problem</strong><span>${escapeHtml(previousCodingQuestion.question)}</span></a>` : `<div></div>`}
+        ${nextCodingQuestion ? `<a class="quick-start-card" href="${escapeHtml(questionUrl(nextCodingQuestion.categorySlug, nextCodingQuestion.slug))}"><strong>Next coding problem</strong><span>${escapeHtml(nextCodingQuestion.question)}</span></a>` : `<div></div>`}
       </section>`
     : "";
 
@@ -1308,6 +1479,7 @@ app.get("/question/:categorySlug/:questionSlug", (req, res) => {
         </div>
         <p>Use this answer as a practice baseline, then adapt it to your own experience before a real interview.</p>
         ${detailCompanyMeta}
+        ${codingSummary}
         ${detailTags ? `<div class="tag-row">${detailTags}</div>` : ""}
         <div class="answer-box">
           <div class="section compact-section">
@@ -1325,10 +1497,12 @@ app.get("/question/:categorySlug/:questionSlug", (req, res) => {
         ${renderAdBlock("Question detail ad", ADSENSE_SLOT_SECONDARY, "detail-inline")}
         <div class="cta">
           <a class="btn" href="${escapeHtml(categoryUrl(match.category))}">More ${escapeHtml(match.category.title)} questions</a>
+          ${isCoding ? `<a class="btn-alt" href="${escapeHtml(buildQuery("/questions", { coding: 1, pattern: detailPatterns[0] || "", q: "" }))}">More coding questions</a>` : ""}
           <a class="btn-alt" href="/questions">Back to archive</a>
         </div>
       </article>
       ${questionPager}
+      ${codingPager}
       ${renderAdBlock("Related content ad", ADSENSE_SLOT, "detail-lower")}
       <section class="section"><div><h2>Related Questions</h2><p>Keep moving through the same topic or company prep set.</p></div></section>
       <section class="grid">${related}</section>
