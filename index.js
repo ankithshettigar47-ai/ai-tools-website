@@ -195,6 +195,29 @@ function truncateText(text = "", maxLength = 160) {
   return `${cleaned.slice(0, maxLength - 1).trimEnd()}…`;
 }
 
+function simpleDisplayText(text = "") {
+  return String(text)
+    .replace(/\butilize\b/gi, "use")
+    .replace(/\binitialize\b/gi, "start")
+    .replace(/\bmaintain\b/gi, "keep")
+    .replace(/\bcompute\b/gi, "find")
+    .replace(/\bdetermine\b/gi, "find out")
+    .replace(/\boptimize\b/gi, "make it faster")
+    .replace(/\brecursively\b/gi, "by calling the same function again")
+    .replace(/\bsubsequent\b/gi, "next")
+    .replace(/\btherefore\b/gi, "so")
+    .replace(/\bapproximately\b/gi, "about")
+    .replace(/\badditional\b/gi, "extra")
+    .replace(/\bmaximum\b/gi, "largest")
+    .replace(/\bminimum\b/gi, "smallest")
+    .replace(/\bcontiguous\b/gi, "continuous")
+    .replace(/\biterate\b/gi, "go through")
+    .replace(/\bprefix\b/gi, "running")
+    .replace(/\bvalidate\b/gi, "check")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function classifyQuestion(category, question) {
   const source = `${category.title} ${category.companyName || ""} ${question.question} ${question.answer} ${question.tip} ${question.solution || ""} ${question.code || ""}`.toLowerCase();
   const tags = new Set();
@@ -291,10 +314,18 @@ function allQuestions() {
         isCoding: isCodingQuestion(category, item, tags),
         patterns: codingPatterns(category, item),
         difficulty: codingDifficulty(category, item),
+        companyTags: [],
+        estimatedMinutes: 0,
+        mustKnow: false,
         orderScore: categoryIndex * 100 + questionIndex
       };
     })
-  );
+  ).map((item) => ({
+    ...item,
+    companyTags: codingCompanyTags(item),
+    estimatedMinutes: codingEstimatedMinutes(item),
+    mustKnow: isMustKnowProblem(item)
+  }));
 }
 
 function byCategory(slug) {
@@ -345,15 +376,17 @@ function sortQuestions(items, sortBy) {
   return sorted;
 }
 
-function searchQuestions(searchTerm, categorySlug, sortBy, tagFilter = "", codingOnly = false, patternFilter = "") {
+function searchQuestions(searchTerm, categorySlug, sortBy, tagFilter = "", codingOnly = false, patternFilter = "", difficultyFilter = "") {
   const query = String(searchTerm || "").trim().toLowerCase();
   const normalizedTag = String(tagFilter || "").trim().toLowerCase();
   const normalizedPattern = String(patternFilter || "").trim().toLowerCase();
+  const normalizedDifficulty = String(difficultyFilter || "").trim().toLowerCase();
   const filtered = allQuestions().filter((item) => {
     const categoryMatch = !categorySlug || item.categorySlug === categorySlug;
     const tagMatch = !normalizedTag || item.tags.includes(normalizedTag);
     const codingMatch = !codingOnly || item.isCoding;
     const patternMatch = !normalizedPattern || item.patterns.some((pattern) => pattern.toLowerCase() === normalizedPattern);
+    const difficultyMatch = !normalizedDifficulty || String(item.difficulty || "").toLowerCase() === normalizedDifficulty;
     const textMatch =
       !query ||
       item.question.toLowerCase().includes(query) ||
@@ -363,7 +396,7 @@ function searchQuestions(searchTerm, categorySlug, sortBy, tagFilter = "", codin
       item.categoryTitle.toLowerCase().includes(query) ||
       item.companyName.toLowerCase().includes(query) ||
       item.tip.toLowerCase().includes(query);
-    return categoryMatch && tagMatch && codingMatch && patternMatch && textMatch;
+    return categoryMatch && tagMatch && codingMatch && patternMatch && difficultyMatch && textMatch;
   });
   return sortQuestions(filtered, sortBy);
 }
@@ -400,15 +433,15 @@ function faqItems() {
   return [
     {
       question: "Are these interview answers meant to be memorized?",
-      answer: "No. They are practice baselines. The strongest interview answers are adapted to your own projects and outcomes."
+      answer: "No. Use them for practice. The best answer is one that matches your own work, project, or real experience."
     },
     {
       question: "Does the site cover both coding and HR interviews?",
-      answer: "Yes. The library includes coding, technical, behavioral, HR, company-specific, aptitude, and resume-focused content."
+      answer: "Yes. The site covers coding, technical, behavioral, HR, company-wise, aptitude, and resume topics."
     },
     {
       question: "How should I use company-wise question pages?",
-      answer: "Use them to understand the themes a company tends to emphasize, then adapt the sample answers to your own experience."
+      answer: "Use them to understand what a company usually asks. Then change the sample answers so they fit your own experience."
     }
   ];
 }
@@ -458,6 +491,70 @@ const codingPatternOptions = [
   { value: "Backtracking", label: "Backtracking" }
 ];
 
+const difficultyOptions = [
+  { value: "", label: "All difficulty levels" },
+  { value: "Easy", label: "Easy" },
+  { value: "Medium", label: "Medium" },
+  { value: "Hard", label: "Hard" }
+];
+
+const seoLandingPages = [
+  {
+    slug: "google-interview-questions",
+    title: "Google Interview Questions and Answers",
+    heading: "Google Interview Questions",
+    description: "Practice Google interview questions and answers across coding, technical, behavioral, and role-fit preparation.",
+    intro: "Use this page to prepare for common Google interview themes like coding problem solving, product thinking, system design, debugging, and concise behavioral answers.",
+    query: "google",
+    links: ["/coding/company/google-interview-questions", "/category/google-interview-questions", "/coding"]
+  },
+  {
+    slug: "amazon-interview-questions",
+    title: "Amazon Interview Questions and Answers",
+    heading: "Amazon Interview Questions",
+    description: "Practice Amazon interview questions and answers with coding, leadership principles, technical, and behavioral preparation.",
+    intro: "Use this page to prepare for Amazon interview themes like ownership, customer obsession, coding rounds, debugging, and practical system tradeoffs.",
+    query: "amazon",
+    links: ["/coding/company/amazon-interview-questions", "/category/amazon-interview-questions", "/coding"]
+  },
+  {
+    slug: "coding-interview-questions",
+    title: "Coding Interview Questions and Solutions",
+    heading: "Coding Interview Questions",
+    description: "Browse coding interview questions with solutions, JavaScript reference code, pattern filters, and difficulty filters.",
+    intro: "Use the coding archive to practice by pattern, difficulty, must-know problems, and timed mock-test sets.",
+    query: "coding",
+    links: ["/coding", "/coding/mock-test", "/questions?coding=1&difficulty=Medium"]
+  },
+  {
+    slug: "hr-interview-questions",
+    title: "HR Interview Questions and Answers",
+    heading: "HR Interview Questions",
+    description: "Prepare for HR interview questions and answers with practical examples for screening, motivation, strengths, weaknesses, and salary discussions.",
+    intro: "Use this page when you want clear HR and screening answers that sound natural instead of memorized.",
+    query: "hr",
+    links: ["/questions?tag=hr", "/guide/hr-interview-guide", "/questions?q=behavioral"]
+  },
+  {
+    slug: "react-interview-questions",
+    title: "React Interview Questions and Answers",
+    heading: "React Interview Questions",
+    description: "Practice React interview questions and answers for components, hooks, state management, rendering, and frontend problem solving.",
+    intro: "This landing page routes you into React interview preparation with technical questions and detailed answer pages.",
+    query: "react",
+    links: ["/questions?q=react", "/category/react", "/questions?q=frontend"]
+  },
+  {
+    slug: "node-js-interview-questions",
+    title: "Node.js Interview Questions and Answers",
+    heading: "Node.js Interview Questions",
+    description: "Prepare for Node.js interview questions and answers covering APIs, async behavior, backend design, and debugging.",
+    intro: "Use this page to move quickly into Node.js backend interview prep with practical answer pages and related coding practice.",
+    query: "node",
+    links: ["/questions?q=node", "/category/node-js", "/questions?q=api"]
+  }
+];
+
 function formatTag(tag) {
   return String(tag || "")
     .split("-")
@@ -465,18 +562,100 @@ function formatTag(tag) {
     .join(" ");
 }
 
+function codingLandingData() {
+  const codingItems = allQuestions().filter((item) => item.isCoding);
+  const byPattern = codingItems.reduce((acc, item) => {
+    (item.patterns || []).forEach((pattern) => {
+      acc[pattern] = (acc[pattern] || 0) + 1;
+    });
+    return acc;
+  }, {});
+  const byDifficulty = codingItems.reduce((acc, item) => {
+    const difficulty = item.difficulty || "Easy";
+    acc[difficulty] = (acc[difficulty] || 0) + 1;
+    return acc;
+  }, {});
+  return { codingItems, byPattern, byDifficulty };
+}
+
+function topCodingCompanyLinks(limit = 6) {
+  const preferred = ["Google", "Amazon", "Microsoft", "Meta", "Apple", "Netflix", "Adobe", "Oracle"];
+  return preferred
+    .map((name) => questionBank.find((item) => item.kind === "company" && item.companyName === name))
+    .filter(Boolean)
+    .slice(0, limit);
+}
+
+function codingCollectionForCompany(companyName) {
+  const allCoding = allQuestions().filter((item) => item.isCoding);
+  const preferredPatterns = {
+    Google: ["Graph/BFS", "Dynamic Programming", "Binary Search", "Tree"],
+    Amazon: ["Hash Map", "Sliding Window", "Graph/BFS", "Dynamic Programming"],
+    Microsoft: ["Tree", "Linked List", "Dynamic Programming", "Graph/BFS"],
+    Meta: ["Hash Map", "Graph/BFS", "Sliding Window", "Tree"],
+    Apple: ["Binary Search", "Linked List", "Tree", "Dynamic Programming"],
+    Netflix: ["Graph/BFS", "Dynamic Programming", "Backtracking", "Sliding Window"],
+    Adobe: ["Hash Map", "Two Pointer", "Dynamic Programming", "Tree"],
+    Oracle: ["Binary Search", "Linked List", "Tree", "Graph/BFS"]
+  };
+  const patterns = preferredPatterns[companyName] || ["Hash Map", "Binary Search", "Dynamic Programming"];
+  return allCoding
+    .filter((item) => item.mustKnow || item.companyTags.includes(companyName) || item.patterns.some((pattern) => patterns.includes(pattern)))
+    .slice(0, 18);
+}
+
+function mockPresetSet(codingItems, preset) {
+  if (preset === "faang-medium") {
+    return codingItems
+      .filter((item) => item.difficulty === "Medium" && ["Hash Map", "Sliding Window", "Graph/BFS", "Dynamic Programming", "Tree"].some((pattern) => item.patterns.includes(pattern)))
+      .slice(0, 6);
+  }
+  if (preset === "sixty") {
+    return codingItems.filter((item) => item.difficulty !== "Easy").slice(0, 8);
+  }
+  return codingItems.filter((item) => item.difficulty !== "Easy").slice(0, 5);
+}
+
+function codingCompanyTags(item) {
+  const companyNames = topCodingCompanyLinks(8).map((company) => company.companyName);
+  const source = `${item.question} ${item.answer} ${item.solution || ""} ${item.categoryTitle} ${item.companyName || ""}`.toLowerCase();
+  return companyNames.filter((name) => source.includes(name.toLowerCase())).slice(0, 3);
+}
+
+function codingEstimatedMinutes(item) {
+  if (!item.isCoding) return 0;
+  if (item.difficulty === "Hard") return 40;
+  if (item.difficulty === "Medium") return 25;
+  return 15;
+}
+
+function isMustKnowProblem(item) {
+  if (!item.isCoding) return false;
+  const source = `${item.question} ${item.answer} ${item.solution || ""}`.toLowerCase();
+  return (
+    source.includes("two sum") ||
+    source.includes("binary search") ||
+    source.includes("reverse linked list") ||
+    source.includes("valid parentheses") ||
+    source.includes("maximum depth of binary tree") ||
+    source.includes("number of islands") ||
+    source.includes("climbing stairs") ||
+    source.includes("subsets")
+  );
+}
+
 function questionSignals(category, question) {
   const lower = `${question.question} ${question.answer} ${question.tip}`.toLowerCase();
   const signals = [];
 
-  if (category.kind === "company") signals.push("role alignment with the company's working style");
-  if (lower.includes("debug") || lower.includes("bug")) signals.push("structured problem solving under pressure");
-  if (lower.includes("design") || lower.includes("architecture")) signals.push("tradeoff awareness and system thinking");
-  if (lower.includes("lead") || lower.includes("team") || lower.includes("conflict")) signals.push("collaboration and professional judgment");
-  if (lower.includes("code") || lower.includes("algorithm") || lower.includes("data structure")) signals.push("clear technical reasoning and correctness");
-  if (lower.includes("why") || lower.includes("motivat") || lower.includes("company")) signals.push("motivation, fit, and credibility");
-  if (lower.includes("priorit") || lower.includes("deadline") || lower.includes("pressure")) signals.push("decision making and ownership");
-  if (!signals.length) signals.push("clear thinking, relevance, and communication quality");
+  if (category.kind === "company") signals.push("whether you fit the way the company works");
+  if (lower.includes("debug") || lower.includes("bug")) signals.push("whether you can solve problems calmly");
+  if (lower.includes("design") || lower.includes("architecture")) signals.push("whether you can think about choices and tradeoffs");
+  if (lower.includes("lead") || lower.includes("team") || lower.includes("conflict")) signals.push("whether you work well with other people");
+  if (lower.includes("code") || lower.includes("algorithm") || lower.includes("data structure")) signals.push("whether your technical thinking is clear and correct");
+  if (lower.includes("why") || lower.includes("motivat") || lower.includes("company")) signals.push("whether your reason sounds honest and strong");
+  if (lower.includes("priorit") || lower.includes("deadline") || lower.includes("pressure")) signals.push("whether you can make good decisions under pressure");
+  if (!signals.length) signals.push("clear thinking and clear speaking");
 
   return signals.slice(0, 3);
 }
@@ -484,17 +663,17 @@ function questionSignals(category, question) {
 function answerFlow(category, question) {
   const title = category.companyName || category.title;
   return [
-    `Start with one direct sentence that answers the question without circling around it.`,
-    `Support that answer with one concrete point from your experience or a practical example relevant to ${title}.`,
-    `Close by connecting the answer to impact, learning, or why your approach would be valuable in the role.`
+    `Start with one direct sentence that answers the question.`,
+    `Then add one real example from your work, studies, or project that fits ${title}.`,
+    `End by showing the result, what you learned, or why your answer fits the role.`
   ];
 }
 
 function interviewerReadyAnswer(category, question) {
   return [
-    `A strong way to answer this is to open with a concise position, then explain the reasoning behind it in practical terms.`,
-    question.answer,
-    `If the interviewer asks a follow-up, expand with a short example from your work, studies, project decisions, debugging process, or team behavior rather than repeating the same wording.`
+    `A good way to answer this is to start with a short clear answer, then explain it in simple words.`,
+    simpleDisplayText(question.answer),
+    `If the interviewer asks more, give one short real example instead of repeating the same line again.`
   ];
 }
 
@@ -510,20 +689,20 @@ function detailedAnswerMarkup(category, question) {
     .join("");
   const exampleAnswer = truncateText(`${question.answer} ${question.tip}`, 340);
   const commonMistakes = [
-    "Answering too generally without a concrete example or reason.",
-    "Sounding memorized instead of adapting the answer to your own experience.",
-    "Ignoring the actual question and drifting into unrelated background."
+    "Giving a very general answer without a real example.",
+    "Trying to sound memorized instead of sounding natural.",
+    "Moving away from the real question."
   ].map((item) => `<li>${escapeHtml(item)}</li>`).join("");
   const followUps = [
-    `Can you give a specific example from your experience?`,
-    `What tradeoff or challenge made this harder than it first looked?`,
-    `How would you adapt the same answer for this role or company?`
+    `Can you give one real example?`,
+    `What was the hard part?`,
+    `Why does this matter for this role or company?`
   ].map((item) => `<li>${escapeHtml(item)}</li>`).join("");
   const solutionBox = question.solution
     ? `
       <div class="answer-box">
-        <h3>Step-By-Step Solution</h3>
-        <p>${escapeHtml(question.solution)}</p>
+        <h3>Simple Step-By-Step Solution</h3>
+        <p>${escapeHtml(simpleDisplayText(question.solution))}</p>
       </div>`
     : "";
   const codeBox = question.code
@@ -542,28 +721,28 @@ function detailedAnswerMarkup(category, question) {
       <div class="detail-main">
         <div class="answer-box">
           <div class="section compact-section">
-            <div><h3>Interviewer-Ready Answer</h3></div>
+            <div><h3>Simple Answer</h3></div>
           </div>
           ${answerParts}
         </div>
         <div class="tip-box">
-          <h3>Interview Tip</h3>
-          <p>${escapeHtml(question.tip)}</p>
+          <h3>Easy Tip</h3>
+          <p>${escapeHtml(simpleDisplayText(question.tip))}</p>
         </div>
         <div class="answer-box">
-          <h3>Example Way To Say It</h3>
-          <p>${escapeHtml(exampleAnswer)}</p>
+          <h3>Simple Way To Say It</h3>
+          <p>${escapeHtml(simpleDisplayText(exampleAnswer))}</p>
         </div>
         ${solutionBox}
         ${codeBox}
       </div>
       <aside class="detail-sidebar">
         <section class="detail-panel">
-          <h3>How To Answer It</h3>
+          <h3>How To Answer</h3>
           <ol class="step-list">${flow}</ol>
         </section>
         <section class="detail-panel">
-          <h3>What The Interviewer Is Checking</h3>
+          <h3>What The Interviewer Wants To Know</h3>
           <ul class="step-list">${signals}</ul>
         </section>
         <section class="detail-panel">
@@ -571,7 +750,7 @@ function detailedAnswerMarkup(category, question) {
           <ul class="step-list">${commonMistakes}</ul>
         </section>
         <section class="detail-panel">
-          <h3>Likely Follow-Up Questions</h3>
+          <h3>Possible Next Questions</h3>
           <ul class="step-list">${followUps}</ul>
         </section>
       </aside>
@@ -729,15 +908,20 @@ function card(item, options = {}) {
       <div class="coding-meta">
         ${item.difficulty ? `<span class="coding-badge">${escapeHtml(item.difficulty)}</span>` : ""}
         ${(item.patterns || []).slice(0, 2).map((pattern) => `<span class="coding-badge">${escapeHtml(pattern)}</span>`).join("")}
+        ${item.estimatedMinutes ? `<span class="coding-badge">${escapeHtml(`${item.estimatedMinutes} min`)}</span>` : ""}
+        ${item.mustKnow ? `<span class="coding-badge coding-badge-warm">Must know</span>` : ""}
         ${item.solution ? `<span class="coding-badge">Has solution</span>` : ""}
         ${item.code ? `<span class="coding-badge">Has code</span>` : ""}
       </div>`
+    : "";
+  const companyTagMarkup = item.isCoding && item.companyTags && item.companyTags.length
+    ? `<div class="coding-company-tags">${item.companyTags.map((name) => `<span class="chip">${escapeHtml(name)}</span>`).join("")}</div>`
     : "";
   const answerMarkup = options.practiceMode
     ? `<p class="answer-hidden">Practice mode is on. Open the detail page to reveal the sample answer.</p>`
     : `
       <div class="card-answer" id="${previewId}" hidden>
-        <p>${escapeHtml(item.answer)}</p>
+        <p>${escapeHtml(simpleDisplayText(item.answer))}</p>
       </div>`;
 
   return `
@@ -755,6 +939,7 @@ function card(item, options = {}) {
         <span>${escapeHtml(item.roleFocus || "Interview prep")}</span>
       </div>
       ${codingMeta}
+      ${companyTagMarkup}
       ${tagMarkup ? `<div class="tag-row">${tagMarkup}</div>` : ""}
       ${answerMarkup}
       <div class="card-actions">
@@ -808,6 +993,17 @@ function navAuthMarkup(user) {
   }
   const adminLink = user.isAdmin ? `<a href="/admin">Admin</a>` : "";
   return `${adminLink}<a href="/logout">Logout</a>`;
+}
+
+function publicNavLinks() {
+  return `
+    <a href="/">Home</a>
+    <a href="/questions">Questions</a>
+    <a href="/coding">Coding</a>
+    <a href="/companies">Companies</a>
+    <a href="/guides">Guides</a>
+    <a href="/progress">Progress</a>
+  `;
 }
 
 function page({
@@ -866,19 +1062,7 @@ function page({
           </a>
           <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav">Menu</button>
           <nav class="nav" id="site-nav">
-            <a href="/">Home</a>
-            <a href="/questions">All Questions</a>
-            <a href="/coding">Coding</a>
-            <a href="/saved">Saved</a>
-            <a href="/progress">Progress</a>
-            <a href="/guides">Guides</a>
-            <a href="/contact">Contact</a>
-            <a href="/about">About</a>
-            <a href="/faq">FAQ</a>
-            <a href="/privacy">Privacy</a>
-            <a href="/terms">Terms</a>
-            <a href="/editorial-policy">Editorial</a>
-            <a href="/ad-disclosure">Ads</a>
+            ${publicNavLinks()}
             ${authLinks}
           </nav>
         </div>
@@ -923,6 +1107,80 @@ function page({
       function writeSaved(items){localStorage.setItem(savedKey, JSON.stringify(items));}
       function readProgress(){try{return JSON.parse(localStorage.getItem(progressKey)||"{}");}catch(error){return {};}}
       function writeProgress(items){localStorage.setItem(progressKey, JSON.stringify(items));}
+      function readJsonStorage(key, fallback){try{return JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback));}catch(error){return fallback;}}
+      function writeJsonStorage(key, value){localStorage.setItem(key, JSON.stringify(value));}
+      function codingProgressSummary(){
+        const progress = readProgress();
+        const values = Object.values(progress);
+        return {
+          practiced: values.filter((value)=>value==="practiced").length,
+          revise: values.filter((value)=>value==="revise").length,
+          total: values.length
+        };
+      }
+      function updateCodingStreak(status){
+        if(status!=="practiced") return;
+        const streakKey="career-question-bank-coding-streak";
+        const today=new Date().toISOString().slice(0,10);
+        const streak=readJsonStorage(streakKey,{days:[],best:0,current:0});
+        if(!streak.days.includes(today)){streak.days.push(today);}
+        streak.days.sort();
+        let current=0;
+        const cursor=new Date();
+        for(let index=0; index<3650; index+=1){
+          const day=cursor.toISOString().slice(0,10);
+          if(streak.days.includes(day)){current+=1; cursor.setDate(cursor.getDate()-1);}
+          else{break;}
+        }
+        streak.current=current;
+        streak.best=Math.max(streak.best||0,current);
+        writeJsonStorage(streakKey, streak);
+      }
+      function currentCodingStreak(){
+        const streak=readJsonStorage("career-question-bank-coding-streak",{days:[],best:0,current:0});
+        return { current: streak.current||0, best: streak.best||0, activeDays: (streak.days||[]).length };
+      }
+      function patternProgressSummary(){
+        const progress = readProgress();
+        const summary = {};
+        document.querySelectorAll("[data-pattern-name]").forEach((node)=>{
+          const pattern=node.dataset.patternName;
+          const keys=(node.dataset.patternKeys||"").split("|").filter(Boolean);
+          const practiced=keys.filter((key)=>progress[key]==="practiced").length;
+          const revise=keys.filter((key)=>progress[key]==="revise").length;
+          summary[pattern]={ practiced, revise, total: keys.length, remaining: Math.max(keys.length-practiced,0), percent: keys.length ? Math.round((practiced/keys.length)*100) : 0 };
+        });
+        return summary;
+      }
+      function refreshCodingDashboard(){
+        const codingStats=document.querySelector("[data-coding-stats]");
+        if(codingStats){
+          const summary=codingProgressSummary();
+          const streak=currentCodingStreak();
+          codingStats.innerHTML='<span>'+summary.practiced+' practiced</span><span>'+summary.revise+' marked for revision</span><span>'+summary.total+' tracked items</span><span>'+streak.current+' day streak</span><span>'+streak.best+' best streak</span>';
+        }
+        document.querySelectorAll("[data-pattern-name]").forEach((node)=>{
+          const pattern=node.dataset.patternName;
+          const stats=patternProgressSummary()[pattern];
+          if(stats){
+            const target=node.querySelector("[data-pattern-stats]");
+            const bar=node.querySelector("[data-pattern-bar]");
+            if(target){target.textContent=stats.practiced+' solved • '+stats.remaining+' remaining • '+stats.percent+'%';}
+            if(bar){bar.style.width=stats.percent+'%';}
+          }
+        });
+        const weakAreas=document.querySelector("[data-weak-areas]");
+        if(weakAreas){
+          const progressSummary=patternProgressSummary();
+          const weak=Object.entries(progressSummary)
+            .sort((a,b)=>((b[1].revise-b[1].practiced)-(a[1].revise-a[1].practiced)))
+            .slice(0,3)
+            .filter((entry)=>entry[1].revise>0);
+          weakAreas.innerHTML=weak.length
+            ? weak.map(([name,meta])=>'<a href="/questions?coding=1&pattern='+encodeURIComponent(name)+'">'+name+' • '+meta.revise+' revise flags</a>').join('')
+            : '<span>No weak areas yet. Mark problems for revision to get recommendations.</span>';
+        }
+      }
       async function syncSaved(key){
         const response = await fetch("/api/saved", {
           method: "POST",
@@ -940,10 +1198,76 @@ function page({
         return response.ok;
       }
       document.querySelectorAll(".bookmark-button").forEach((button)=>{const saved=readSaved();const key=button.dataset.bookmark;if(saved.includes(key)){button.textContent="Saved";}button.addEventListener("click",async()=>{if(isLoggedIn){const ok = await syncSaved(key);button.textContent = ok ? "Saved" : "Try again";return;}const items=readSaved();if(!items.includes(key)){items.push(key);writeSaved(items);button.textContent="Saved";}});});
-      document.querySelectorAll(".progress-button").forEach((button)=>{const key=button.dataset.progress;const status=button.dataset.status;const progress=readProgress();if(progress[key]===status){button.classList.add("is-active");}button.addEventListener("click",async()=>{const items=readProgress();items[key]=status;writeProgress(items);document.querySelectorAll('.progress-button[data-progress=\"'+key+'\"]').forEach((peer)=>peer.classList.toggle('is-active', peer.dataset.status===status));if(isLoggedIn){const ok = await syncProgress(key,status);if(!ok){button.textContent='Retry';}}});});
+      document.querySelectorAll(".progress-button").forEach((button)=>{const key=button.dataset.progress;const status=button.dataset.status;const progress=readProgress();if(progress[key]===status){button.classList.add("is-active");}button.addEventListener("click",async()=>{const items=readProgress();items[key]=status;writeProgress(items);updateCodingStreak(status);document.querySelectorAll('.progress-button[data-progress=\"'+key+'\"]').forEach((peer)=>peer.classList.toggle('is-active', peer.dataset.status===status));if(isLoggedIn){const ok = await syncProgress(key,status);if(!ok){button.textContent='Retry';}}const codingStats=document.querySelector("[data-coding-stats]");if(codingStats){const summary=codingProgressSummary();const streak=currentCodingStreak();codingStats.innerHTML='<span>'+summary.practiced+' practiced</span><span>'+summary.revise+' marked for revision</span><span>'+summary.total+' tracked items</span><span>'+streak.current+' day streak</span><span>'+streak.best+' best streak</span>';}document.querySelectorAll("[data-pattern-name]").forEach((node)=>{const pattern=node.dataset.patternName;const next=patternProgressSummary()[pattern];if(next){const target=node.querySelector("[data-pattern-stats]");if(target){target.textContent=next.practiced+' solved • '+next.remaining+' remaining';}}});});});
       document.querySelectorAll(".answer-toggle").forEach((button)=>{button.addEventListener("click",()=>{const target=document.getElementById(button.dataset.target);if(!target)return;const nextState=target.hasAttribute("hidden");target.toggleAttribute("hidden",!nextState);button.setAttribute("aria-expanded",String(nextState));button.textContent=nextState?\"Hide preview\":\"Quick preview\";});});
       document.querySelectorAll(".copy-answer").forEach((button)=>{button.addEventListener("click",async()=>{const target=document.getElementById(button.dataset.target);if(!target)return;try{await navigator.clipboard.writeText(target.innerText.trim());button.textContent="Copied";}catch(error){button.textContent="Copy failed";}});});
       document.querySelectorAll(".copy-snippet").forEach((button)=>{button.addEventListener("click",async()=>{const target=document.getElementById(button.dataset.target);if(!target)return;try{await navigator.clipboard.writeText(target.innerText.trim());button.textContent="Copied";}catch(error){button.textContent="Copy failed";}});});
+      document.querySelectorAll(".progress-button").forEach((button)=>{button.addEventListener("click",()=>{setTimeout(refreshCodingDashboard,0);});});
+      const codingStats=document.querySelector("[data-coding-stats]");
+      if(codingStats){
+        const summary=codingProgressSummary();
+        const streak=currentCodingStreak();
+        codingStats.innerHTML='<span>'+summary.practiced+' practiced</span><span>'+summary.revise+' marked for revision</span><span>'+summary.total+' tracked items</span><span>'+streak.current+' day streak</span><span>'+streak.best+' best streak</span>';
+      }
+      document.querySelectorAll("[data-pattern-name]").forEach((node)=>{const pattern=node.dataset.patternName;const stats=patternProgressSummary()[pattern];if(stats){const target=node.querySelector("[data-pattern-stats]");if(target){target.textContent=stats.practiced+' solved • '+stats.remaining+' remaining';}}});
+      refreshCodingDashboard();
+      const mockTimer=document.querySelector("[data-mock-timer]");
+      const mockStart=document.querySelector("[data-mock-start]");
+      const mockFinish=document.querySelector("[data-mock-finish]");
+      const mockPause=document.querySelector("[data-mock-pause]");
+      if(mockTimer && mockStart && mockFinish){
+        const mockStateKey="career-question-bank-mock-test";
+        let remaining=0;
+        let intervalId=null;
+        function renderTimer(){
+          const minutes=String(Math.floor(remaining/60)).padStart(2,'0');
+          const seconds=String(remaining%60).padStart(2,'0');
+          mockTimer.textContent=minutes+':'+seconds;
+        }
+        function persist(active){
+          writeJsonStorage(mockStateKey,{ remaining, active, updatedAt: Date.now() });
+        }
+        mockStart.addEventListener('click',()=>{
+          remaining=Number(mockStart.dataset.seconds||'1800');
+          clearInterval(intervalId);
+          renderTimer();
+          persist(true);
+          intervalId=setInterval(()=>{
+            remaining=Math.max(0, remaining-1);
+            renderTimer();
+            persist(true);
+            if(remaining===0){
+              clearInterval(intervalId);
+              mockTimer.textContent='Time complete';
+              persist(false);
+            }
+          },1000);
+        });
+        if(mockPause){mockPause.addEventListener('click',()=>{clearInterval(intervalId);persist(false);mockTimer.textContent='Paused at '+mockTimer.textContent;});}
+        mockFinish.addEventListener('click',()=>{
+          clearInterval(intervalId);
+          mockTimer.textContent='Session finished';
+          localStorage.removeItem(mockStateKey);
+        });
+        const savedMock=readJsonStorage(mockStateKey,null);
+        if(savedMock && savedMock.remaining){
+          remaining=savedMock.remaining;
+          renderTimer();
+          mockTimer.textContent=(savedMock.active?'Resumed ':'Saved ')+mockTimer.textContent;
+          if(savedMock.active){
+            intervalId=setInterval(()=>{
+              remaining=Math.max(0, remaining-1);
+              renderTimer();
+              persist(true);
+              if(remaining===0){
+                clearInterval(intervalId);
+                mockTimer.textContent='Time complete';
+                persist(false);
+              }
+            },1000);
+          }
+        }
+      }
     </script>
   </body>
   </html>`;
@@ -972,33 +1296,14 @@ function notFoundPage(title, message, user = null) {
 
 app.get("/", (req, res) => {
   const homeFaq = faqItems();
-  const featured = allQuestions().slice(0, 6).map((item) => card(item)).join("");
-  const latest = allQuestions().slice(-6).reverse().map((item) => card(item, { practiceMode: true })).join("");
-  const searchHighlights = [
-    { label: "Google", href: "/questions?q=google" },
-    { label: "Amazon", href: "/questions?q=amazon" },
-    { label: "Coding", href: "/questions?q=coding" },
-    { label: "HR", href: "/questions?q=hr" },
-    { label: "Behavioral", href: "/questions?q=behavioral" },
-    { label: "Freshers", href: "/questions?q=freshers" }
-  ].map((item) => `<a href="${escapeHtml(item.href)}">${escapeHtml(item.label)}</a>`).join("");
-  const categories = topicCategories()
-    .map((category) => `
-      <article class="card">
-        <div class="eyebrow">${category.questions.length} questions</div>
-        <h3>${escapeHtml(category.title)}</h3>
-        <p>${escapeHtml(category.summary)}</p>
-        <a class="text-link" href="${escapeHtml(categoryUrl(category))}">Explore category</a>
-      </article>`)
-    .join("");
-  const companies = companyCategories()
-    .slice(0, 6)
+  const codingFeatured = allQuestions().filter((item) => item.isCoding).slice(0, 3).map((item) => card(item, { practiceMode: true })).join("");
+  const companyFeatured = companyCategories().slice(0, 4)
     .map((category) => `
       <article class="company-card">
         <div class="company-head">
           ${companyLogo(category)}
           <div>
-            <div class="eyebrow">Company wise</div>
+            <div class="eyebrow">Company prep</div>
             <h3>${escapeHtml(category.title)}</h3>
           </div>
         </div>
@@ -1010,7 +1315,42 @@ app.get("/", (req, res) => {
         <a class="text-link" href="${escapeHtml(categoryUrl(category))}">Open company set</a>
       </article>`)
     .join("");
+  const latest = allQuestions().slice(-4).reverse().map((item) => card(item, { practiceMode: true })).join("");
+  const searchHighlights = [
+    { label: "Google", href: "/questions?q=google" },
+    { label: "Amazon", href: "/questions?q=amazon" },
+    { label: "Coding", href: "/coding" },
+    { label: "HR", href: "/questions?q=hr" },
+    { label: "Behavioral", href: "/questions?q=behavioral" },
+    { label: "Freshers", href: "/questions?q=freshers" }
+  ].map((item) => `<a href="${escapeHtml(item.href)}">${escapeHtml(item.label)}</a>`).join("");
   const guideMarkup = guides.slice(0, 3).map(guideCard).join("");
+  const laneMarkup = [
+    {
+      title: "Coding Practice",
+      text: "Solve structured coding problems with pattern filters, difficulty filters, solutions, code, and mock tests.",
+      href: "/coding",
+      cta: "Open coding lane"
+    },
+    {
+      title: "Company-Wise Prep",
+      text: "Prepare for Google, Amazon, Microsoft, TCS, Infosys, and other companies with focused interview pages.",
+      href: "/companies",
+      cta: "Browse companies"
+    },
+    {
+      title: "HR And Interview Answers",
+      text: "Use searchable question pages for HR, behavioral, technical, and general interview preparation.",
+      href: "/questions?tag=hr",
+      cta: "Open answer library"
+    }
+  ].map((item) => `
+    <a class="lane-card" href="${escapeHtml(item.href)}">
+      <span class="eyebrow">Start here</span>
+      <strong>${escapeHtml(item.title)}</strong>
+      <span>${escapeHtml(item.text)}</span>
+      <em>${escapeHtml(item.cta)}</em>
+    </a>`).join("");
   const faqMarkup = homeFaq.map((item) => `
     <article class="faq-item">
       <h3>${escapeHtml(item.question)}</h3>
@@ -1047,23 +1387,23 @@ app.get("/", (req, res) => {
     body: `
       <section class="hero">
         <div class="hero-box">
-          <span class="eyebrow">Professional interview preparation</span>
-          <h1>Interview questions built for confidence, structure, and company targeting.</h1>
-          <p>Browse software, JavaScript, React, Node.js, coding, behavioral, HR, aptitude, resume, and company-specific preparation. Everything is free for visitors, and the website is intended to earn through ads rather than locked content.</p>
+          <span class="eyebrow">Interview questions and answers</span>
+          <h1>Prepare faster with clear paths for coding, company interviews, and HR answers.</h1>
+          <p>Career Question Bank is a free interview preparation website. It has coding problems, company interview pages, HR answers, guides, progress tracking, and mock tests. The content is free for visitors and the website earns through ads.</p>
           <form class="hero-search" method="GET" action="/questions">
             <input type="text" name="q" list="search-suggestions" placeholder="Search companies, rounds, topics, or interview questions" />
             <button type="submit">Find questions</button>
           </form>
           <div class="cta">
-            <a class="btn" href="/questions">Browse all questions</a>
-            <a class="btn-alt" href="/guides">Open preparation guides</a>
+            <a class="btn" href="/coding">Start coding practice</a>
+            <a class="btn-alt" href="/companies">Browse companies</a>
           </div>
           <div class="search-shortcuts search-shortcuts-hero">
-            <a href="/questions?q=system+design">System design</a>
-            <a href="/questions?q=coding">Coding rounds</a>
-            <a href="/questions?q=sql">SQL</a>
-            <a href="/questions?q=behavioral">Behavioral</a>
-            <a href="/questions?q=debugging">Debugging</a>
+            <a href="/coding">Coding rounds</a>
+            <a href="/companies">Company-wise prep</a>
+            <a href="/questions?tag=hr">HR answers</a>
+            <a href="/guides">Preparation guides</a>
+            <a href="/progress">Progress</a>
           </div>
         </div>
         <aside class="side">
@@ -1075,30 +1415,29 @@ app.get("/", (req, res) => {
         </aside>
       </section>
       ${renderAdBlock("Top ad", ADSENSE_SLOT, "hero")}
-      <section class="section"><div><h2>Start Faster</h2><p>Jump into the most common preparation paths instead of scrolling through everything first.</p></div></section>
-      <section class="quick-start-grid">
-        <a class="quick-start-card" href="/questions?sort=company"><strong>Company-wise prep</strong><span>Browse interview sets by company and role focus.</span></a>
-        <a class="quick-start-card" href="/questions?q=coding"><strong>Coding rounds</strong><span>Practice data structures, algorithms, and problem-solving questions.</span></a>
-        <a class="quick-start-card" href="/questions?q=hr"><strong>HR and screening</strong><span>Prepare clear responses for common recruiter and HR questions.</span></a>
-        <a class="quick-start-card" href="/guides"><strong>Guides and strategy</strong><span>Use preparation guides to improve answer quality and confidence.</span></a>
-      </section>
+      <section class="section"><div><h2>Choose Your Path</h2><p>Start with one clear path so the website feels easier to use.</p></div></section>
+      <section class="lane-grid">${laneMarkup}</section>
+      <section class="section"><div><h2>Popular Search Pages</h2><p>These pages help you quickly open the topics many people search for.</p></div></section>
+      <section class="quick-start-grid">${seoLandingPages.slice(0, 6).map((item) => `
+        <a class="quick-start-card" href="${escapeHtml(`/seo/${item.slug}`)}">
+          <strong>${escapeHtml(item.heading)}</strong>
+          <span>${escapeHtml(item.description)}</span>
+        </a>`).join("")}</section>
       <section class="mini-grid">
-        <article class="strip"><strong>Structured prep</strong><span>Topic pages, company pages, guides, and detail views.</span></article>
-        <article class="strip"><strong>Searchable archive</strong><span>Filter by category, company, keyword, sort order, and page.</span></article>
-        <article class="strip"><strong>Practice ready</strong><span>Each question includes a sample answer and a practical tip.</span></article>
-        <article class="strip"><strong>Professional basics</strong><span>About, FAQ, privacy, terms, editorial policy, contact, sitemap, and clean 404 handling.</span></article>
+        <article class="strip"><strong>Free and searchable</strong><span>Everything is open and easy to search.</span></article>
+        <article class="strip"><strong>Coding and interview prep</strong><span>Practice coding, company questions, and HR answers in one place.</span></article>
+        <article class="strip"><strong>Progress and mock tests</strong><span>Track weak areas and use timed practice sessions.</span></article>
+        <article class="strip"><strong>Search-friendly structure</strong><span>The site is organized in a way that search engines can understand more easily.</span></article>
       </section>
-      <section class="section"><div><h2>Topic Categories</h2><p>Foundation questions for technical, behavioral, HR, coding, and preparation topics.</p></div></section>
-      <section class="grid">${categories}</section>
-      <section class="section"><div><h2>Featured Companies</h2><p>Company-wise interview sets with local branding and focused preparation themes.</p></div><a class="text-link" href="/questions?sort=company">View all company questions</a></section>
-      <section class="company-grid">${companies}</section>
+      <section class="section"><div><h2>Featured Companies</h2><p>Go directly into company-wise preparation pages with focused interview themes.</p></div><a class="text-link" href="/companies">View all companies</a></section>
+      <section class="company-grid">${companyFeatured}</section>
       ${renderAdBlock("Company section ad", ADSENSE_SLOT_SECONDARY, "in-content")}
-      <section class="section"><div><h2>Preparation Guides</h2><p>Practical prep guides that make the site more useful than a plain question list.</p></div><a class="text-link" href="/guides">Open all guides</a></section>
+      <section class="section"><div><h2>Coding Highlights</h2><p>Representative coding problems with detailed solutions and JavaScript code.</p></div><a class="text-link" href="/coding">Open coding lane</a></section>
+      <section class="grid">${codingFeatured}</section>
+      <section class="section"><div><h2>Preparation Guides</h2><p>Practical guides for coding rounds, HR interviews, company prep, resume alignment, and aptitude.</p></div><a class="text-link" href="/guides">Open all guides</a></section>
       <section class="grid">${guideMarkup}</section>
       ${renderAdBlock("Guide section ad", ADSENSE_SLOT, "in-content")}
-      <section class="section"><div><h2>Featured Questions</h2><p>Representative prompts that route users into detailed answer pages.</p></div></section>
-      <section class="grid">${featured}</section>
-      <section class="section"><div><h2>Latest Questions</h2><p>Recently added or recently surfaced questions in practice mode.</p></div></section>
+      <section class="section"><div><h2>Latest Questions</h2><p>New or recently surfaced practice pages from across the site.</p></div></section>
       <section class="grid">${latest}</section>
       <section class="section"><div><h2>Frequently Asked Questions</h2><p>Short guidance on how to use the library professionally.</p></div><a class="text-link" href="/faq">View all FAQ</a></section>
       <section class="faq-list">${faqMarkup}</section>`
@@ -1112,12 +1451,14 @@ app.get("/questions", (req, res) => {
   const tag = req.query.tag || "";
   const coding = req.query.coding === "1";
   const pattern = req.query.pattern || "";
+  const difficulty = req.query.difficulty || "";
   const reveal = req.query.reveal === "1";
   const pageNumber = Number.parseInt(req.query.page || "1", 10);
-  const results = searchQuestions(q, category, sort, tag, coding, pattern);
+  const results = searchQuestions(q, category, sort, tag, coding, pattern, difficulty);
   const options = questionBank.map((item) => `<option value="${escapeHtml(item.slug)}" ${item.slug === category ? "selected" : ""}>${escapeHtml(item.title)}</option>`).join("");
   const tagSelectOptions = tagOptions.map((item) => `<option value="${escapeHtml(item.value)}" ${item.value === tag ? "selected" : ""}>${escapeHtml(item.label)}</option>`).join("");
   const patternSelectOptions = codingPatternOptions.map((item) => `<option value="${escapeHtml(item.value)}" ${item.value === pattern ? "selected" : ""}>${escapeHtml(item.label)}</option>`).join("");
+  const difficultySelectOptions = difficultyOptions.map((item) => `<option value="${escapeHtml(item.value)}" ${item.value === difficulty ? "selected" : ""}>${escapeHtml(item.label)}</option>`).join("");
   const sortOptions = [
     { value: "latest", label: "Latest" },
     { value: "alpha", label: "Alphabetical" },
@@ -1125,14 +1466,18 @@ app.get("/questions", (req, res) => {
     { value: "company", label: "Company" }
   ].map((item) => `<option value="${item.value}" ${item.value === sort ? "selected" : ""}>${item.label}</option>`).join("");
   const pageState = paginate(results, pageNumber, 12);
-  const archiveTitle = q
-    ? `${String(q).trim()} Interview Questions and Answers`
-    : category
-      ? `${(byCategory(category) || {}).title || "Category"} Interview Questions and Answers`
-      : "All Interview Questions and Answers";
+  const archiveTitle = coding
+    ? `${pattern || difficulty || "Coding"} Interview Questions and Solutions`
+    : q
+      ? `${String(q).trim()} Interview Questions and Answers`
+      : category
+        ? `${(byCategory(category) || {}).title || "Category"} Interview Questions and Answers`
+        : "All Interview Questions and Answers";
   const archiveDescription = q
     ? `Search results for ${String(q).trim()} interview questions and answers across company-wise, coding, HR, behavioral, and technical preparation pages.`
-    : "Browse all interview questions and answers with category filters, company-wise pages, coding interview prep, and HR interview practice.";
+    : coding
+      ? "Browse coding interview questions with solutions, JavaScript code, pattern filters, difficulty filters, and practice-friendly navigation."
+      : "Browse all interview questions and answers with category filters, company-wise pages, coding interview prep, and HR interview practice.";
   const list = pageState.pageItems.length
     ? pageState.pageItems.map((item) => card(item, { practiceMode: !reveal })).join("")
     : `<article class="panel"><h3>No matching questions found.</h3><p>Try a broader keyword or clear the category filter.</p></article>`;
@@ -1174,16 +1519,20 @@ app.get("/questions", (req, res) => {
           <select name="category"><option value="">All categories</option>${options}</select>
           <select name="tag">${tagSelectOptions}</select>
           <select name="pattern">${patternSelectOptions}</select>
+          <select name="difficulty">${difficultySelectOptions}</select>
           <select name="sort">${sortOptions}</select>
           <button type="submit">Search</button>
           <input type="hidden" name="coding" value="${coding ? "1" : "0"}" />
           <input type="hidden" name="reveal" value="${reveal ? "1" : "0"}" />
         </form>
         <div class="search-shortcuts">
-          <a href="${escapeHtml(buildQuery("/questions", { q, category, tag, sort, coding: coding ? 1 : 0, pattern, reveal: reveal ? 0 : 1 }))}">${reveal ? "Enable practice mode" : "Reveal answer previews"}</a>
-          <a href="${escapeHtml(buildQuery("/questions", { coding: coding ? 0 : 1, q, category, tag, sort, pattern, reveal: reveal ? 1 : 0 }))}">${coding ? "Show all question types" : "Coding mode"}</a>
+          <a href="${escapeHtml(buildQuery("/questions", { q, category, tag, sort, coding: coding ? 1 : 0, pattern, difficulty, reveal: reveal ? 0 : 1 }))}">${reveal ? "Enable practice mode" : "Reveal answer previews"}</a>
+          <a href="${escapeHtml(buildQuery("/questions", { coding: coding ? 0 : 1, q, category, tag, sort, pattern, difficulty, reveal: reveal ? 1 : 0 }))}">${coding ? "Show all question types" : "Coding mode"}</a>
           <a href="/questions?tag=company">Company prep</a>
           <a href="/questions?tag=coding&coding=1">Coding</a>
+          <a href="/questions?coding=1&difficulty=Easy">Easy coding</a>
+          <a href="/questions?coding=1&difficulty=Medium">Medium coding</a>
+          <a href="/questions?coding=1&difficulty=Hard">Hard coding</a>
           <a href="/questions?coding=1&pattern=Dynamic+Programming">Dynamic programming</a>
           <a href="/questions?coding=1&pattern=Graph%2FBFS">Graph/BFS</a>
           <a href="/questions?tag=behavioral">Behavioral</a>
@@ -1195,6 +1544,7 @@ app.get("/questions", (req, res) => {
           <span>${questionBank.length} searchable sections</span>
           <span>${escapeHtml(tag ? formatTag(tag) : "All rounds")}</span>
           <span>${escapeHtml(pattern || "All coding patterns")}</span>
+          <span>${escapeHtml(difficulty || "All difficulty levels")}</span>
           <span>${coding ? "Coding mode on" : "Mixed interview mode"}</span>
           <span>${reveal ? "Answer preview mode on" : "Practice mode on"}</span>
         </div>
@@ -1203,17 +1553,370 @@ app.get("/questions", (req, res) => {
       <section class="section"><div><h2>${results.length} results found</h2><p>Page ${pageState.currentPage} of ${pageState.totalPages}. Last content update: ${escapeHtml(formatDate(dataUpdatedAt))}.</p></div></section>
       <section class="stack">${list}</section>
       ${renderAdBlock("Archive lower ad", ADSENSE_SLOT_SECONDARY, "archive-bottom")}
-      ${paginationLinks("/questions", pageState.currentPage, pageState.totalPages, { q, category, tag, sort, coding: coding ? 1 : 0, pattern, reveal: reveal ? 1 : 0 })}`
+      ${paginationLinks("/questions", pageState.currentPage, pageState.totalPages, { q, category, tag, sort, coding: coding ? 1 : 0, pattern, difficulty, reveal: reveal ? 1 : 0 })}`
   }));
 });
 
 app.get("/coding", (req, res) => {
-  const query = new URLSearchParams();
-  query.set("coding", "1");
-  query.set("tag", "coding");
-  if (req.query.pattern) query.set("pattern", String(req.query.pattern));
-  if (req.query.q) query.set("q", String(req.query.q));
-  res.redirect(`/questions?${query.toString()}`);
+  const { codingItems, byPattern, byDifficulty } = codingLandingData();
+  const patternCards = Object.entries(byPattern)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8)
+    .map(([pattern, count]) => {
+      const patternKeys = codingItems
+        .filter((item) => (item.patterns || []).includes(pattern))
+        .map((item) => `${item.categorySlug}/${item.slug}`)
+        .join("|");
+      return `
+      <a class="quick-start-card" data-pattern-name="${escapeHtml(pattern)}" data-pattern-keys="${escapeHtml(patternKeys)}" href="${escapeHtml(buildQuery("/questions", { coding: 1, tag: "coding", pattern }))}">
+        <strong>${escapeHtml(pattern)}</strong>
+        <span>${count} coding problems with solutions and JavaScript code.</span>
+        <span class="progress-track"><span class="progress-bar" data-pattern-bar style="width: 0%"></span></span>
+        <span data-pattern-stats>0 solved • ${count} remaining</span>
+      </a>`;
+    })
+    .join("");
+  const difficultyCards = difficultyOptions
+    .filter((item) => item.value)
+    .map((item) => `
+      <a class="card" href="${escapeHtml(buildQuery("/questions", { coding: 1, tag: "coding", difficulty: item.value }))}">
+        <div class="eyebrow">Difficulty</div>
+        <h3>${escapeHtml(item.label)}</h3>
+        <p>${escapeHtml(`${byDifficulty[item.value] || 0} coding problems currently available.`)}</p>
+      </a>`)
+    .join("");
+  const featuredCoding = codingItems.slice(0, 6).map((item) => card(item, { practiceMode: true })).join("");
+  const companyPrep = topCodingCompanyLinks()
+    .map((item) => `
+      <a class="quick-start-card" href="${escapeHtml(`/coding/company/${item.slug}`)}">
+        <strong>${escapeHtml(item.companyName)}</strong>
+        <span>${escapeHtml(item.roleFocus || "Company coding and technical interview preparation.")}</span>
+      </a>`)
+    .join("");
+  const mustKnowCards = codingItems.filter((item) => item.mustKnow).slice(0, 6).map((item) => card(item, { practiceMode: true })).join("");
+
+  res.send(page({
+    title: "Coding Interview Questions and Solutions",
+    description: "Practice coding interview questions by pattern and difficulty with detailed solutions, JavaScript reference code, and coding-focused navigation.",
+    canonicalPath: "/coding",
+    siteUrl: res.locals.siteUrl,
+    structuredData: [
+      webPageSchema({
+        title: "Coding Interview Questions and Solutions",
+        description: "Practice coding interview questions by pattern and difficulty with detailed solutions, JavaScript reference code, and coding-focused navigation.",
+        siteUrl: res.locals.siteUrl,
+        path: "/coding",
+        type: "CollectionPage"
+      }),
+      breadcrumbSchema([
+        { label: "Home", href: "/" },
+        { label: "Coding", href: "/coding" }
+      ], res.locals.siteUrl),
+      itemListSchema({
+        title: "Coding Interview Questions and Solutions",
+        description: "Coding interview problem archive by pattern and difficulty.",
+        siteUrl: res.locals.siteUrl,
+        pagePath: "/coding",
+        items: codingItems.slice(0, 20).map((item) => ({
+          name: item.question,
+          url: questionUrl(item.categorySlug, item.slug)
+        }))
+      })
+    ],
+    authLinks: navAuthMarkup(req.currentUser),
+    breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Coding" }]),
+    body: `
+      <section class="detail">
+        <div class="eyebrow">Coding Prep</div>
+        <h1>Coding Interview Questions</h1>
+        <p>Use the coding library as a focused practice product: browse by pattern, filter by difficulty, read the step-by-step solution, then compare against the JavaScript reference implementation.</p>
+        <div class="meta">
+          <span>${codingItems.length} coding problems</span>
+          <span>${Object.keys(byPattern).length} patterns</span>
+          <span>Detailed solutions + code</span>
+        </div>
+        <div class="meta" data-coding-stats></div>
+        <div class="cta">
+          <a class="btn" href="/questions?coding=1&tag=coding">Open coding archive</a>
+          <a class="btn-alt" href="/questions?coding=1&difficulty=Medium">Start with medium problems</a>
+          <a class="btn-alt" href="/coding/mock-test">Start mock test</a>
+        </div>
+      </section>
+      ${renderAdBlock("Coding section ad", ADSENSE_SLOT, "archive-top")}
+      <section class="section"><div><h2>Browse By Pattern</h2><p>Jump into the most-used interview problem families first.</p></div></section>
+      <section class="quick-start-grid">${patternCards}</section>
+      <section class="section"><div><h2>Weak-Area Recommendations</h2><p>These update from the problems you mark for revision, so the coding page starts pushing you toward the patterns that need more work.</p></div></section>
+      <section class="panel"><div class="pill-row" data-weak-areas><span>No weak areas yet. Mark problems for revision to get recommendations.</span></div></section>
+      <section class="section"><div><h2>Browse By Difficulty</h2><p>Control the pace of practice instead of mixing easy and hard problems randomly.</p></div></section>
+      <section class="grid">${difficultyCards}</section>
+      <section class="section"><div><h2>Company Coding Prep</h2><p>Use company pages alongside the coding archive when you want mixed technical and behavioral preparation.</p></div></section>
+      <section class="quick-start-grid">${companyPrep}</section>
+      <section class="section"><div><h2>Must-Know Problems</h2><p>These are the core problems worth practicing until your explanation and code feel natural.</p></div></section>
+      <section class="stack">${mustKnowCards}</section>
+      ${renderAdBlock("Coding lower ad", ADSENSE_SLOT_SECONDARY, "archive-bottom")}
+      <section class="section"><div><h2>Featured Coding Problems</h2><p>Representative problems with solution writeups and code-ready detail pages.</p></div></section>
+      <section class="stack">${featuredCoding}</section>`
+  }));
+});
+
+app.get("/coding/mock-test", (req, res) => {
+  const { codingItems } = codingLandingData();
+  const preset = String(req.query.preset || "thirty");
+  const presetSeconds = {
+    thirty: 1800,
+    sixty: 3600,
+    "faang-medium": 2700
+  };
+  const presetLabels = {
+    thirty: "30 min core set",
+    sixty: "60 min extended set",
+    "faang-medium": "FAANG medium set"
+  };
+  const mockSet = mockPresetSet(codingItems, preset);
+  const mockList = mockSet.map((item, index) => `
+    <article class="card">
+      <div class="eyebrow">Problem ${index + 1}</div>
+      <h3>${escapeHtml(item.question)}</h3>
+      <div class="coding-meta">
+        ${item.difficulty ? `<span class="coding-badge">${escapeHtml(item.difficulty)}</span>` : ""}
+        ${(item.patterns || []).slice(0, 2).map((pattern) => `<span class="coding-badge">${escapeHtml(pattern)}</span>`).join("")}
+        ${item.estimatedMinutes ? `<span class="coding-badge">${escapeHtml(`${item.estimatedMinutes} min`)}</span>` : ""}
+      </div>
+      <p>Try solving it first without opening the detail page. Then compare with the guided solution and code.</p>
+      <a class="text-link" href="${escapeHtml(questionUrl(item.categorySlug, item.slug))}">Open problem</a>
+    </article>`).join("");
+
+  res.send(page({
+    title: "Coding Mock Test",
+    description: "Timed coding mock test with a curated set of medium and hard interview problems.",
+    canonicalPath: "/coding/mock-test",
+    siteUrl: res.locals.siteUrl,
+    structuredData: [
+      webPageSchema({
+        title: "Coding Mock Test",
+        description: "Timed coding mock test with a curated set of medium and hard interview problems.",
+        siteUrl: res.locals.siteUrl,
+        path: "/coding/mock-test",
+        type: "CollectionPage"
+      }),
+      breadcrumbSchema([
+        { label: "Home", href: "/" },
+        { label: "Coding", href: "/coding" },
+        { label: "Mock Test", href: "/coding/mock-test" }
+      ], res.locals.siteUrl)
+    ],
+    authLinks: navAuthMarkup(req.currentUser),
+    breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Coding", href: "/coding" }, { label: "Mock Test" }]),
+    body: `
+      <section class="detail">
+        <div class="eyebrow">Timed Practice</div>
+        <h1>Coding Mock Test</h1>
+        <p>Use this set for a focused timed session. Start the timer, solve the problems in order, then review the detailed solutions and JavaScript code after you finish.</p>
+        <div class="pill-row">
+          <a href="/coding/mock-test?preset=thirty">${escapeHtml(presetLabels.thirty)}</a>
+          <a href="/coding/mock-test?preset=sixty">${escapeHtml(presetLabels.sixty)}</a>
+          <a href="/coding/mock-test?preset=faang-medium">${escapeHtml(presetLabels["faang-medium"])}</a>
+        </div>
+        <div class="mock-timer-box">
+          <strong data-mock-timer>30:00</strong>
+          <div class="cta">
+            <button type="button" class="btn" data-mock-start data-seconds="${presetSeconds[preset] || 1800}">Start ${escapeHtml(presetLabels[preset] || presetLabels.thirty)}</button>
+            <button type="button" class="btn-alt" data-mock-pause>Resume later</button>
+            <button type="button" class="btn-alt" data-mock-finish>Finish session</button>
+          </div>
+        </div>
+      </section>
+      <section class="stack">${mockList}</section>`
+  }));
+});
+
+app.get("/coding/company/:slug", (req, res) => {
+  const company = byCategory(req.params.slug);
+  if (!company || company.kind !== "company") {
+    return res.status(404).send(notFoundPage("Coding company page not found", "The coding company collection you requested does not exist.", req.currentUser));
+  }
+
+  const codingItems = codingCollectionForCompany(company.companyName || company.title);
+  const cards = codingItems.length
+    ? codingItems.map((item) => card(item, { practiceMode: true })).join("")
+    : `<article class="panel"><h3>No coding collection found.</h3><p>Try the main coding archive or the company interview page.</p></article>`;
+
+  res.send(page({
+    title: `${company.companyName || company.title} Coding Interview Collection`,
+    description: `Coding interview preparation collection for ${company.companyName || company.title} with curated problems, solutions, and JavaScript reference code.`,
+    canonicalPath: `/coding/company/${company.slug}`,
+    siteUrl: res.locals.siteUrl,
+    structuredData: [
+      webPageSchema({
+        title: `${company.companyName || company.title} Coding Interview Collection`,
+        description: `Coding interview preparation collection for ${company.companyName || company.title} with curated problems, solutions, and JavaScript reference code.`,
+        siteUrl: res.locals.siteUrl,
+        path: `/coding/company/${company.slug}`,
+        type: "CollectionPage"
+      }),
+      breadcrumbSchema([
+        { label: "Home", href: "/" },
+        { label: "Coding", href: "/coding" },
+        { label: company.companyName || company.title, href: `/coding/company/${company.slug}` }
+      ], res.locals.siteUrl)
+    ],
+    authLinks: navAuthMarkup(req.currentUser),
+    breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Coding", href: "/coding" }, { label: company.companyName || company.title }]),
+    body: `
+      <section class="detail">
+        <div class="detail-head">
+          ${companyLogo(company)}
+          <div>
+            <div class="eyebrow">Company Coding Set</div>
+            <h1>${escapeHtml(company.companyName || company.title)} Coding Interview Collection</h1>
+          </div>
+        </div>
+        <p>Use this set when you want focused coding practice with a company lens. It mixes must-know problems and patterns commonly associated with this company’s technical rounds.</p>
+        <div class="meta">
+          <span>${codingItems.length} curated coding problems</span>
+          <span>${escapeHtml(company.roleFocus || "Technical interview preparation")}</span>
+        </div>
+        <div class="cta">
+          <a class="btn" href="${escapeHtml(categoryUrl(company))}">Open company interview page</a>
+          <a class="btn-alt" href="${escapeHtml(buildQuery("/questions", { coding: 1, q: company.companyName || company.title }))}">Search coding archive</a>
+        </div>
+      </section>
+      <section class="stack">${cards}</section>`
+  }));
+});
+
+app.get("/companies", (req, res) => {
+  const companies = companyCategories()
+    .map((category) => `
+      <article class="company-card">
+        <div class="company-head">
+          ${companyLogo(category)}
+          <div>
+            <div class="eyebrow">Company interview prep</div>
+            <h3>${escapeHtml(category.title)}</h3>
+          </div>
+        </div>
+        <p>${escapeHtml(category.summary)}</p>
+        <div class="meta">
+          <span>${category.questions.length} questions</span>
+          <span>${escapeHtml(category.roleFocus || "Interview preparation")}</span>
+        </div>
+        <div class="cta">
+          <a class="btn" href="${escapeHtml(categoryUrl(category))}">Open company page</a>
+          <a class="btn-alt" href="${escapeHtml(`/coding/company/${category.slug}`)}">Coding collection</a>
+        </div>
+      </article>`)
+    .join("");
+
+  res.send(page({
+    title: "Company-Wise Interview Questions and Answers",
+    description: "Browse company-wise interview questions and answers with focused preparation pages for Google, Amazon, Microsoft, TCS, Infosys, and more.",
+    canonicalPath: "/companies",
+    siteUrl: res.locals.siteUrl,
+    structuredData: [
+      webPageSchema({
+        title: "Company-Wise Interview Questions and Answers",
+        description: "Browse company-wise interview questions and answers with focused preparation pages for top companies.",
+        siteUrl: res.locals.siteUrl,
+        path: "/companies",
+        type: "CollectionPage"
+      }),
+      breadcrumbSchema([
+        { label: "Home", href: "/" },
+        { label: "Companies", href: "/companies" }
+      ], res.locals.siteUrl),
+      itemListSchema({
+        title: "Company-Wise Interview Questions and Answers",
+        description: "Company interview preparation pages.",
+        siteUrl: res.locals.siteUrl,
+        pagePath: "/companies",
+        items: companyCategories().slice(0, 30).map((category) => ({
+          name: category.title,
+          url: categoryUrl(category)
+        }))
+      })
+    ],
+    authLinks: navAuthMarkup(req.currentUser),
+    breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Companies" }]),
+    body: `
+      <section class="detail">
+        <div class="eyebrow">Company-Wise Prep</div>
+        <h1>Company Interview Questions And Answers</h1>
+        <p>Use these pages to prepare for company-specific interview themes, role fit questions, technical rounds, and related coding collections.</p>
+        <div class="meta">
+          <span>${companyCategories().length} companies</span>
+          <span>Interview + coding collections</span>
+          <span>Free access</span>
+        </div>
+      </section>
+      <section class="company-grid">${companies}</section>`
+  }));
+});
+
+app.get("/seo/:slug", (req, res) => {
+  const landing = seoLandingPages.find((item) => item.slug === req.params.slug);
+  if (!landing) {
+    return res.status(404).send(notFoundPage("SEO page not found", "The landing page you requested does not exist.", req.currentUser));
+  }
+
+  const results = searchQuestions(landing.query, "", landing.slug.includes("coding") ? "latest" : "company", landing.slug.includes("hr") ? "hr" : landing.slug.includes("coding") ? "coding" : "", landing.slug.includes("coding"), "", "");
+  const cards = results.slice(0, 12).map((item) => card(item, { practiceMode: true })).join("");
+  const relatedLinks = landing.links
+    .map((href) => `<a href="${escapeHtml(href)}">${escapeHtml(href.replace(/^\//, "").replace(/-/g, " "))}</a>`)
+    .join("");
+
+  res.send(page({
+    title: landing.title,
+    description: landing.description,
+    canonicalPath: `/seo/${landing.slug}`,
+    siteUrl: res.locals.siteUrl,
+    structuredData: [
+      webPageSchema({
+        title: landing.title,
+        description: landing.description,
+        siteUrl: res.locals.siteUrl,
+        path: `/seo/${landing.slug}`,
+        type: "CollectionPage"
+      }),
+      breadcrumbSchema([
+        { label: "Home", href: "/" },
+        { label: landing.heading, href: `/seo/${landing.slug}` }
+      ], res.locals.siteUrl),
+      itemListSchema({
+        title: landing.title,
+        description: landing.description,
+        siteUrl: res.locals.siteUrl,
+        pagePath: `/seo/${landing.slug}`,
+        items: results.slice(0, 20).map((item) => ({
+          name: item.question,
+          url: questionUrl(item.categorySlug, item.slug)
+        }))
+      })
+    ],
+    authLinks: navAuthMarkup(req.currentUser),
+    breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: landing.heading }]),
+    body: `
+      <section class="detail">
+        <div class="eyebrow">Focused interview landing page</div>
+        <h1>${escapeHtml(landing.heading)}</h1>
+        <p>${escapeHtml(landing.intro)}</p>
+        <div class="meta">
+          <span>${results.length} related questions</span>
+          <span>Search intent focused</span>
+          <span>Free interview prep</span>
+        </div>
+        <div class="cta">
+          <a class="btn" href="${escapeHtml(buildQuery("/questions", { q: landing.query, coding: landing.slug.includes("coding") ? 1 : 0, tag: landing.slug.includes("hr") ? "hr" : landing.slug.includes("coding") ? "coding" : "" }))}">Open full results</a>
+          <a class="btn-alt" href="/coding">Open coding lane</a>
+        </div>
+      </section>
+      <section class="panel">
+        <h3>Related prep links</h3>
+        <div class="pill-row">${relatedLinks}</div>
+      </section>
+      <section class="section"><div><h2>${escapeHtml(landing.heading)} Pages</h2><p>${escapeHtml(landing.description)}</p></div></section>
+      <section class="stack">${cards}</section>`
+  }));
 });
 
 app.get("/category/:slug", (req, res) => {
@@ -1406,9 +2109,24 @@ app.get("/question/:categorySlug/:questionSlug", (req, res) => {
       <section class="coding-summary">
         ${detailDifficulty ? `<span class="coding-badge">${escapeHtml(detailDifficulty)}</span>` : ""}
         ${detailPatterns.map((pattern) => `<span class="coding-badge">${escapeHtml(pattern)}</span>`).join("")}
+        ${match.question.companyTags ? "" : ""}
+        ${(codingCompanyTags({
+          question: match.question.question,
+          answer: match.question.answer,
+          solution: match.question.solution || "",
+          categoryTitle: match.category.title,
+          companyName: match.category.companyName || ""
+        }) || []).map((name) => `<span class="coding-badge coding-badge-muted">${escapeHtml(name)}</span>`).join("")}
+        ${codingEstimatedMinutes({ isCoding, difficulty: detailDifficulty }) ? `<span class="coding-badge">${escapeHtml(`${codingEstimatedMinutes({ isCoding, difficulty: detailDifficulty })} min`)}</span>` : ""}
+        ${isMustKnowProblem({ isCoding, question: match.question.question, answer: match.question.answer, solution: match.question.solution || "" }) ? `<span class="coding-badge coding-badge-warm">Must know</span>` : ""}
         ${match.question.solution ? `<span class="coding-badge">Detailed solution</span>` : ""}
         ${match.question.code ? `<span class="coding-badge">JavaScript code</span>` : ""}
       </section>`
+    : "";
+  const codingCompanyPrep = isCoding
+    ? topCodingCompanyLinks(4)
+        .map((item) => `<a href="${escapeHtml(`/coding/company/${item.slug}`)}">${escapeHtml(item.companyName)}</a>`)
+        .join("")
     : "";
   const relatedGuides = guides.slice(0, 2).map(guideCard).join("");
   const answerId = `answer-${match.category.slug}-${match.question.slug}`;
@@ -1494,6 +2212,7 @@ app.get("/question/:categorySlug/:questionSlug", (req, res) => {
           <p id="${escapeHtml(answerId)}">${escapeHtml(match.question.answer)}</p>
         </div>
         ${detailedAnswerMarkup(match.category, match.question)}
+        ${isCoding ? `<div class="answer-box"><h3>Company Practice Links</h3><div class="pill-row">${codingCompanyPrep}</div></div>` : ""}
         ${renderAdBlock("Question detail ad", ADSENSE_SLOT_SECONDARY, "detail-inline")}
         <div class="cta">
           <a class="btn" href="${escapeHtml(categoryUrl(match.category))}">More ${escapeHtml(match.category.title)} questions</a>
@@ -2376,6 +3095,8 @@ app.get("/sitemap.xml", (req, res) => {
   const urls = [
     "/",
     "/questions",
+    "/coding",
+    "/companies",
     "/guides",
     "/about",
     "/faq",
@@ -2385,6 +3106,7 @@ app.get("/sitemap.xml", (req, res) => {
     "/editorial-policy",
     "/ad-disclosure",
     "/contact",
+    ...seoLandingPages.map((item) => `/seo/${item.slug}`),
     ...guides.map((guide) => guideUrl(guide)),
     ...questionBank.map((category) => categoryUrl(category)),
     ...questionBank.flatMap((category) => category.questions.map((question) => questionUrl(category.slug, question.slug)))
