@@ -355,6 +355,13 @@ function guideUrl(guide) {
   return `/guide/${guide.slug}`;
 }
 
+function guideImage(guide) {
+  const slug = String(guide.slug || "");
+  if (slug.includes("coding")) return "/public/coding-scene.svg";
+  if (slug.includes("company")) return "/public/company-scene.svg";
+  return "/public/guides-scene.svg";
+}
+
 function paginate(items, page, pageSize) {
   const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
   const currentPage = Math.min(Math.max(1, page), totalPages);
@@ -956,6 +963,7 @@ function card(item, options = {}) {
 function guideCard(guide) {
   return `
     <article class="card">
+      <img class="guide-thumb" src="${escapeHtml(guideImage(guide))}" alt="${escapeHtml(guide.title)}" />
       <div class="eyebrow">Preparation guide</div>
       <h3>${escapeHtml(guide.title)}</h3>
       <p>${escapeHtml(guide.summary)}</p>
@@ -1797,6 +1805,7 @@ app.get("/coding", (req, res) => {
             </div>
           </div>
           <aside class="hero-side-card">
+            <img class="hero-side-illustration" src="/public/coding-scene.svg" alt="Coding interview practice" />
             <div class="metric-grid-modern">
               <div class="metric-card"><span>Problems</span><strong>${codingItems.length}</strong></div>
               <div class="metric-card"><span>Patterns</span><strong>${Object.keys(byPattern).length}</strong></div>
@@ -2031,6 +2040,7 @@ app.get("/companies", (req, res) => {
             </div>
           </div>
           <aside class="hero-side-card">
+            <img class="hero-side-illustration" src="/public/company-scene.svg" alt="Company interview preparation" />
             <div class="metric-grid-modern">
               <div class="metric-card"><span>Companies</span><strong>${companyCategories().length}</strong></div>
               <div class="metric-card"><span>Access</span><strong>Free</strong></div>
@@ -2501,10 +2511,27 @@ app.get("/guides", (req, res) => {
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Guides" }]),
     body: `
-      <section class="detail">
-        <div class="eyebrow">Guides</div>
-        <h1>Preparation guides that make the site more useful.</h1>
-        <p>These pages turn the question archive into a fuller interview preparation website by helping candidates practice with better structure. The content stays free for users and can be monetized through ad placements around the content.</p>
+      <section class="page-hero-modern">
+        <div class="page-hero-grid">
+          <div class="page-hero-copy">
+            <div class="eyebrow">Guides</div>
+            <h1>Preparation guides that make the website easier and more useful.</h1>
+            <p>These pages turn the question archive into a fuller interview preparation website by helping candidates practice with better structure. The content stays free for users and can be monetized through ad placements around the content.</p>
+            <div class="cta">
+              <a class="btn" href="/questions">Open question archive</a>
+              <a class="btn-alt" href="/coding">Open coding lane</a>
+            </div>
+          </div>
+          <aside class="hero-side-card">
+            <img class="hero-side-illustration" src="/public/guides-scene.svg" alt="Interview preparation guides" />
+            <div class="metric-grid-modern">
+              <div class="metric-card"><span>Guides</span><strong>${guides.length}</strong></div>
+              <div class="metric-card"><span>Style</span><strong>Practical</strong></div>
+              <div class="metric-card"><span>Access</span><strong>Free</strong></div>
+              <div class="metric-card"><span>Use</span><strong>Daily</strong></div>
+            </div>
+          </aside>
+        </div>
       </section>
       ${renderAdBlock("Guides ad", ADSENSE_SLOT_SECONDARY, "guides-top")}
       <section class="grid">${guides.map(guideCard).join("")}</section>`
@@ -2539,12 +2566,19 @@ app.get("/guide/:slug", (req, res) => {
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Guides", href: "/guides" }, { label: guide.title }]),
     body: `
-      <section class="detail">
-        <div class="eyebrow">Preparation guide</div>
-        <h1>${escapeHtml(guide.title)}</h1>
-        <p>${escapeHtml(guide.summary)}</p>
-        <div class="answer-box">${bodyMarkup}</div>
-      </section>`
+      <section class="page-hero-modern">
+        <div class="page-hero-grid">
+          <div class="page-hero-copy">
+            <div class="eyebrow">Preparation guide</div>
+            <h1>${escapeHtml(guide.title)}</h1>
+            <p>${escapeHtml(guide.summary)}</p>
+          </div>
+          <aside class="hero-side-card">
+            <img class="hero-side-illustration" src="${escapeHtml(guideImage(guide))}" alt="${escapeHtml(guide.title)}" />
+          </aside>
+        </div>
+      </section>
+      <section class="reading-panel">${bodyMarkup}</section>`
   }));
 });
 

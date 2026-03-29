@@ -1252,6 +1252,25 @@ footer {
   padding: 20px;
 }
 
+.hero-side-illustration,
+.guide-thumb {
+  display: block;
+  width: 100%;
+  object-fit: cover;
+  border-radius: 22px;
+  border: 1px solid rgba(31, 111, 255, 0.12);
+  background: linear-gradient(180deg, #fff, #f6faff);
+}
+
+.hero-side-illustration {
+  margin-bottom: 16px;
+}
+
+.guide-thumb {
+  margin-bottom: 16px;
+  aspect-ratio: 16 / 10;
+}
+
 .metric-grid-modern {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
