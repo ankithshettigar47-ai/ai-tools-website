@@ -1048,6 +1048,11 @@ function page({
     <meta name="twitter:image" content="${escapeHtml(absoluteUrl(resolvedSiteUrl, "/public/brand.svg"))}" />
     <link rel="canonical" href="${escapeHtml(canonicalUrl)}" />
     <link rel="icon" type="image/svg+xml" href="/public/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
     <link rel="stylesheet" href="/public/styles.css" />
     ${ADSENSE_CLIENT ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${escapeHtml(ADSENSE_CLIENT)}" crossorigin="anonymous"></script>` : ""}
     ${schemaMarkup}
@@ -1269,6 +1274,7 @@ function page({
         }
       }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   </body>
   </html>`;
 }
@@ -1316,6 +1322,9 @@ app.get("/", (req, res) => {
       </article>`)
     .join("");
   const latest = allQuestions().slice(-4).reverse().map((item) => card(item, { practiceMode: true })).join("");
+  const totalQuestionCount = allQuestions().length;
+  const totalCompanyCount = companyCategories().length;
+  const totalGuideCount = guides.length;
   const searchHighlights = [
     { label: "Google", href: "/questions?q=google" },
     { label: "Amazon", href: "/questions?q=amazon" },
@@ -1345,11 +1354,80 @@ app.get("/", (req, res) => {
       cta: "Open answer library"
     }
   ].map((item) => `
-    <a class="lane-card" href="${escapeHtml(item.href)}">
+    <a class="lane-card home-lane-card" href="${escapeHtml(item.href)}">
       <span class="eyebrow">Start here</span>
       <strong>${escapeHtml(item.title)}</strong>
       <span>${escapeHtml(item.text)}</span>
       <em>${escapeHtml(item.cta)}</em>
+    </a>`).join("");
+  const logoStrip = companyCategories().slice(0, 8).map((category) => `
+    <a class="trusted-logo" href="${escapeHtml(categoryUrl(category))}" aria-label="${escapeHtml(category.title)} interview questions">
+      <img src="${escapeHtml(category.logo || "/public/brand.svg")}" alt="${escapeHtml(category.title)} logo" />
+      <span>${escapeHtml(category.companyName || category.title)}</span>
+    </a>`).join("");
+  const featuredTopicCards = [
+    {
+      title: "Coding Practice Hub",
+      text: "Pattern-wise coding problems, difficulty filters, JavaScript solutions, and timed mock tests.",
+      href: "/coding",
+      badge: "Popular",
+      icon: "bi-code-slash"
+    },
+    {
+      title: "Top Company Tracks",
+      text: "Google, Amazon, Microsoft, Meta, TCS, Infosys, Apple, Stripe, Uber, and many more.",
+      href: "/companies",
+      badge: "Companies",
+      icon: "bi-buildings"
+    },
+    {
+      title: "HR And Behavioral Answers",
+      text: "Simple-English sample answers with tips on how to speak clearly in interviews.",
+      href: "/questions?tag=hr",
+      badge: "Ready to use",
+      icon: "bi-chat-quote"
+    }
+  ].map((item) => `
+    <a class="feature-showcase-card" href="${escapeHtml(item.href)}">
+      <div class="feature-showcase-icon"><i class="bi ${escapeHtml(item.icon)}"></i></div>
+      <div class="feature-showcase-copy">
+        <span class="feature-badge">${escapeHtml(item.badge)}</span>
+        <strong>${escapeHtml(item.title)}</strong>
+        <p>${escapeHtml(item.text)}</p>
+      </div>
+    </a>`).join("");
+  const prepSections = [
+    {
+      title: "Coding Questions",
+      text: "Move by pattern, level, and company tag.",
+      href: "/coding",
+      image: "/public/logos/google.png"
+    },
+    {
+      title: "Company Questions",
+      text: "Open focused pages for top companies and service firms.",
+      href: "/companies",
+      image: "/public/logos/amazon.png"
+    },
+    {
+      title: "HR And Behavioral",
+      text: "Use interview-ready answers in simpler English.",
+      href: "/questions?tag=hr",
+      image: "/public/logos/microsoft.png"
+    },
+    {
+      title: "Guides And Strategy",
+      text: "Learn how to answer, revise, and practice better.",
+      href: "/guides",
+      image: "/public/brand.svg"
+    }
+  ].map((item) => `
+    <a class="section-tile" href="${escapeHtml(item.href)}">
+      <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}" />
+      <div>
+        <strong>${escapeHtml(item.title)}</strong>
+        <span>${escapeHtml(item.text)}</span>
+      </div>
     </a>`).join("");
   const faqMarkup = homeFaq.map((item) => `
     <article class="faq-item">
@@ -1385,49 +1463,94 @@ app.get("/", (req, res) => {
     ],
     authLinks: navAuthMarkup(req.currentUser),
     body: `
-      <section class="hero">
-        <div class="hero-box">
-          <span class="eyebrow">Interview questions and answers</span>
-          <h1>Prepare faster with clear paths for coding, company interviews, and HR answers.</h1>
-          <p>Career Question Bank is a free interview preparation website. It has coding problems, company interview pages, HR answers, guides, progress tracking, and mock tests. The content is free for visitors and the website earns through ads.</p>
-          <form class="hero-search" method="GET" action="/questions">
-            <input type="text" name="q" list="search-suggestions" placeholder="Search companies, rounds, topics, or interview questions" />
-            <button type="submit">Find questions</button>
-          </form>
-          <div class="cta">
-            <a class="btn" href="/coding">Start coding practice</a>
-            <a class="btn-alt" href="/companies">Browse companies</a>
+      <section class="home-shell">
+        <section class="hero-modern">
+          <div class="hero-backdrop"></div>
+          <div class="row g-4 align-items-center">
+            <div class="col-xl-6 col-lg-7">
+              <div class="hero-copy">
+                <span class="hero-kicker">Free interview preparation platform</span>
+                <h1>One modern place to prepare for coding rounds, company interviews, and HR answers.</h1>
+                <p class="hero-subtext">Practice from a large interview library with coding solutions, company-wise question banks, simpler sample answers, revision tools, and mock tests. The content stays free for visitors and the website earns through ads.</p>
+                <form class="hero-search hero-search-modern" method="GET" action="/questions">
+                  <div class="hero-search-field">
+                    <i class="bi bi-search"></i>
+                    <input type="text" name="q" list="search-suggestions" placeholder="Search Google, coding, HR, React, Amazon, system design..." />
+                  </div>
+                  <button type="submit" class="btn hero-main-btn">Search Questions</button>
+                </form>
+                <div class="hero-actions cta">
+                  <a class="btn hero-main-btn" href="/coding">Start coding practice</a>
+                  <a class="btn-alt hero-ghost-btn" href="/companies">Explore company tracks</a>
+                </div>
+                <div class="hero-trust-row">
+                  <span><strong>${totalQuestionCount}+</strong> questions</span>
+                  <span><strong>${totalCompanyCount}</strong> company tracks</span>
+                  <span><strong>${totalGuideCount}</strong> practical guides</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-6 col-lg-5">
+              <div class="hero-visual-card">
+                <img class="hero-illustration" src="/public/hero-landing.svg" alt="Interview preparation dashboard" />
+                <div class="floating-metric metric-top">
+                  <span>Practice-ready</span>
+                  <strong>${escapeHtml(formatDate(dataUpdatedAt))}</strong>
+                </div>
+                <div class="floating-metric metric-bottom">
+                  <span>Popular searches</span>
+                  <strong>Google, Amazon, Coding, HR</strong>
+                </div>
+                <div class="hero-mini-card">
+                  <span class="eyebrow">Fast paths</span>
+                  <div class="hero-mini-lines">
+                    <span>Company-wise prep</span>
+                    <span>Mock tests</span>
+                    <span>Simple answers</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="search-shortcuts search-shortcuts-hero">
-            <a href="/coding">Coding rounds</a>
-            <a href="/companies">Company-wise prep</a>
-            <a href="/questions?tag=hr">HR answers</a>
-            <a href="/guides">Preparation guides</a>
-            <a href="/progress">Progress</a>
+        </section>
+        <section class="trusted-strip">
+          <div class="trusted-strip-head">
+            <span class="eyebrow">Company coverage</span>
+            <p>Start with the brands people search for most.</p>
           </div>
-        </div>
-        <aside class="side">
-          <div class="stat"><span>Question library</span><strong>${allQuestions().length}</strong></div>
-          <div class="stat"><span>Categories</span><strong>${questionBank.length}</strong></div>
-          <div class="stat"><span>Company tracks</span><strong>${companyCategories().length}</strong></div>
-          <div class="stat"><span>Last updated</span><strong>${escapeHtml(formatDate(dataUpdatedAt))}</strong></div>
-          <div class="stat stat-highlight"><span>Popular searches</span><div class="pill-row">${searchHighlights}</div></div>
-        </aside>
+          <div class="trusted-logo-row">${logoStrip}</div>
+        </section>
+        <section class="feature-showcase">
+          <div class="section-title-block">
+            <span class="eyebrow">Section-wise entry</span>
+            <h2>Choose a path that matches your interview stage</h2>
+            <p>Instead of showing everything at once, the homepage now pushes you into clear sections.</p>
+          </div>
+          <div class="feature-showcase-grid">${featuredTopicCards}</div>
+        </section>
       </section>
       ${renderAdBlock("Top ad", ADSENSE_SLOT, "hero")}
-      <section class="section"><div><h2>Choose Your Path</h2><p>Start with one clear path so the website feels easier to use.</p></div></section>
+      <section class="section"><div><h2>Choose Your Path</h2><p>Open the part of the website you need right now.</p></div></section>
       <section class="lane-grid">${laneMarkup}</section>
+      <section class="home-section-surface">
+        <div class="section-title-block">
+          <span class="eyebrow">Explore sections</span>
+          <h2>Built section-wise so it feels easier to browse</h2>
+          <p>Each major area now behaves like its own mini-product: coding, company prep, HR answers, and guides.</p>
+        </div>
+        <div class="section-tile-grid">${prepSections}</div>
+      </section>
       <section class="section"><div><h2>Popular Search Pages</h2><p>These pages help you quickly open the topics many people search for.</p></div></section>
       <section class="quick-start-grid">${seoLandingPages.slice(0, 6).map((item) => `
         <a class="quick-start-card" href="${escapeHtml(`/seo/${item.slug}`)}">
           <strong>${escapeHtml(item.heading)}</strong>
           <span>${escapeHtml(item.description)}</span>
         </a>`).join("")}</section>
-      <section class="mini-grid">
-        <article class="strip"><strong>Free and searchable</strong><span>Everything is open and easy to search.</span></article>
-        <article class="strip"><strong>Coding and interview prep</strong><span>Practice coding, company questions, and HR answers in one place.</span></article>
-        <article class="strip"><strong>Progress and mock tests</strong><span>Track weak areas and use timed practice sessions.</span></article>
-        <article class="strip"><strong>Search-friendly structure</strong><span>The site is organized in a way that search engines can understand more easily.</span></article>
+      <section class="mini-grid home-benefit-grid">
+        <article class="strip home-benefit-card"><strong>Free and searchable</strong><span>Everything stays open and easy to search.</span></article>
+        <article class="strip home-benefit-card"><strong>Modern coding flow</strong><span>Practice coding, company questions, and HR answers in one place.</span></article>
+        <article class="strip home-benefit-card"><strong>Progress and mock tests</strong><span>Track weak areas and use timed practice sessions.</span></article>
+        <article class="strip home-benefit-card"><strong>Search-friendly structure</strong><span>The site is organized in a way search engines and users can both understand.</span></article>
       </section>
       <section class="section"><div><h2>Featured Companies</h2><p>Go directly into company-wise preparation pages with focused interview themes.</p></div><a class="text-link" href="/companies">View all companies</a></section>
       <section class="company-grid">${companyFeatured}</section>
@@ -1512,8 +1635,37 @@ app.get("/questions", (req, res) => {
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "All Questions" }]),
     body: `
-      <section class="section"><div><h1>${coding ? "Coding Interview Questions" : "All Interview Questions"}</h1><p>${coding ? "Browse coding problems with solution writeups, JavaScript reference code, pattern labels, and practice-friendly navigation." : "Search by topic, role, company, or phrase. Sort the archive and use practice mode when you want to hide answers at first."}</p></div></section>
-      <section class="panel search-panel">
+      <section class="page-hero-modern">
+        <div class="page-hero-grid">
+          <div class="page-hero-copy">
+            <span class="eyebrow">${coding ? "Coding archive" : "Interview archive"}</span>
+            <h1>${coding ? "Coding interview questions with filters that feel easy to use." : "Search the full interview library without feeling lost."}</h1>
+            <p>${coding ? "Browse coding problems with solution writeups, JavaScript reference code, pattern labels, difficulty filters, and practice-friendly navigation." : "Search by topic, role, company, or phrase. Sort the archive, use round filters, and switch practice mode on when you want to think before reading the answer."}</p>
+            <div class="cta">
+              <a class="btn" href="${escapeHtml(coding ? "/coding/mock-test" : "/companies")}">${coding ? "Start coding mock test" : "Browse companies"}</a>
+              <a class="btn-alt" href="${escapeHtml(coding ? "/coding" : "/guides")}">${coding ? "Open coding home" : "Open guides"}</a>
+            </div>
+          </div>
+          <aside class="hero-side-card">
+            <div class="metric-grid-modern">
+              <div class="metric-card"><span>Results</span><strong>${results.length}</strong></div>
+              <div class="metric-card"><span>Sections</span><strong>${questionBank.length}</strong></div>
+              <div class="metric-card"><span>Mode</span><strong>${coding ? "Coding" : "Mixed"}</strong></div>
+              <div class="metric-card"><span>Updated</span><strong>${escapeHtml(formatDate(dataUpdatedAt))}</strong></div>
+            </div>
+            <div class="info-glass-card">
+              <h3>Quick paths</h3>
+              <div class="section-badges">
+                <a href="/questions?tag=company">Company prep</a>
+                <a href="/questions?tag=hr">HR</a>
+                <a href="/questions?tag=behavioral">Behavioral</a>
+                <a href="/questions?coding=1&tag=coding">Coding</a>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+      <section class="modern-filter-shell search-panel">
         <form class="search-form" method="GET" action="/questions">
           <input type="text" name="q" list="search-suggestions" value="${escapeHtml(q)}" placeholder="Search interview questions, answers, or companies" />
           <select name="category"><option value="">All categories</option>${options}</select>
@@ -1550,7 +1702,14 @@ app.get("/questions", (req, res) => {
         </div>
       </section>
       ${renderAdBlock("Archive ad", ADSENSE_SLOT, "archive-top")}
-      <section class="section"><div><h2>${results.length} results found</h2><p>Page ${pageState.currentPage} of ${pageState.totalPages}. Last content update: ${escapeHtml(formatDate(dataUpdatedAt))}.</p></div></section>
+      <section class="archive-results-head section">
+        <div><h2>${results.length} results found</h2><p>Page ${pageState.currentPage} of ${pageState.totalPages}. Last content update: ${escapeHtml(formatDate(dataUpdatedAt))}.</p></div>
+        <div class="section-badges">
+          <span>${escapeHtml(tag ? formatTag(tag) : "All rounds")}</span>
+          <span>${escapeHtml(pattern || "All patterns")}</span>
+          <span>${escapeHtml(difficulty || "All levels")}</span>
+        </div>
+      </section>
       <section class="stack">${list}</section>
       ${renderAdBlock("Archive lower ad", ADSENSE_SLOT_SECONDARY, "archive-bottom")}
       ${paginationLinks("/questions", pageState.currentPage, pageState.totalPages, { q, category, tag, sort, coding: coding ? 1 : 0, pattern, difficulty, reveal: reveal ? 1 : 0 })}`
@@ -1626,23 +1785,44 @@ app.get("/coding", (req, res) => {
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Coding" }]),
     body: `
-      <section class="detail">
-        <div class="eyebrow">Coding Prep</div>
-        <h1>Coding Interview Questions</h1>
-        <p>Use the coding library as a focused practice product: browse by pattern, filter by difficulty, read the step-by-step solution, then compare against the JavaScript reference implementation.</p>
-        <div class="meta">
-          <span>${codingItems.length} coding problems</span>
-          <span>${Object.keys(byPattern).length} patterns</span>
-          <span>Detailed solutions + code</span>
-        </div>
-        <div class="meta" data-coding-stats></div>
-        <div class="cta">
-          <a class="btn" href="/questions?coding=1&tag=coding">Open coding archive</a>
-          <a class="btn-alt" href="/questions?coding=1&difficulty=Medium">Start with medium problems</a>
-          <a class="btn-alt" href="/coding/mock-test">Start mock test</a>
+      <section class="page-hero-modern">
+        <div class="page-hero-grid">
+          <div class="page-hero-copy">
+            <span class="eyebrow">Coding Prep</span>
+            <h1>Coding practice that looks like a real product, not only a question list.</h1>
+            <p>Use the coding library as a focused practice product: browse by pattern, filter by difficulty, read the step-by-step solution, then compare against the JavaScript reference implementation.</p>
+            <div class="cta">
+              <a class="btn" href="/questions?coding=1&tag=coding">Open coding archive</a>
+              <a class="btn-alt" href="/coding/mock-test">Start mock test</a>
+            </div>
+          </div>
+          <aside class="hero-side-card">
+            <div class="metric-grid-modern">
+              <div class="metric-card"><span>Problems</span><strong>${codingItems.length}</strong></div>
+              <div class="metric-card"><span>Patterns</span><strong>${Object.keys(byPattern).length}</strong></div>
+              <div class="metric-card"><span>Solutions</span><strong>Yes</strong></div>
+              <div class="metric-card"><span>Code</span><strong>JavaScript</strong></div>
+            </div>
+            <div class="info-glass-card">
+              <h3>Your coding progress</h3>
+              <div class="meta" data-coding-stats></div>
+            </div>
+          </aside>
         </div>
       </section>
       ${renderAdBlock("Coding section ad", ADSENSE_SLOT, "archive-top")}
+      <section class="page-section-surface">
+        <div class="section-title-block">
+          <span class="eyebrow">How to start</span>
+          <h2>Choose one coding lane and move step by step</h2>
+          <p>Pick a pattern, pick a difficulty, or start a timed session. The page is designed to reduce overload.</p>
+        </div>
+        <div class="section-surface-grid">
+          <article class="modern-info-card"><h3>Pattern-first practice</h3><p>Jump into hash map, sliding window, graph, DP, and more.</p></article>
+          <article class="modern-info-card"><h3>Difficulty control</h3><p>Practice easy, medium, or hard sets without mixing them randomly.</p></article>
+          <article class="modern-info-card"><h3>Interview-ready review</h3><p>Read the simple explanation, then compare with the JavaScript code.</p></article>
+        </div>
+      </section>
       <section class="section"><div><h2>Browse By Pattern</h2><p>Jump into the most-used interview problem families first.</p></div></section>
       <section class="quick-start-grid">${patternCards}</section>
       <section class="section"><div><h2>Weak-Area Recommendations</h2><p>These update from the problems you mark for revision, so the coding page starts pushing you toward the patterns that need more work.</p></div></section>
@@ -1839,17 +2019,35 @@ app.get("/companies", (req, res) => {
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Companies" }]),
     body: `
-      <section class="detail">
-        <div class="eyebrow">Company-Wise Prep</div>
-        <h1>Company Interview Questions And Answers</h1>
-        <p>Use these pages to prepare for company-specific interview themes, role fit questions, technical rounds, and related coding collections.</p>
-        <div class="meta">
-          <span>${companyCategories().length} companies</span>
-          <span>Interview + coding collections</span>
-          <span>Free access</span>
+      <section class="page-hero-modern">
+        <div class="page-hero-grid">
+          <div class="page-hero-copy">
+            <span class="eyebrow">Company-Wise Prep</span>
+            <h1>Company interview pages that feel easier to scan and open.</h1>
+            <p>Use these pages to prepare for company-specific interview themes, role fit questions, technical rounds, and related coding collections.</p>
+            <div class="cta">
+              <a class="btn" href="/questions?tag=company">Search company questions</a>
+              <a class="btn-alt" href="/coding">Open coding lane</a>
+            </div>
+          </div>
+          <aside class="hero-side-card">
+            <div class="metric-grid-modern">
+              <div class="metric-card"><span>Companies</span><strong>${companyCategories().length}</strong></div>
+              <div class="metric-card"><span>Access</span><strong>Free</strong></div>
+              <div class="metric-card"><span>Includes</span><strong>Answers</strong></div>
+              <div class="metric-card"><span>Also has</span><strong>Coding sets</strong></div>
+            </div>
+          </aside>
         </div>
       </section>
-      <section class="company-grid">${companies}</section>`
+      <section class="page-section-surface">
+        <div class="section-title-block">
+          <span class="eyebrow">Browse companies</span>
+          <h2>Open company prep pages with one clear next step</h2>
+          <p>Every card gives you the interview page and a company-linked coding collection.</p>
+        </div>
+      </section>
+      <section class="company-showcase-grid">${companies.replace(/company-card/g, "company-showcase-card")}</section>`
   }));
 });
 
@@ -2051,20 +2249,32 @@ app.get("/category/:slug", (req, res) => {
       { label: category.title }
     ]),
     body: `
-      <section class="detail">
-        <div class="detail-head">
-          ${companyLogo(category)}
-          <div>
-            <div class="eyebrow">${category.kind === "company" ? "Company page" : "Category page"}</div>
-            <h1>${escapeHtml(category.title)}</h1>
+      <section class="page-hero-modern">
+        <div class="page-hero-grid">
+          <div class="page-hero-copy">
+            <div class="detail-head">
+              ${companyLogo(category)}
+              <div>
+                <div class="eyebrow">${category.kind === "company" ? "Company page" : "Category page"}</div>
+                <h1>${escapeHtml(category.title)}</h1>
+              </div>
+            </div>
+            <p>${escapeHtml(category.summary)}</p>
+            ${companyMeta}
+            <div class="cta">
+              <a class="btn" href="${escapeHtml(buildQuery("/questions", { category: category.slug }))}">Filter archive by this category</a>
+              ${categoryQuestions.some((item) => item.isCoding) ? `<a class="btn-alt" href="${escapeHtml(buildQuery("/questions", { category: category.slug, coding: 1 }))}">Coding-only view</a>` : ""}
+              <a class="btn-alt" href="/questions">Back to all questions</a>
+            </div>
           </div>
-        </div>
-        <p>${escapeHtml(category.summary)}</p>
-        ${companyMeta}
-        <div class="cta">
-          <a class="btn" href="${escapeHtml(buildQuery("/questions", { category: category.slug }))}">Filter archive by this category</a>
-          ${categoryQuestions.some((item) => item.isCoding) ? `<a class="btn-alt" href="${escapeHtml(buildQuery("/questions", { category: category.slug, coding: 1 }))}">Coding-only view</a>` : ""}
-          <a class="btn-alt" href="/questions">Back to all questions</a>
+          <aside class="hero-side-card">
+            <div class="metric-grid-modern">
+              <div class="metric-card"><span>Questions</span><strong>${category.questions.length}</strong></div>
+              <div class="metric-card"><span>Updated</span><strong>${escapeHtml(formatDate(dataUpdatedAt))}</strong></div>
+              <div class="metric-card"><span>Type</span><strong>${escapeHtml(category.kind === "company" ? "Company" : "Topic")}</strong></div>
+              <div class="metric-card"><span>Prep mode</span><strong>${categoryQuestions.some((item) => item.isCoding) ? "Mixed" : "Answer"}</strong></div>
+            </div>
+          </aside>
         </div>
       </section>
       ${companyInsights}
@@ -2187,39 +2397,68 @@ app.get("/question/:categorySlug/:questionSlug", (req, res) => {
       { label: match.question.question }
     ]),
     body: `
-      <article class="detail">
-        <div class="detail-head">
-          ${companyLogo(match.category)}
-          <div>
-            <div class="eyebrow">${escapeHtml(match.category.title)}</div>
-            <h1>${escapeHtml(match.question.question)}</h1>
-          </div>
-        </div>
-        <p>Use this answer as a practice baseline, then adapt it to your own experience before a real interview.</p>
-        ${detailCompanyMeta}
-        ${codingSummary}
-        ${detailTags ? `<div class="tag-row">${detailTags}</div>` : ""}
-        <div class="answer-box">
-          <div class="section compact-section">
-            <div><h3>Sample Answer</h3></div>
-            <div class="card-actions">
-              <button type="button" class="ghost-button answer-toggle" data-target="${escapeHtml(answerId)}" aria-expanded="true">Hide answer</button>
-              <button type="button" class="ghost-button progress-button" data-progress="${escapeHtml(progressKey)}" data-status="practiced">Practiced</button>
-              <button type="button" class="ghost-button progress-button" data-progress="${escapeHtml(progressKey)}" data-status="revise">Revise</button>
-              <button type="button" class="ghost-button copy-answer" data-target="${escapeHtml(answerId)}">Copy answer</button>
+      <section class="page-hero-modern">
+        <div class="page-hero-grid">
+          <div class="page-hero-copy">
+            <div class="detail-head">
+              ${companyLogo(match.category)}
+              <div>
+                <div class="eyebrow">${escapeHtml(match.category.title)}</div>
+                <h1>${escapeHtml(match.question.question)}</h1>
+              </div>
+            </div>
+            <p>Use this answer as a practice baseline, then adapt it to your own experience before a real interview.</p>
+            ${detailCompanyMeta}
+            ${codingSummary}
+            ${detailTags ? `<div class="tag-row">${detailTags}</div>` : ""}
+            <div class="cta question-hero-actions">
+              <a class="btn" href="${escapeHtml(categoryUrl(match.category))}">More ${escapeHtml(match.category.title)} questions</a>
+              ${isCoding ? `<a class="btn-alt" href="${escapeHtml(buildQuery("/questions", { coding: 1, pattern: detailPatterns[0] || "", q: "" }))}">More coding questions</a>` : ""}
+              <a class="btn-alt" href="/questions">Back to archive</a>
             </div>
           </div>
-          <p id="${escapeHtml(answerId)}">${escapeHtml(match.question.answer)}</p>
+          <aside class="hero-side-card">
+            <div class="metric-grid-modern">
+              <div class="metric-card"><span>Section</span><strong>${escapeHtml(match.category.title)}</strong></div>
+              <div class="metric-card"><span>Updated</span><strong>${escapeHtml(formatDate(dataUpdatedAt))}</strong></div>
+              <div class="metric-card"><span>Type</span><strong>${isCoding ? "Coding" : "Interview"}</strong></div>
+              <div class="metric-card"><span>Action</span><strong>Practice</strong></div>
+            </div>
+            <div class="info-glass-card sticky-side">
+              <h3>Quick actions</h3>
+              <div class="card-actions">
+                <button type="button" class="ghost-button answer-toggle" data-target="${escapeHtml(answerId)}" aria-expanded="true">Hide answer</button>
+                <button type="button" class="ghost-button progress-button" data-progress="${escapeHtml(progressKey)}" data-status="practiced">Practiced</button>
+                <button type="button" class="ghost-button progress-button" data-progress="${escapeHtml(progressKey)}" data-status="revise">Revise</button>
+                <button type="button" class="ghost-button copy-answer" data-target="${escapeHtml(answerId)}">Copy answer</button>
+              </div>
+            </div>
+          </aside>
         </div>
-        ${detailedAnswerMarkup(match.category, match.question)}
-        ${isCoding ? `<div class="answer-box"><h3>Company Practice Links</h3><div class="pill-row">${codingCompanyPrep}</div></div>` : ""}
-        ${renderAdBlock("Question detail ad", ADSENSE_SLOT_SECONDARY, "detail-inline")}
-        <div class="cta">
-          <a class="btn" href="${escapeHtml(categoryUrl(match.category))}">More ${escapeHtml(match.category.title)} questions</a>
-          ${isCoding ? `<a class="btn-alt" href="${escapeHtml(buildQuery("/questions", { coding: 1, pattern: detailPatterns[0] || "", q: "" }))}">More coding questions</a>` : ""}
-          <a class="btn-alt" href="/questions">Back to archive</a>
+      </section>
+      <section class="question-layout-modern">
+        <div class="question-main-stack">
+          <article class="reading-panel">
+            <div class="section compact-section">
+              <div><h3>Sample Answer</h3></div>
+            </div>
+            <p id="${escapeHtml(answerId)}">${escapeHtml(match.question.answer)}</p>
+          </article>
+          ${detailedAnswerMarkup(match.category, match.question)}
+          ${renderAdBlock("Question detail ad", ADSENSE_SLOT_SECONDARY, "detail-inline")}
         </div>
-      </article>
+        <aside class="question-side-stack">
+          ${isCoding ? `<div class="reading-panel"><h3>Company Practice Links</h3><div class="pill-row">${codingCompanyPrep}</div></div>` : ""}
+          <div class="reading-panel">
+            <h3>How to use this page</h3>
+            <ol class="step-list">
+              <li>Read the question and answer it in your own words first.</li>
+              <li>Compare your version with the sample answer and speaking guide.</li>
+              <li>Repeat once more without looking so the answer starts to feel natural.</li>
+            </ol>
+          </div>
+        </aside>
+      </section>
       ${questionPager}
       ${codingPager}
       ${renderAdBlock("Related content ad", ADSENSE_SLOT, "detail-lower")}
