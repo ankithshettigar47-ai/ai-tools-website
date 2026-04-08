@@ -2376,6 +2376,14 @@ app.get("/question/:categorySlug/:questionSlug", (req, res) => {
         ${nextCodingQuestion ? `<a class="quick-start-card" href="${escapeHtml(questionUrl(nextCodingQuestion.categorySlug, nextCodingQuestion.slug))}"><strong>Next coding problem</strong><span>${escapeHtml(nextCodingQuestion.question)}</span></a>` : `<div></div>`}
       </section>`
     : "";
+  const mobileActionBar = `
+      <div class="mobile-action-bar">
+        <a class="mobile-action-link" href="${escapeHtml(categoryUrl(match.category))}">More</a>
+        <button type="button" class="mobile-action-link ghost-button progress-button" data-progress="${escapeHtml(progressKey)}" data-status="practiced">Practiced</button>
+        <button type="button" class="mobile-action-link ghost-button copy-answer" data-target="${escapeHtml(answerId)}">Copy</button>
+        <button type="button" class="mobile-action-link ghost-button bookmark-button" data-bookmark="${escapeHtml(`${match.category.slug}/${match.question.slug}`)}">Save</button>
+      </div>
+      <div class="mobile-action-spacer" aria-hidden="true"></div>`;
 
   return res.send(page({
     title: `${match.question.question} | Best Answer for ${match.category.title}`,
@@ -2475,7 +2483,8 @@ app.get("/question/:categorySlug/:questionSlug", (req, res) => {
       <section class="section"><div><h2>Related Questions</h2><p>Keep moving through the same topic or company prep set.</p></div></section>
       <section class="grid">${related}</section>
       <section class="section"><div><h2>Recommended Guides</h2><p>Use these guides to improve answer quality, not just answer quantity.</p></div></section>
-      <section class="grid">${relatedGuides}</section>`
+      <section class="grid">${relatedGuides}</section>
+      ${mobileActionBar}`
   }));
 });
 
@@ -2593,13 +2602,26 @@ function renderAuthPage(req, config) {
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: config.title }]),
     body: `
-      <section class="detail">
-        <div class="eyebrow">${escapeHtml(config.eyebrow)}</div>
-        <h1>${escapeHtml(config.heading)}</h1>
-        <p>${escapeHtml(config.copy)}</p>
-        ${errorBox}
+      <section class="page-hero-modern">
+        <div class="page-hero-grid">
+          <div class="page-hero-copy">
+            <div class="eyebrow">${escapeHtml(config.eyebrow)}</div>
+            <h1>${escapeHtml(config.heading)}</h1>
+            <p>${escapeHtml(config.copy)}</p>
+            ${errorBox}
+          </div>
+          <aside class="hero-side-card">
+            <img class="hero-side-illustration" src="/public/guides-scene.svg" alt="${escapeHtml(config.title)}" />
+            <div class="metric-grid-modern">
+              <div class="metric-card"><span>Access</span><strong>Free</strong></div>
+              <div class="metric-card"><span>Sync</span><strong>Account</strong></div>
+              <div class="metric-card"><span>Saved</span><strong>Questions</strong></div>
+              <div class="metric-card"><span>Progress</span><strong>Tracked</strong></div>
+            </div>
+          </aside>
+        </div>
       </section>
-      <section class="panel">
+      <section class="modern-filter-shell auth-shell">
         <form class="contact-form" method="POST" action="${escapeHtml(config.path)}">
           ${config.fields}
           <button type="submit">${escapeHtml(config.buttonLabel)}</button>
@@ -2761,11 +2783,18 @@ app.get("/saved", (req, res) => {
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Saved" }]),
     body: `
-      <section class="detail">
-        <div class="eyebrow">Saved</div>
-        <h1>Your saved interview questions.</h1>
-        <p>This page stores account-backed saved questions so you can keep preparation progress across devices when logged in.</p>
-        <div class="meta"><span>${savedItems.length} saved questions</span><span>${escapeHtml(req.currentUser.username)}</span></div>
+      <section class="page-hero-modern">
+        <div class="page-hero-grid">
+          <div class="page-hero-copy">
+            <div class="eyebrow">Saved</div>
+            <h1>Your saved interview questions.</h1>
+            <p>This page stores account-backed saved questions so you can keep preparation progress across devices when logged in.</p>
+            <div class="meta"><span>${savedItems.length} saved questions</span><span>${escapeHtml(req.currentUser.username)}</span></div>
+          </div>
+          <aside class="hero-side-card">
+            <img class="hero-side-illustration" src="/public/company-scene.svg" alt="Saved interview questions" />
+          </aside>
+        </div>
       </section>
       <section class="stack">${savedMarkup}</section>`
   }));
@@ -2806,14 +2835,27 @@ app.get("/progress", (req, res) => {
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Progress" }]),
     body: `
-      <section class="detail">
-        <div class="eyebrow">Progress</div>
-        <h1>Track what you have practiced.</h1>
-        <p>${req.currentUser ? "Your account-backed progress is shown below and can be updated from question cards and detail pages." : "Progress works in your browser even without login. Create an account if you want to keep progress across devices later."}</p>
-        <div class="meta">
-          <span>${summary.practiced || 0} practiced</span>
-          <span>${summary.revise || 0} revise later</span>
-          <span>${summary.completed || 0} completed</span>
+      <section class="page-hero-modern">
+        <div class="page-hero-grid">
+          <div class="page-hero-copy">
+            <div class="eyebrow">Progress</div>
+            <h1>Track what you have practiced.</h1>
+            <p>${req.currentUser ? "Your account-backed progress is shown below and can be updated from question cards and detail pages." : "Progress works in your browser even without login. Create an account if you want to keep progress across devices later."}</p>
+            <div class="meta">
+              <span>${summary.practiced || 0} practiced</span>
+              <span>${summary.revise || 0} revise later</span>
+              <span>${summary.completed || 0} completed</span>
+            </div>
+          </div>
+          <aside class="hero-side-card">
+            <img class="hero-side-illustration" src="/public/coding-scene.svg" alt="Interview progress tracking" />
+            <div class="metric-grid-modern">
+              <div class="metric-card"><span>Tracked</span><strong>${trackedItems.length}</strong></div>
+              <div class="metric-card"><span>Practiced</span><strong>${summary.practiced || 0}</strong></div>
+              <div class="metric-card"><span>Revise</span><strong>${summary.revise || 0}</strong></div>
+              <div class="metric-card"><span>Mode</span><strong>${req.currentUser ? "Synced" : "Browser"}</strong></div>
+            </div>
+          </aside>
         </div>
       </section>
       <section class="quick-start-grid">
@@ -2884,19 +2926,27 @@ app.get("/admin", (req, res) => {
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Admin" }]),
     body: `
-      <section class="detail">
-        <div class="eyebrow">Admin</div>
-        <h1>Content and account management.</h1>
-        <p>Use this dashboard to add categories, add questions, review user accounts, and read contact messages.</p>
-        <div class="meta">
-          <span>${questionBank.length} categories</span>
-          <span>${allQuestions().length} questions</span>
-          <span>${users.length} users</span>
-          <span>${messages.length} messages</span>
+      <section class="page-hero-modern">
+        <div class="page-hero-grid">
+          <div class="page-hero-copy">
+            <div class="eyebrow">Admin</div>
+            <h1>Content and account management.</h1>
+            <p>Use this dashboard to add categories, add questions, review user accounts, and read contact messages.</p>
+          </div>
+          <aside class="hero-side-card">
+            <img class="hero-side-illustration" src="/public/company-scene.svg" alt="Admin dashboard" />
+            <div class="admin-stat-grid">
+              <div class="metric-card"><span>Categories</span><strong>${questionBank.length}</strong></div>
+              <div class="metric-card"><span>Questions</span><strong>${allQuestions().length}</strong></div>
+              <div class="metric-card"><span>Users</span><strong>${users.length}</strong></div>
+              <div class="metric-card"><span>Messages</span><strong>${messages.length}</strong></div>
+            </div>
+          </aside>
         </div>
       </section>
-      <section class="grid">
-        <article class="panel">
+      <section class="admin-grid-modern">
+        <div class="admin-stack">
+          <article class="admin-panel-card">
           <h3>Add Category</h3>
           <form class="contact-form" method="POST" action="/admin/category">
             <input type="text" name="title" placeholder="Category title" required />
@@ -2911,8 +2961,8 @@ app.get("/admin", (req, res) => {
             <input type="text" name="logo" placeholder="/public/logos/company.png (optional)" />
             <button type="submit">Create category</button>
           </form>
-        </article>
-        <article class="panel">
+          </article>
+          <article class="admin-panel-card">
           <h3>Add Question</h3>
           <form class="contact-form" method="POST" action="/admin/question">
             <select name="categorySlug">${categoryOptions}</select>
@@ -2922,12 +2972,28 @@ app.get("/admin", (req, res) => {
             <input type="text" name="tip" placeholder="Tip" required />
             <button type="submit">Create question</button>
           </form>
-        </article>
+          </article>
+        </div>
+        <aside class="admin-stack">
+          <article class="admin-panel-card">
+            <h3>Admin shortcuts</h3>
+            <div class="section-badges">
+              <a href="/questions">Open archive</a>
+              <a href="/companies">Companies</a>
+              <a href="/guides">Guides</a>
+              <a href="/progress">Progress</a>
+            </div>
+          </article>
+          <article class="admin-panel-card">
+            <h3>Recent activity summary</h3>
+            <p>Use the forms on the left to expand the library, then use the lists below to review recent content and incoming messages.</p>
+          </article>
+        </aside>
       </section>
       <section class="section"><div><h2>Recent Questions</h2><p>Edit or remove recently managed questions from the dashboard.</p></div></section>
-      <section class="faq-list">${recentQuestions || `<article class="panel"><h3>No questions yet.</h3></article>`}</section>
+      <section class="admin-list-grid">${recentQuestions.replace(/faq-item/g, "admin-list-item") || `<article class="panel"><h3>No questions yet.</h3></article>`}</section>
       <section class="section"><div><h2>Recent Messages</h2><p>Latest contact submissions stored by the backend.</p></div></section>
-      <section class="faq-list">${messageMarkup}</section>`
+      <section class="admin-list-grid">${messageMarkup.replace(/faq-item/g, "admin-list-item")}</section>`
   }));
 });
 
@@ -2999,12 +3065,19 @@ app.get("/admin/question/:categorySlug/:questionSlug/edit", (req, res) => {
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Admin", href: "/admin" }, { label: "Edit Question" }]),
     body: `
-      <section class="detail">
-        <div class="eyebrow">Admin</div>
-        <h1>Edit question.</h1>
-        <p>Update the question, answer, and tip while keeping the current routing intact.</p>
+      <section class="page-hero-modern">
+        <div class="page-hero-grid">
+          <div class="page-hero-copy">
+            <div class="eyebrow">Admin</div>
+            <h1>Edit question.</h1>
+            <p>Update the question, answer, and tip while keeping the current routing intact.</p>
+          </div>
+          <aside class="hero-side-card">
+            <img class="hero-side-illustration" src="/public/guides-scene.svg" alt="Edit question" />
+          </aside>
+        </div>
       </section>
-      <section class="panel">
+      <section class="modern-filter-shell auth-shell">
         <form class="contact-form" method="POST" action="${escapeHtml(`/admin/question/${match.category.slug}/${match.question.slug}/edit`)}">
           <input type="text" name="slug" value="${escapeHtml(match.question.slug)}" required />
           <input type="text" name="question" value="${escapeHtml(match.question.question)}" required />
@@ -3081,21 +3154,28 @@ app.get("/about", (req, res) => {
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "About" }]),
     body: `
-      <section class="detail">
-        <div class="eyebrow">About</div>
-        <h1>Interview preparation with structure, not noise.</h1>
-        <p>Career Question Bank is built as a practical interview preparation website. It organizes technical, behavioral, HR, coding, aptitude, resume, and company-specific interview questions into pages that are easy to search, browse, and practice from. The product is designed to stay free to visitors and support monetization through advertising.</p>
-        <div class="meta">
-          <span>${allQuestions().length} questions</span>
-          <span>${topicCategories().length} topic categories</span>
-          <span>${companyCategories().length} company pages</span>
+      <section class="page-hero-modern">
+        <div class="page-hero-grid">
+          <div class="page-hero-copy policy-hero-copy">
+            <div class="eyebrow">About</div>
+            <h1>Interview preparation with structure, not noise.</h1>
+            <p>Career Question Bank is built as a practical interview preparation website. It organizes technical, behavioral, HR, coding, aptitude, resume, and company-specific interview questions into pages that are easy to search, browse, and practice from. The product is designed to stay free to visitors and support monetization through advertising.</p>
+            <div class="meta">
+              <span>${allQuestions().length} questions</span>
+              <span>${topicCategories().length} topic categories</span>
+              <span>${companyCategories().length} company pages</span>
+            </div>
+          </div>
+          <aside class="hero-side-card">
+            <img class="hero-side-illustration" src="/public/company-scene.svg" alt="About Career Question Bank" />
+          </aside>
         </div>
       </section>
-      <section class="mini-grid">
-        <article class="strip"><strong>Original practice answers</strong><span>Each answer is written as a practice baseline rather than copied interview content.</span></article>
-        <article class="strip"><strong>Company-focused prep</strong><span>Dedicated sets help candidates prepare by theme, company, and role emphasis.</span></article>
-        <article class="strip"><strong>Usable archive</strong><span>Search, category filters, related questions, pagination, and API output support discovery.</span></article>
-        <article class="strip"><strong>Built for iteration</strong><span>The site structure is simple enough to keep expanding with more companies and questions.</span></article>
+      <section class="policy-grid">
+        <article class="policy-card"><h3>Original practice answers</h3><p>Each answer is written as a practice baseline rather than copied interview content.</p></article>
+        <article class="policy-card"><h3>Company-focused prep</h3><p>Dedicated sets help candidates prepare by theme, company, and role emphasis.</p></article>
+        <article class="policy-card"><h3>Usable archive</h3><p>Search, category filters, related questions, pagination, and API output support discovery.</p></article>
+        <article class="policy-card"><h3>Built for iteration</h3><p>The site structure is simple enough to keep expanding with more companies and questions.</p></article>
       </section>`
   }));
 });
@@ -3128,10 +3208,17 @@ app.get("/faq", (req, res) => {
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "FAQ" }]),
     body: `
-      <section class="detail">
-        <div class="eyebrow">FAQ</div>
-        <h1>How to use the question bank well.</h1>
-        <p>These answers explain how to get real value from the site instead of reading passively.</p>
+      <section class="page-hero-modern">
+        <div class="page-hero-grid">
+          <div class="page-hero-copy">
+            <div class="eyebrow">FAQ</div>
+            <h1>How to use the question bank well.</h1>
+            <p>These answers explain how to get real value from the site instead of reading passively.</p>
+          </div>
+          <aside class="hero-side-card">
+            <img class="hero-side-illustration" src="/public/guides-scene.svg" alt="Interview FAQ" />
+          </aside>
+        </div>
       </section>
       <section class="faq-list">${items}</section>`
   }));
@@ -3158,18 +3245,21 @@ app.get("/privacy", (req, res) => {
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Privacy" }]),
     body: `
-      <section class="detail">
-        <div class="eyebrow">Privacy</div>
-        <h1>Privacy policy.</h1>
-        <p>This website serves interview preparation content and does not require user accounts to browse the library. Search queries submitted through the site are used only to render results for the current request. Advertising may be used to support the website while keeping content free for visitors.</p>
-        <div class="answer-box">
-          <h3>What this means in practice</h3>
-          <p>No sign-up flow is required to access the content, and there is no custom profile or resume storage in the current version of the website. If a visitor creates an account later, only the details needed for that feature are stored.</p>
+      <section class="page-hero-modern">
+        <div class="page-hero-grid">
+          <div class="page-hero-copy">
+            <div class="eyebrow">Privacy</div>
+            <h1>Privacy policy.</h1>
+            <p>This website serves interview preparation content and does not require user accounts to browse the library. Search queries submitted through the site are used only to render results for the current request. Advertising may be used to support the website while keeping content free for visitors.</p>
+          </div>
+          <aside class="hero-side-card">
+            <img class="hero-side-illustration" src="/public/guides-scene.svg" alt="Privacy policy" />
+          </aside>
         </div>
-        <div class="tip-box">
-          <h3>Advertising and cookies</h3>
-          <p>Third-party advertising providers such as Google AdSense may use cookies or similar technologies to serve ads, measure performance, and personalize ad delivery according to their own policies. Visitors can review Google advertising settings and browser controls for more information.</p>
-        </div>
+      </section>
+      <section class="policy-grid">
+        <article class="policy-card"><h3>What this means in practice</h3><p>No sign-up flow is required to access the content, and there is no custom profile or resume storage in the current version of the website. If a visitor creates an account later, only the details needed for that feature are stored.</p></article>
+        <article class="policy-card"><h3>Advertising and cookies</h3><p>Third-party advertising providers such as Google AdSense may use cookies or similar technologies to serve ads, measure performance, and personalize ad delivery according to their own policies. Visitors can review Google advertising settings and browser controls for more information.</p></article>
       </section>`
   }));
 });
@@ -3195,18 +3285,21 @@ app.get("/terms", (req, res) => {
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Terms" }]),
     body: `
-      <section class="detail">
-        <div class="eyebrow">Terms</div>
-        <h1>Terms and conditions.</h1>
-        <p>This website provides original interview preparation material for informational and practice use. Users should adapt answers to their own experience before any real interview and should not treat the content as employment, legal, or financial advice.</p>
-        <div class="answer-box">
-          <h3>Content use</h3>
-          <p>The site content is intended for personal preparation, browsing, and practice. Automated scraping, abusive use, or republication of the full site content without permission is not allowed.</p>
+      <section class="page-hero-modern">
+        <div class="page-hero-grid">
+          <div class="page-hero-copy">
+            <div class="eyebrow">Terms</div>
+            <h1>Terms and conditions.</h1>
+            <p>This website provides original interview preparation material for informational and practice use. Users should adapt answers to their own experience before any real interview and should not treat the content as employment, legal, or financial advice.</p>
+          </div>
+          <aside class="hero-side-card">
+            <img class="hero-side-illustration" src="/public/company-scene.svg" alt="Terms and conditions" />
+          </aside>
         </div>
-        <div class="tip-box">
-          <h3>Service availability</h3>
-          <p>The website may change, expand, or remove content over time. While the site aims to be useful and accurate, no guarantee is made that every answer or company page matches every real interview exactly.</p>
-        </div>
+      </section>
+      <section class="policy-grid">
+        <article class="policy-card"><h3>Content use</h3><p>The site content is intended for personal preparation, browsing, and practice. Automated scraping, abusive use, or republication of the full site content without permission is not allowed.</p></article>
+        <article class="policy-card"><h3>Service availability</h3><p>The website may change, expand, or remove content over time. While the site aims to be useful and accurate, no guarantee is made that every answer or company page matches every real interview exactly.</p></article>
       </section>`
   }));
 });
@@ -3232,18 +3325,21 @@ app.get("/editorial-policy", (req, res) => {
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Editorial Policy" }]),
     body: `
-      <section class="detail">
-        <div class="eyebrow">Editorial</div>
-        <h1>How the content is created.</h1>
-        <p>Career Question Bank publishes original interview practice material. Questions, sample answers, and tips are written as preparation baselines and organized into topic and company pages to help users study efficiently.</p>
-        <div class="answer-box">
-          <h3>Originality standard</h3>
-          <p>The site aims to avoid copying protected interview-report content directly. Instead, it summarizes recurring interview themes and rewrites them into original practice questions and answer structures.</p>
+      <section class="page-hero-modern">
+        <div class="page-hero-grid">
+          <div class="page-hero-copy">
+            <div class="eyebrow">Editorial</div>
+            <h1>How the content is created.</h1>
+            <p>Career Question Bank publishes original interview practice material. Questions, sample answers, and tips are written as preparation baselines and organized into topic and company pages to help users study efficiently.</p>
+          </div>
+          <aside class="hero-side-card">
+            <img class="hero-side-illustration" src="/public/guides-scene.svg" alt="Editorial policy" />
+          </aside>
         </div>
-        <div class="tip-box">
-          <h3>Updates and quality</h3>
-          <p>Content may be expanded, revised, or improved over time as new categories, companies, and preparation guides are added. Users should always adapt sample answers into their own experience, projects, and communication style.</p>
-        </div>
+      </section>
+      <section class="policy-grid">
+        <article class="policy-card"><h3>Originality standard</h3><p>The site aims to avoid copying protected interview-report content directly. Instead, it summarizes recurring interview themes and rewrites them into original practice questions and answer structures.</p></article>
+        <article class="policy-card"><h3>Updates and quality</h3><p>Content may be expanded, revised, or improved over time as new categories, companies, and preparation guides are added. Users should always adapt sample answers into their own experience, projects, and communication style.</p></article>
       </section>`
   }));
 });
@@ -3269,18 +3365,21 @@ app.get("/ad-disclosure", (req, res) => {
     authLinks: navAuthMarkup(req.currentUser),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Ad Disclosure" }]),
     body: `
-      <section class="detail">
-        <div class="eyebrow">Ads</div>
-        <h1>Advertising disclosure.</h1>
-        <p>This website is intended to remain free for visitors and may earn revenue through advertising placements. Sponsored or ad-supported areas help fund the content without requiring users to pay for access.</p>
-        <div class="answer-box">
-          <h3>Editorial separation</h3>
-          <p>Advertising does not change how interview questions are organized or answered on the site. The content library is written as practice material first, with ads placed around the content rather than replacing it.</p>
+      <section class="page-hero-modern">
+        <div class="page-hero-grid">
+          <div class="page-hero-copy">
+            <div class="eyebrow">Ads</div>
+            <h1>Advertising disclosure.</h1>
+            <p>This website is intended to remain free for visitors and may earn revenue through advertising placements. Sponsored or ad-supported areas help fund the content without requiring users to pay for access.</p>
+          </div>
+          <aside class="hero-side-card">
+            <img class="hero-side-illustration" src="/public/company-scene.svg" alt="Advertising disclosure" />
+          </aside>
         </div>
-        <div class="tip-box">
-          <h3>Third-party ad providers</h3>
-          <p>Some ads may be served by third-party networks such as Google AdSense. Those providers may use their own systems, policies, and technologies to deliver and measure ads on this site.</p>
-        </div>
+      </section>
+      <section class="policy-grid">
+        <article class="policy-card"><h3>Editorial separation</h3><p>Advertising does not change how interview questions are organized or answered on the site. The content library is written as practice material first, with ads placed around the content rather than replacing it.</p></article>
+        <article class="policy-card"><h3>Third-party ad providers</h3><p>Some ads may be served by third-party networks such as Google AdSense. Those providers may use their own systems, policies, and technologies to deliver and measure ads on this site.</p></article>
       </section>`
   }));
 });
@@ -3306,13 +3405,26 @@ function renderContactPage(user, siteUrl, message = "") {
     authLinks: navAuthMarkup(user),
     breadcrumbs: breadcrumb([{ label: "Home", href: "/" }, { label: "Contact" }]),
     body: `
-      <section class="detail">
-        <div class="eyebrow">Contact</div>
-        <h1>Reach out about the website.</h1>
-        <p>Use this page for feedback, partnership ideas, or suggestions for new interview categories and company pages.</p>
-        ${message ? `<div class="answer-box"><p>${escapeHtml(message)}</p></div>` : ""}
+      <section class="page-hero-modern">
+        <div class="page-hero-grid">
+          <div class="page-hero-copy">
+            <div class="eyebrow">Contact</div>
+            <h1>Reach out about the website.</h1>
+            <p>Use this page for feedback, partnership ideas, or suggestions for new interview categories and company pages.</p>
+            ${message ? `<div class="answer-box"><p>${escapeHtml(message)}</p></div>` : ""}
+          </div>
+          <aside class="hero-side-card">
+            <img class="hero-side-illustration" src="/public/guides-scene.svg" alt="Contact Career Question Bank" />
+            <div class="metric-grid-modern">
+              <div class="metric-card"><span>Replies</span><strong>Stored</strong></div>
+              <div class="metric-card"><span>Use</span><strong>Feedback</strong></div>
+              <div class="metric-card"><span>Type</span><strong>Ideas</strong></div>
+              <div class="metric-card"><span>Access</span><strong>Open</strong></div>
+            </div>
+          </aside>
+        </div>
       </section>
-      <section class="panel">
+      <section class="modern-filter-shell auth-shell">
         <form class="contact-form" method="POST" action="/contact">
           <input type="text" name="name" placeholder="Your name" required />
           <input type="email" name="email" placeholder="Email address" required />
