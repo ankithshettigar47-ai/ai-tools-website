@@ -2,6 +2,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize all departments
     initializeTabs();
+    initializeYouTubeToggle();
     initializeButtons();
     initializeSettings();
     
@@ -30,6 +31,18 @@ function initializeTabs() {
             refreshTabContent(targetTab);
         });
     });
+}
+
+// Initialize YouTube Toggle
+function initializeYouTubeToggle() {
+    const useYouTubeCheckbox = document.getElementById('useYouTubeSource');
+    const youtubeInput = document.getElementById('youtubeInput');
+    
+    if (useYouTubeCheckbox && youtubeInput) {
+        useYouTubeCheckbox.addEventListener('change', (e) => {
+            youtubeInput.style.display = e.target.checked ? 'block' : 'none';
+        });
+    }
 }
 
 // Initialize Action Buttons
@@ -68,18 +81,45 @@ function initializeButtons() {
     // Content Department Buttons
     const generateVideoBtn = document.getElementById('generateVideo');
     if (generateVideoBtn) {
-        generateVideoBtn.addEventListener('click', () => {
+        generateVideoBtn.addEventListener('click', async () => {
             setLoading(generateVideoBtn, true);
-            setTimeout(() => {
-                ContentDepartment.createVideo({
-                    title: 'Trending Topic Video',
-                    description: 'Auto-generated viral content based on latest trends'
-                });
+            
+            // Get AI options from UI
+            const useYouTube = document.getElementById('useYouTubeSource').checked;
+            const youtubeUrl = document.getElementById('youtubeUrl').value.trim();
+            const videoTopic = document.getElementById('videoTopic').value.trim();
+            
+            // Validate YouTube option
+            if (useYouTube && !youtubeUrl) {
+                alert('Please enter a YouTube URL');
+                setLoading(generateVideoBtn, false);
+                return;
+            }
+            
+            try {
+                const videoOptions = {
+                    title: videoTopic || 'Trending Topic Video',
+                    description: useYouTube ? 
+                        'AI-processed YouTube clip (9:16 cropped with AI audio)' : 
+                        'Auto-generated viral content based on latest trends',
+                    useYouTube: useYouTube,
+                    youtubeUrl: useYouTube ? youtubeUrl : null
+                };
+                
+                // Call the async createVideo method
+                await ContentDepartment.createVideo(videoOptions);
+                
                 ContentDepartment.renderContentQueue();
                 ApprovalDepartment.renderApprovalQueue();
-                setLoading(generateVideoBtn, false);
-                ApprovalDepartment.showNotification('🎬 Video created and sent for approval!', 'success');
-            }, 1000);
+                
+                const modeText = useYouTube ? 'YouTube Short' : 'AI Video';
+                ApprovalDepartment.showNotification(`🎬 ${modeText} created and sent for approval!`, 'success');
+            } catch (error) {
+                console.error('Video creation error:', error);
+                ApprovalDepartment.showNotification('❌ Error creating video: ' + error.message, 'error');
+            }
+            
+            setLoading(generateVideoBtn, false);
         });
     }
 

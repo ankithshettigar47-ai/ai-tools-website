@@ -38,9 +38,39 @@
 
             <!-- Content Creation -->
             <section id="content" class="tab-content">
-                <h2>Content Creation Department</h2>
+                <h2>Content Creation Department - AI Powered</h2>
+                <div class="ai-options" style="background: #1a1a2e; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h3 style="color: #4ade80; margin-bottom: 15px;">🤖 AI Video Generation Options</h3>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: flex; align-items: center; gap: 10px; color: #fff;">
+                            <input type="checkbox" id="useYouTubeSource" style="width: 20px; height: 20px;">
+                            <span>Use YouTube Video as Source (Auto-crop to 9:16 Shorts)</span>
+                        </label>
+                    </div>
+                    
+                    <div id="youtubeInput" style="display: none; margin-bottom: 15px;">
+                        <label style="color: #aaa; display: block; margin-bottom: 5px;">YouTube URL:</label>
+                        <input type="text" id="youtubeUrl" placeholder="https://youtube.com/watch?v=..." 
+                               style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #444; background: #2a2a3e; color: #fff;">
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="color: #aaa; display: block; margin-bottom: 5px;">Video Topic/Title:</label>
+                        <input type="text" id="videoTopic" placeholder="Enter topic for AI generation..." 
+                               style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #444; background: #2a2a3e; color: #fff;">
+                    </div>
+                    
+                    <p style="color: #888; font-size: 12px; margin-top: 10px;">
+                        💡 <strong>How it works:</strong> 
+                        <br>- Check "Use YouTube" to auto-download & crop any YouTube video to vertical shorts format
+                        <br>- Leave unchecked for full AI generation (Stable Video Diffusion + Edge TTS audio)
+                        <br>- Requires Python backend running (python server.py)
+                    </p>
+                </div>
+                
                 <div class="controls">
-                    <button id="generateVideo" class="btn-primary">Generate Video from Trends</button>
+                    <button id="generateVideo" class="btn-primary btn-generate">🎬 Generate Video from Trends</button>
                     <button id="generateStory" class="btn-primary">Generate Story Content</button>
                     <button id="autoCreate" class="btn-success">Auto-Create Full Campaign</button>
                 </div>
