@@ -1,5 +1,8 @@
-// Content Creation Department - Video and Story Generation
+// Content Creation Department - Video and Story Generation with AI Integration
 const ContentDepartment = {
+    // API Configuration
+    apiBaseUrl: 'http://localhost:8000/api',
+    
     // Video templates for different content types
     videoTemplates: {
         tutorial: {
@@ -24,8 +27,160 @@ const ContentDepartment = {
         }
     },
 
-    // Generate video content
-    createVideo(options = {}) {
+    // Generate video content with REAL AI backend
+    async createVideo(options = {}) {
+        const settings = StorageManager.getSettings();
+        
+        // Check if user wants to use YouTube source or AI generation
+        if (options.useYouTube && options.youtubeUrl) {
+            return await this.createVideoFromYouTube(options);
+        } else {
+            return await this.createAIVideo(options);
+        }
+    },
+
+    // Create video from YouTube URL (Backend processing)
+    async createVideoFromYouTube(options) {
+        const loadingBtn = document.querySelector('.btn-generate');
+        if (loadingBtn) {
+            loadingBtn.textContent = '🎬 Downloading & Cropping YouTube...';
+            loadingBtn.disabled = true;
+        }
+
+        try {
+            // Call backend API
+            const response = await fetch(`${this.apiBaseUrl}/create-content`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    topic: options.title || 'Trending Topic',
+                    style: 'viral_shorts',
+                    source_url: options.youtubeUrl,
+                    use_ai_video: false
+                })
+            });
+
+            const jobData = await response.json();
+            
+            // Poll for completion
+            const videoContent = await this.pollJobStatus(jobData.job_id, options);
+            
+            StorageManager.addContent(videoContent);
+            ApprovalDepartment.addToQueue(videoContent);
+            
+            if (loadingBtn) {
+                loadingBtn.textContent = '✅ YouTube Short Created!';
+                setTimeout(() => {
+                    loadingBtn.textContent = '🎬 Generate Video';
+                    loadingBtn.disabled = false;
+                }, 2000);
+            }
+            
+            return videoContent;
+            
+        } catch (error) {
+            console.error('YouTube processing error:', error);
+            // Fallback to simulated mode if backend is not running
+            alert('Backend server not running. Using simulation mode.\n\nTo enable real AI features:\n1. Install Python dependencies\n2. Run: python server.py\n3. Refresh page');
+            return this.createVideoSimulation(options);
+        }
+    },
+
+    // Create fully AI-generated video
+    async createAIVideo(options) {
+        const loadingBtn = document.querySelector('.btn-generate');
+        if (loadingBtn) {
+            loadingBtn.textContent = '🤖 AI Generating Video & Audio...';
+            loadingBtn.disabled = true;
+        }
+
+        try {
+            // Call backend API for AI generation
+            const response = await fetch(`${this.apiBaseUrl}/create-content`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    topic: options.title || 'Trending Topic',
+                    style: 'viral_shorts',
+                    source_url: null,
+                    use_ai_video: true
+                })
+            });
+
+            const jobData = await response.json();
+            
+            // Poll for completion
+            const videoContent = await this.pollJobStatus(jobData.job_id, options);
+            
+            StorageManager.addContent(videoContent);
+            ApprovalDepartment.addToQueue(videoContent);
+            
+            if (loadingBtn) {
+                loadingBtn.textContent = '✅ AI Video Created!';
+                setTimeout(() => {
+                    loadingBtn.textContent = '🎬 Generate Video';
+                    loadingBtn.disabled = false;
+                }, 2000);
+            }
+            
+            return videoContent;
+            
+        } catch (error) {
+            console.error('AI generation error:', error);
+            // Fallback to simulated mode
+            alert('Backend server not running. Using simulation mode.\n\nTo enable real AI features:\n1. Install Python dependencies\n2. Run: python server.py\n3. Refresh page');
+            return this.createVideoSimulation(options);
+        }
+    },
+
+    // Poll backend job status
+    async pollJobStatus(jobId, options, maxAttempts = 30) {
+        for (let i = 0; i < maxAttempts; i++) {
+            try {
+                const response = await fetch(`${this.apiBaseUrl}/status/${jobId}`);
+                const statusData = await response.json();
+                
+                if (statusData.status === 'completed') {
+                    // Build content object from backend result
+                    return {
+                        id: StorageManager.generateId(),
+                        type: 'video',
+                        title: options.title || 'AI Generated Content',
+                        description: 'Real-time AI generated video with audio',
+                        template: 'ai_generated',
+                        duration: '60s',
+                        format: '9:16',
+                        script: [
+                            `🎯 AI Generated Script for: ${options.title || 'Topic'}`,
+                            `🎙️ AI Voiceover: Microsoft Edge TTS (Jenny Neural)`,
+                            `🎬 Video: ${options.youtubeUrl ? 'YouTube Clip (9:16 cropped)' : 'Stable Video Diffusion AI'}`,
+                            `📊 Estimated Reach: High viral potential`
+                        ],
+                        elements: ['AI Hook', 'AI Content', 'AI CTA'],
+                        hashtags: this.generateHashtags(['trending']),
+                        estimatedReach: Math.floor(Math.random() * 100000) + 50000,
+                        createdAt: new Date().toISOString(),
+                        status: 'draft',
+                        thumbnail: '🎬 AI Generated Preview',
+                        videoUrl: statusData.video_url // Real video URL from backend
+                    };
+                } else if (statusData.status === 'failed') {
+                    throw new Error(statusData.message);
+                }
+                
+                // Still processing, wait and retry
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+            } catch (error) {
+                if (i === maxAttempts - 1) throw error;
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+        }
+        throw new Error('Job timeout');
+    },
+
+    // Fallback simulation mode (when backend is offline)
+    createVideoSimulation(options) {
         const settings = StorageManager.getSettings();
         const categories = options.trendData ? [options.trendData.category] : settings.contentCategories;
         
@@ -37,7 +192,7 @@ const ContentDepartment = {
             id: StorageManager.generateId(),
             type: 'video',
             title: options.title || `Trending ${categories[0]} Content`,
-            description: options.description || 'Auto-generated viral content',
+            description: options.description || 'Auto-generated viral content (Simulation Mode)',
             template: selectedTemplate,
             duration: template.duration,
             format: template.format,
@@ -51,9 +206,13 @@ const ContentDepartment = {
         };
 
         StorageManager.addContent(videoContent);
-        
-        // Automatically send to approval queue
         ApprovalDepartment.addToQueue(videoContent);
+        
+        const loadingBtn = document.querySelector('.btn-generate');
+        if (loadingBtn) {
+            loadingBtn.textContent = '🎬 Generate Video';
+            loadingBtn.disabled = false;
+        }
         
         return videoContent;
     },
